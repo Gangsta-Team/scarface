@@ -22,5 +22,10 @@ Game reference: https://en.wikipedia.org/wiki/Scarface:_The_World_Is_Yours
 
 The project is intended to document, improve and fix existing bugs in the game.
 
+
+<h2>Pure3D</h2>
+<h2>Torque</h2>
+<h2>ravenphysics</h2>
+
 # Tools
 -

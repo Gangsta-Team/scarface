@@ -237,7 +237,7 @@
 
 
                 var paths = [];
-
+                dec.directory.sort((a, b) => a.flOffset - b.flOffset)
                 for(let i = 0; i < dec.header.numberFiles; i++)
                 {
                     paths.push(dec.filenameDirectory[i].path);

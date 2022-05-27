@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>Scarface Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+
+    <link href="fancytree/skin-lion/ui.fancytree.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+  
+</head>
+<body>
+    
+    <input id="rcffile" accept=".rcf" type="file">
+    <!-- Modal -->
+    <div class="modal fade" id="aboutModalCenter" tabindex="-1" role="dialog" aria-labelledby="aboutModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">About the program</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>This software is made for allow you preview game files for <b>Scarface: The world is yours</b>.</p>
+
+                    <p>References: <a href="#" onclick="window.open('https://wikipedia.org/wiki/Scarface:_The_World_Is_Yours')">Wikipedia</a></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-sm navbar-light bg-light p-0 pr-2 pl-2 border-bottom">
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-file-o" aria-hidden="true"></i> File
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <!--a class="dropdown-item" href="#"><i class="fa fa-folder-open-o" aria-hidden="true"></i> Open folder</a-->
+                    <a class="dropdown-item" href="#" id="open-rcf-file"><i class="fa fa-file-archive-o" aria-hidden="true"></i> Open RCF file</a>
+                    <!--a class="dropdown-item" href="#"><i class="fa fa-file-code-o" aria-hidden="true"></i> Open script file</a-->
+                    <div class="dropdown-divider"></div>
+                    <span class="dropdown-header">Recent files</span>
+                    <!--a class="dropdown-item disabled" href="#">Foo</a>
+                    <a class="dropdown-item disabled" href="#">Bar</a-->
+                    <div class="dropdown-divider"></div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" role="button" aria-expanded="false" data-toggle="modal" data-target="#aboutModalCenter">
+                    About
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="main-container container-fuid">
+        <div class="row m-0 h-100">
+            <div class="panel-container w-100 h-100">
+                <div class="panel-left h-100 p-0 d-flex justify-content-center align-items-center">
+                    <div class="h-100 w-100 overflow-auto" id="treeview"></div>
+                    <div class="splitter h-100"></div>
+                </div>
+                <div class="panel-right m-0">
+                    <iframe id="editor" class="d-none w-100 h-100" src="editor/index.html" data-content=""></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed-top d-none w-100 h-100 justify-content-center align-items-center" id="loader"><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>
+    
+</body>
+<!--script src="js/jquery.slim.min.js"></script-->
+
+
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/kaitai-struct@0.9.0/KaitaiStream.js"></script>
+<!--script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="js/jquery-resizable.js"></script-->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/kaitai-rcf.js"></script>
+<!-- All in one JS -->
+<script src="fancytree/jquery.fancytree-all.min.js"></script>
+
+
+<script>
+
+    var dec = null;
+    var rcf_file;
+
+    const treeview = document.getElementById("treeview");
+    const editor = document.getElementById("editor");
+    
+    function BuildTreeView(files_obj) {
+        // Create the list element:
+        var list = document.createElement('ul');
+
+        for (var i = 0; i < files_obj.length; i++) {
+            // Create the list item:
+            var item = document.createElement('li');
+
+            // Set its contents:
+            item.appendChild(document.createTextNode(files_obj[i].name));
+
+            // Add it to the list:
+            list.appendChild(item);
+            if(files_obj[i].children.length>0){
+                var sub_list = BuildTreeView(files_obj[i].children);
+                item.classList.add("folder");
+                item.appendChild(sub_list);
+            }
+        }
+
+        // Finally, return the constructed list:
+        return list;
+
+    }
+
+    function CreateTreeView(paths_obj) {
+        treeview.innerHTML = "";
+        treeview.appendChild(BuildTreeView(paths_obj));
+    }
+
+    var once = true;
+    var treeview_list = null;
+    var paths = [];
+    function AddItem(progress) {
+        //console.log("AddItem: " + progress);
+        if (once) {
+            once = false;
+            treeview_list = $(treeview).append("<ul></ul>");
+        }
+        //$(treeview_list).append("<li class='text-'>" + progress+"</li>");
+        paths.push(progress);
+    }
+
+    var ParsePathArray = function () {
+        var parsed = {};
+        for (var i = 0; i < paths.length; i++) {
+            var position = parsed;
+            var split = paths[i].split('\\');
+            for (var j = 0; j < split.length; j++) {
+                if (split[j] !== "") {
+                    if (typeof position[split[j]] === 'undefined')
+                        position[split[j]] = {};
+                    position = position[split[j]];
+                }
+            }
+        }
+        return parsed;
+    }
+
+    function DownloadByteArray(barr,name) {
+        var blob = new Blob([barr], {type: "application/pdf"});
+        var link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = name;
+        link.click();
+    }
+
+    function ShortenBytes(n) {
+        k = n > 0 ? Math.floor((Math.log2(n)/10)) : 0;
+        rank = (k > 0 ? 'KMGT'[k - 1] : '') + 'b';
+        count = Math.floor(n / Math.pow(1024, k));
+        return count + rank;
+    }
+    
+    function OpenRCFFile(){
+        $('#rcffile').click();
+    }
+
+    function GetFileContentByPath(path){        
+        for(let i = 0; i < dec.header.numberFiles; i++){
+            if("\\"+dec.filenameDirectory[i].path == path){
+                console.log("flOffset: "+dec.directory[i].flOffset)
+                console.log("flSize: "+dec.directory[i].flSize)
+                var filename = path.split('\\').pop();
+                DownloadByteArray(dec.directory[i].file, filename);
+            }
+        }
+    }
+
+    $(".panel-left").resizable({
+        //handleSelector: ".splitter",
+        handles:{
+            'e': '.splitter',
+            'w': '.splitter',
+        }
+        //resizeHeight: false,
+        //handles: 'e, w'
+    });
+
+    function ResolvePath(item){
+        console.log(item)
+    }
+
+    $(document).ready(function(){
+        $('#open-rcf-file').click(function(){
+            OpenRCFFile();
+        });
+
+        var root_tree = $('#apptree');
+
+        $("#rcffile").on("change", (e) => {
+            $('#loader').removeClass("d-none");
+            $('#loader').addClass("d-flex");
+
+            rcf_file = e.target.files[0]
+            let reader = new FileReader();
+
+            reader.onload = function(e) {
+                console.log(reader.result)
+                dec = new Cement(new KaitaiStream(reader.result));
+                console.log(dec, dec.header.numberFiles)
+
+                
+                $('#loader').addClass("d-none");
+                $('#loader').removeClass("d-flex");
+
+
+                var paths = [];
+
+                for(let i = 0; i < dec.header.numberFiles; i++)
+                {
+                    paths.push(dec.filenameDirectory[i].path);
+
+                    var tpl = $('<div>'+dec.filenameDirectory[i].path+' ('+ShortenBytes(dec.directory[i].flSize)+') <a href=#>Download</a></div>')
+                    $('#app').append(tpl);
+                    tpl.find('a').click(function(e) {
+                        DownloadByteArray(dec.directory[i].file, dec.filenameDirectory[i].path.split('\\').pop())
+                        console.log(i)
+                        e.preventDefault();
+                    })
+                }
+
+                
+                result = paths.reduce((r, p) => {
+                    var names = p.split('\\');
+                    names.reduce((q, name) => {
+                        var temp = q.find(o => o.name === name);
+                        if (!temp) q.push(temp = { name, children: [] });
+                        return temp.children;
+                    }, r);
+                    return r;
+                }, []);
+
+                console.log(result);
+                CreateTreeView(result);
+                
+                $("#treeview").fancytree({
+                    dblclick: function(e, data) {
+                        //console.log(e, data, "targetType=" + data.targetType);
+                        var path = "";
+                        data.node.getParentList().forEach((parent)=>{
+                            path += '\\'+parent.title;
+                        })
+                        path += '\\'+data.node.title;
+                        console.log(path)
+
+                        //DownloadByteArray(path, data.node.title);
+                        GetFileContentByPath(path);
+                        e.preventDefault()
+                    },
+                });
+            }
+
+            reader.readAsArrayBuffer(rcf_file);
+        
+        });
+    });
+</script>
+</html>

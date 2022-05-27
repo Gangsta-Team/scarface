@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+</head>
+<body style="margin:0px;background-color:#1e1e1e;overflow:hidden;" onresize="editor.layout();">
+
+<div id="container" style="position:absolute; width:100vw;height:100vh;"></div>
+
+<script src="vs/loader.js"></script>
+<script>
+var editor=null;
+    require.config({ paths: { 'vs': 'vs' }});
+    require(['vs/editor/editor.main'], function() {
+        editor = monaco.editor.create(document.getElementById('container'), {
+            value: [
+				/*'--This program is free software; you can redistribute it and/or modify it',
+				'--This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;',
+				'--without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.',
+				
+				*/
+				'--Este programa es software libre, Usted puede redistribuirlo y / o modificarlo ',
+				'--Este programa se distribuye con la esperanza de que sea útil, pero SIN NINGUNA GARANTÍA;',
+				'--incluso la garantía implícita de COMERCIABILIDAD o ADECUACIÓN PARA UN PROPÓSITO PARTICULAR.',
+            ].join('\n'),
+            language: 'lua',
+			theme:'vs-dark'
+        });
+    });
+	
+	function seteditor(tx) {
+		if (editor==null) {
+			setTimeout(function() {
+				seteditor(tx);
+			}, 300);
+		} else editor.setValue(tx);
+	}
+	
+	function geteditor() {
+		return editor.getValue();
+	}
+	//alert('loaded')
+	
+</script>
+</body>
+</html>

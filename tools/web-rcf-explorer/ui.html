@@ -229,6 +229,7 @@
             reader.onload = function(e) {
                 console.log(reader.result)
                 dec = new Cement(new KaitaiStream(reader.result));
+                dec.directory.sort((a, b) => a.flOffset - b.flOffset);
                 console.log(dec, dec.header.numberFiles)
 
                 
@@ -237,7 +238,6 @@
 
 
                 var paths = [];
-                dec.directory.sort((a, b) => a.flOffset - b.flOffset)
                 for(let i = 0; i < dec.header.numberFiles; i++)
                 {
                     paths.push(dec.filenameDirectory[i].path);

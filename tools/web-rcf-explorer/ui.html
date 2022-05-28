@@ -187,13 +187,16 @@
         $('#rcffile').click();
     }
 
-    function GetFileContentByPath(path){        
+    function GetFileContentByPath(path, download){        
         for(let i = 0; i < dec.header.numberFiles; i++){
             if("\\"+dec.filenameDirectory[i].path == path){
                 console.log("flOffset: "+dec.directory[i].flOffset)
                 console.log("flSize: "+dec.directory[i].flSize)
                 var filename = path.split('\\').pop();
-                DownloadByteArray(dec.directory[i].file, filename);
+                if(download == true)
+                    DownloadByteArray(dec.directory[i].file, filename);
+                else 
+                    return new Blob([(dec.directory[i].file], {type: "application/pdf"});
             }
         }
     }

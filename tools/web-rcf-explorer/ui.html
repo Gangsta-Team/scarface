@@ -279,7 +279,7 @@
                         console.log(path)
 
                         //DownloadByteArray(path, data.node.title);
-                        GetFileContentByPath(path);
+                        GetFileContentByPath(path, true);
                         e.preventDefault()
                     },
                     click:function(e, data) {
@@ -290,15 +290,25 @@
                             $('#editor').removeClass("d-none");
                             // get reference to window inside the iframe
                             var wn = document.getElementById('editor').contentWindow;
-                            // postMessage arguments: data to send, target origin
-                            wn.postMessage('Hello to iframe from parent!', window.location.origin); 
+                            var path = "";
+                            data.node.getParentList().forEach((parent)=>{
+                                path += '\\'+parent.title;
+                            })
+                            path += '\\'+data.node.title;
+                            var filedata = GetFileContentByPath(path, false);
+                            wn.postMessage(filedata, window.location.origin); 
                             break;
                             case "dso": console.log("Its a dso file"); 
                             $('#editor').removeClass("d-none");
                             // get reference to window inside the iframe
                             var wn = document.getElementById('editor').contentWindow;
-                            // postMessage arguments: data to send, target origin
-                            wn.postMessage('Hello to iframe from parent!', window.location.origin); 
+                            var path = "";
+                            data.node.getParentList().forEach((parent)=>{
+                                path += '\\'+parent.title;
+                            })
+                            path += '\\'+data.node.title;
+                            var filedata = GetFileContentByPath(path, false);
+                            wn.postMessage(filedata, window.location.origin); 
                             break;
                             case "bik": console.log("Its a bik file"); break;
                             case "p3d": console.log("Its a p3d file"); break;

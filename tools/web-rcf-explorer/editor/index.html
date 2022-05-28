@@ -40,7 +40,15 @@ var editor=null;
 	function geteditor() {
 		return editor.getValue();
 	}
-	//alert('loaded')
+	
+	window.addEventListener('message', handleMessage, false);
+
+	function handleMessage(e) {
+		if ( e.origin === 'https://raw.githack.com/1h3a3x7/scarface/main/tools/web-rcf-explorer/ui.html' ) {
+			
+			seteditor(e.data);
+		}
+	}
 	
 </script>
 </body>

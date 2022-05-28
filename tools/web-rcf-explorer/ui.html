@@ -279,6 +279,28 @@
                         GetFileContentByPath(path);
                         e.preventDefault()
                     },
+                    click:function(e, data) {
+                        var ext = data.node.title.split('.')[1];
+                        switch(ext){
+                            case "rcf": console.log("Its a rcf file"); break;
+                            case "cso": console.log("Its a cso file"); 
+                            $('#editor').removeClass("d-none");
+                            // get reference to window inside the iframe
+                            var wn = document.getElementById('editor').contentWindow;
+                            // postMessage arguments: data to send, target origin
+                            wn.postMessage('Hello to iframe from parent!', 'https://raw.githack.com/1h3a3x7/scarface/main/tools/web-rcf-explorer/ui.html'); 
+                            break;
+                            case "dso": console.log("Its a dso file"); 
+                            $('#editor').removeClass("d-none");
+                            // get reference to window inside the iframe
+                            var wn = document.getElementById('editor').contentWindow;
+                            // postMessage arguments: data to send, target origin
+                            wn.postMessage('Hello to iframe from parent!', 'https://raw.githack.com/1h3a3x7/scarface/main/tools/web-rcf-explorer/ui.html'); 
+                            break;
+                            case "bik": console.log("Its a bik file"); break;
+                            case "p3d": console.log("Its a p3d file"); break;
+                        }
+                    }
                 });
             }
 

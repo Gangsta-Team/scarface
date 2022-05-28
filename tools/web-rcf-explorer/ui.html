@@ -288,14 +288,14 @@
                             // get reference to window inside the iframe
                             var wn = document.getElementById('editor').contentWindow;
                             // postMessage arguments: data to send, target origin
-                            wn.postMessage('Hello to iframe from parent!', 'https://raw.githack.com/1h3a3x7/scarface/main/tools/web-rcf-explorer/ui.html'); 
+                            wn.postMessage('Hello to iframe from parent!', window.location.origin); 
                             break;
                             case "dso": console.log("Its a dso file"); 
                             $('#editor').removeClass("d-none");
                             // get reference to window inside the iframe
                             var wn = document.getElementById('editor').contentWindow;
                             // postMessage arguments: data to send, target origin
-                            wn.postMessage('Hello to iframe from parent!', 'https://raw.githack.com/1h3a3x7/scarface/main/tools/web-rcf-explorer/ui.html'); 
+                            wn.postMessage('Hello to iframe from parent!', window.location.origin); 
                             break;
                             case "bik": console.log("Its a bik file"); break;
                             case "p3d": console.log("Its a p3d file"); break;

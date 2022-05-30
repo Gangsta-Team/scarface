@@ -16,10 +16,38 @@
     <link rel="stylesheet" href="css/style.css">
 
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
+    
+    <script type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js">
+    </script>
+    <script type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/brython@3/brython_stdlib.js">
+    </script>
   
 </head>
 <body>
-    
+
+    <!--script type="text/python">
+    from browser import document, alert, window
+
+    def echo(event):
+        print(window.code)
+        a_string = window.code
+        encoded_string = a_string.encode()
+        byte_array = bytearray(encoded_string)
+        print(byte_array)
+
+    document["mybutton"].bind("click", echo)
+    </script>
+    <button id="mybutton">click !</button-->
+
+    <script type="text/python" id="decompiler">
+        
+    </script>
+    <button id="mybutton">click !</button>
+
+
     <input id="rcffile" accept=".rcf" type="file">
     <!-- Modal -->
     <div class="modal fade" id="aboutModalCenter" tabindex="-1" role="dialog" aria-labelledby="aboutModalCenterTitle" aria-hidden="true">
@@ -216,6 +244,7 @@
     }
 
     $(document).ready(function(){
+
         $('#open-rcf-file').click(function(){
             OpenRCFFile();
         });
@@ -298,7 +327,23 @@
                             var filedata = GetFileContentByPath(path, false);
                             var reader = new FileReader();
                             reader.onload = function() {
-                                wn.postMessage(filedata, window.location.origin); 
+                                wn.postMessage(reader.result, '*');
+                                //console.log(reader.result)
+                                window.code = reader.result;
+                                //brython();
+                                
+                                $.ajax({ 
+                                    type: "GET", 
+                                    url: "./brokenface/decompiler.html", 
+                                    //url: "./brokenface/test.html",
+                                    dataType: "html", 
+                                    success: function (data) {
+                                        var parser = new DOMParser();
+                                        var doc = parser.parseFromString(data, "text/html");
+                                        var python_code = doc.body.innerText.replace("{{mugre}}","'"+reader.result+"'");
+                                        $('#decompiler').text(python_code);
+                                    }
+                                }); 
                             }
                             reader.readAsText(filedata);
                             break;
@@ -314,7 +359,10 @@
                             var filedata = GetFileContentByPath(path, false);
                             var reader = new FileReader();
                             reader.onload = function() {
-                                wn.postMessage(filedata, window.location.origin); 
+                                wn.postMessage(reader.result, '*');
+                                console.log(reader.result)
+                                window.code = reader.result;
+                                brython(); 
                             }
                             reader.readAsText(filedata);
                             break;

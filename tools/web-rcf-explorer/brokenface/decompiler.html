@@ -8,6 +8,7 @@
 <pre>
 #! /usr/bin/env python3
 from browser import document, alert, window
+#! /usr/bin/env python3
 import logging
 
 from pathlib import Path
@@ -15,6 +16,10 @@ from os import remove
 from sys import stdout
 from struct import pack, unpack
 from os.path import getsize
+
+fnames = ["C:\\Users\\PC\\Downloads\\BrokenFace-master (1)\\BrokenFace-master\\brokenface\\win32_controller.cso"] 
+parseOnly = False 
+debug = False
 
 '''
 Template for TorqueScript operation
@@ -929,11 +934,11 @@ class binaryReading():
     '''
     def __init__(self, byteStream, endian):
         self.byteStream = byteStream
-        print(self.byteStream)
+        #print(self.byteStream)
         self.endian = endian
-        print(self.endian)
+        #print(self.endian)
         self.pointer = 0
-        print(self.pointer)
+        #print(self.pointer)
 
     '''
     Reads bytes from byte stream
@@ -1316,6 +1321,7 @@ class IdentTable(dict):
         for _ in range(0, length):
             offset = binReader.read32()[:2] # Get offset field (offset is just 2-bytes long)
             count = binReader.unpackUint32() # Get count field
+            offset = bytes(offset)
             self[offset] = []
             # For each location to patch:
             for _ in range(0, count):
@@ -1363,19 +1369,30 @@ class dsoFile():
         # Save file name:
         self.name = path.name
 
-        # Dump contents to a binary reader:
-        #with open(path, "rb") as fd:
-        #    self.binReader = binaryReading(fd.read(), "little")
-
+        #orig = False
+        #
+        ## Dump contents to a binary reader:
+        #if orig:
+        #    with open(path, "rb") as fd:
+        #        self.binReader = binaryReading(fd.read(), "little")
+#
+        #    print(len(self.binReader.byteStream))
+#
+        #else:
         a_string = window.code
-        encoded_string = a_string.encode()
-        byte_array = bytearray(encoded_string)
+        #encoded_string = a_string.encode()
+        byte_array = bytearray(a_string)
         self.binReader = binaryReading(byte_array, "little")
 
-        print(self.binReader)
+        #if self.binReader.byteStream == byte_array:
+        #    print("True")
+        #else:
+        #    print("False")
+
 
         # Not parsed yet:
         self.parsed = False
+        print("parsed false")
 
     '''
     Parses the file into tables and bytecode
@@ -1402,13 +1419,21 @@ class dsoFile():
         # Parse the Ident Table:
         self.identTable = IdentTable(self.binReader)
 
+        print("parsed false 1")
+        print(type(self.path))
+        print(self.path)
+        print(getsize(self.path))
+        print(self.binReader.pointer)
         if getsize(self.path) != self.binReader.pointer:
             raise ParsingError("Parsing did not reach EOF", self.name)
 
+        print("parsed false2")
         # Patch bytecode, resolving all references to strings:
         self.byteCode.patchStrings(self.identTable)
 
+        print("parsed false3")
         self.parsed = True
+        print("parsed true")
 
     '''
     Dumps the structures of the parsed file
@@ -3029,10 +3054,6 @@ class codecDecoding:
                 else:
                     raise e
 
-fnames = ["C:\\Users\\PC\\Downloads\\BrokenFace-master (1)\\BrokenFace-master\\brokenface\\editor.cso"] 
-parseOnly = False 
-debug = False
-
 if debug:
     logging.basicConfig(level=logging.DEBUG, format="[%(levelname)s]: %(filename)s: %(lineno)d: %(message)s", stream=stdout)
 else:
@@ -3045,13 +3066,18 @@ for path in [Path(f) for f in fnames]:
     logging.info("Decompiling file: {}".format(path.name))
 
     logging.info("Parsing file: {}".format(path.name))
-    try:
-        myFile = dsoFile(path)
-        myFile.parse()
-    except Exception as e:
-        logging.error("Failed to parse file: {}: Got exception: {}".format(path.name, repr(e)))
-        failed.append(path)
-        continue
+    #try:
+    myFile = dsoFile(path)
+    myFile.parse()
+    #except Exception as e:
+    #    print(
+    #        type(e).__name__,          # TypeError
+    #        __file__,                  # /tmp/example.py
+    #        e.__traceback__.tb_lineno  # 2
+    #    )
+    #    logging.error("Failed to parse file: {}: Got exception: {}".format(path.name, repr(e)))
+    #    failed.append(path)
+    #    continue
 
     logging.info("Successfully parsed file: {}".format(path.name))
 

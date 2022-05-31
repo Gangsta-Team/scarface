@@ -329,7 +329,15 @@
                             reader.onload = function() {
                                 wn.postMessage(reader.result, '*');
                                 //console.log(reader.result)
-                                window.code = reader.result;
+                                var array = new Uint8Array(reader.result);
+                                var str = '[';
+                                for(var i = 0; i < array.length; i++)
+                                    str += array[i]+', ';
+
+                                str = str.substring(0, str.length-2);
+                                str += ']';
+                                window.code = str;
+                                
                                 //brython();
                                 
                                 $.ajax({ 
@@ -340,12 +348,12 @@
                                     success: function (data) {
                                         var parser = new DOMParser();
                                         var doc = parser.parseFromString(data, "text/html");
-                                        var python_code = doc.body.innerText.replace("{{mugre}}","'"+reader.result+"'");
+                                        var python_code = doc.body.innerText.replace("window.code", str);
                                         $('#decompiler').text(python_code);
                                     }
                                 }); 
                             }
-                            reader.readAsText(filedata);
+                            reader.readAsArrayBuffer(filedata);
                             break;
                             case "dso": console.log("Its a dso file"); 
                             $('#editor').removeClass("d-none");

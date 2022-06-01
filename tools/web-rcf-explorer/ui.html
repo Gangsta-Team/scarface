@@ -325,6 +325,7 @@
                         e.preventDefault()
                     },
                     click:function(e, data) {
+                        data.node.toggleExpanded();
                         var ext = data.node.title.split('.')[1];
                         switch(ext){
                             case "rcf": console.log("Its a rcf file"); break;

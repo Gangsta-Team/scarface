@@ -13,8 +13,6 @@
 
     <link href="fancytree/skin-lion/ui.fancytree.css" rel="stylesheet" type="text/css">
 
-    <link rel="stylesheet" href="css/style.css">
-
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 
     
@@ -25,6 +23,7 @@
       src="https://cdn.jsdelivr.net/npm/brython@3/brython_stdlib.js">
     </script>
   
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -65,11 +64,11 @@
                     <!--a class="dropdown-item" href="#"><i class="fa fa-folder-open-o" aria-hidden="true"></i> Open folder</a-->
                     <a class="dropdown-item" href="#" id="open-rcf-file"><i class="fa fa-file-archive-o" aria-hidden="true"></i> Open RCF file</a>
                     <!--a class="dropdown-item" href="#"><i class="fa fa-file-code-o" aria-hidden="true"></i> Open script file</a-->
-                    <div class="dropdown-divider"></div>
+                    <!--div class="dropdown-divider"></div>
                     <span class="dropdown-header">Recent files</span>
-                    <!--a class="dropdown-item disabled" href="#">Foo</a>
-                    <a class="dropdown-item disabled" href="#">Bar</a-->
-                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item disabled" href="#">Foo</a>
+                    <a class="dropdown-item disabled" href="#">Bar</a>
+                    <div class="dropdown-divider"></div-->
                 </div>
             </li>
             <li class="nav-item">
@@ -93,7 +92,17 @@
         </div>
     </div>
 
-    <div class="fixed-top d-none w-100 h-100 justify-content-center align-items-center" id="loader"><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>
+    <div class="fixed-top d-none w-100 h-100 justify-content-center align-items-center flex-column" id="loader">
+        <div class="lds-ellipsis">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div id="status-loading" class="text-center text-white">
+            <h3>Loading...</h3>
+        </div>
+    </div>
     
 </body>
 <!--script src="js/jquery.slim.min.js"></script-->
@@ -124,6 +133,9 @@
         //console.log("[PY] "+text)
         console.log(decompiled_script)
         wn.postMessage(decompiled_script, '*');
+        $('#loader').addClass("d-none");
+        $('#loader').removeClass("d-flex");
+        decompiled_script = "";
     }
     var dec = null;
     var rcf_file;
@@ -338,6 +350,10 @@
                                     //url: "./brokenface/test.html",
                                     dataType: "html", 
                                     success: function (data) {
+                                        $('#loader').removeClass("d-none");
+                                        $('#loader').addClass("d-flex");
+                                        
+                                        $('#status-loading h3').text("Decompiling..");
                                         var parser = new DOMParser();
                                         var doc = parser.parseFromString(data, "text/html");
                                         var python_code = doc.body.innerText.replace("window.code", str);

@@ -28,25 +28,9 @@
 </head>
 <body>
 
-    <!--script type="text/python">
-    from browser import document, alert, window
-
-    def echo(event):
-        print(window.code)
-        a_string = window.code
-        encoded_string = a_string.encode()
-        byte_array = bytearray(encoded_string)
-        print(byte_array)
-
-    document["mybutton"].bind("click", echo)
-    </script>
-    <button id="mybutton">click !</button-->
-
     <script type="text/python" id="decompiler">
         
     </script>
-    <button id="mybutton">click !</button>
-
 
     <input id="rcffile" accept=".rcf" type="file">
     <!-- Modal -->
@@ -130,7 +114,17 @@
 
 
 <script>
-
+    var wn = null;
+    var decompiled_script = "";
+    window.print = function(text){
+        //console.log("[PY] "+text)
+        decompiled_script += text;
+    }
+    window.end = function(){
+        //console.log("[PY] "+text)
+        console.log(decompiled_script)
+        wn.postMessage(decompiled_script, '*');
+    }
     var dec = null;
     var rcf_file;
 
@@ -244,7 +238,6 @@
     }
 
     $(document).ready(function(){
-
         $('#open-rcf-file').click(function(){
             OpenRCFFile();
         });
@@ -317,8 +310,8 @@
                             case "rcf": console.log("Its a rcf file"); break;
                             case "cso": console.log("Its a cso file"); 
                             $('#editor').removeClass("d-none");
+                            wn = document.getElementById('editor').contentWindow;
                             // get reference to window inside the iframe
-                            var wn = document.getElementById('editor').contentWindow;
                             var path = "";
                             data.node.getParentList().forEach((parent)=>{
                                 path += '\\'+parent.title;
@@ -327,7 +320,6 @@
                             var filedata = GetFileContentByPath(path, false);
                             var reader = new FileReader();
                             reader.onload = function() {
-                                wn.postMessage(reader.result, '*');
                                 //console.log(reader.result)
                                 var array = new Uint8Array(reader.result);
                                 var str = '[';
@@ -350,10 +342,16 @@
                                         var doc = parser.parseFromString(data, "text/html");
                                         var python_code = doc.body.innerText.replace("window.code", str);
                                         $('#decompiler').text(python_code);
+                                        __BRYTHON__,brython();
                                     }
                                 }); 
                             }
                             reader.readAsArrayBuffer(filedata);
+                            var reader_text = new FileReader();
+                            reader_text.onload = function() {
+                                wn.postMessage(reader_text.result, '*');
+                            }
+                            reader_text.readAsText(filedata);
                             break;
                             case "dso": console.log("Its a dso file"); 
                             $('#editor').removeClass("d-none");
@@ -383,6 +381,8 @@
 
             reader.readAsArrayBuffer(rcf_file);
         
+        
+            wn = document.getElementById('editor').contentWindow;
         });
     });
 </script>

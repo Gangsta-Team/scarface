@@ -45,10 +45,10 @@ var editor=null;
 
 	function handleMessage(e) {
 		console.log(e)
-		//if ( e.origin === 'file://' ) {
+		if ( e.origin === 'http://localhost' ) {
 			
-			//seteditor(e.data);
-		//}
+			seteditor(e.data);
+		}
 	}
 	
 </script>

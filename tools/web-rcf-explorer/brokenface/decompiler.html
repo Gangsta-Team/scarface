@@ -8,7 +8,7 @@
 <pre>
 #! /usr/bin/env python3
 from browser import document, alert, window
-#! /usr/bin/env python3
+
 import logging
 
 from pathlib import Path
@@ -894,18 +894,21 @@ class Tree:
         thisNode = self.curNode
 
         # Print indented line of code:
-        print(self.indent + str(thisNode), end="", file=sink)
-
+        #print(self.indent + str(thisNode), end="", file=sink)
+        window.print(str(self.indent + str(thisNode)))
         # If declares a block:
         if thisNode.block:
             # Print newline:
-            print("", file=sink)
+            #print("", file=sink)
+            window.print("\n")
             # Open brackets:
-            print(self.indent + "{", file=sink)
+            #print(self.indent + "{", file=sink)
+            window.print(str(self.indent + "{\n"))
             # Indent:
             self.indent += "\t" * thisNode.block
         else:
-            print(";", file=sink)
+            #print(";", file=sink)
+            window.print(";\n")
 
         # Call recursively for all children:
         for child in thisNode.children:
@@ -917,7 +920,8 @@ class Tree:
             # Unindent:
             self.indent = self.indent[:-thisNode.block]
             # Close brackets:
-            print(self.indent + "}", file=sink)
+            #print(self.indent + "}", file=sink)
+            window.print(str(self.indent + "}\n"))
 
         # Restore current node:
         self.curNode = thisNode
@@ -1375,24 +1379,18 @@ class dsoFile():
         #if orig:
         #    with open(path, "rb") as fd:
         #        self.binReader = binaryReading(fd.read(), "little")
-#
+
         #    print(len(self.binReader.byteStream))
-#
+
         #else:
         a_string = window.code
         #encoded_string = a_string.encode()
         byte_array = bytearray(a_string)
         self.binReader = binaryReading(byte_array, "little")
 
-        #if self.binReader.byteStream == byte_array:
-        #    print("True")
-        #else:
-        #    print("False")
-
 
         # Not parsed yet:
         self.parsed = False
-        print("parsed false")
 
     '''
     Parses the file into tables and bytecode
@@ -1419,21 +1417,13 @@ class dsoFile():
         # Parse the Ident Table:
         self.identTable = IdentTable(self.binReader)
 
-        print("parsed false 1")
-        print(type(self.path))
-        print(self.path)
-        print(getsize(self.path))
-        print(self.binReader.pointer)
-        if getsize(self.path) != self.binReader.pointer:
+        if len(self.binReader.byteStream) != self.binReader.pointer:
             raise ParsingError("Parsing did not reach EOF", self.name)
 
-        print("parsed false2")
         # Patch bytecode, resolving all references to strings:
         self.byteCode.patchStrings(self.identTable)
 
-        print("parsed false3")
         self.parsed = True
-        print("parsed true")
 
     '''
     Dumps the structures of the parsed file
@@ -3106,8 +3096,10 @@ for path in [Path(f) for f in fnames]:
 
         logging.info("Formatting file: {}".format(path.name))
         try:
-            with open(outPath, "w") as fd:
-                decoder.tree.format(sink=fd)
+            #with open(outPath, "w") as fd:
+            #window.print(outPath, true)
+            decoder.tree.format()
+            window.end()
         except Exception as e:
             logging.error("Failed to format file: {}: Got exception: {}".format(path.name, repr(e)))
             failed.append(path)

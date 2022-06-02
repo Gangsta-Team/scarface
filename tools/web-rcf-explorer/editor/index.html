@@ -42,7 +42,7 @@ var editor=null;
 
 	function handleMessage(e) {
 		console.log(e)
-		if ( e.origin === 'https://raw.githack.com' ) {
+		if ( e.origin === 'https://raw.githack.com' || e.origin === 'https://1h3a3x7.github.io') {
 			
 			seteditor(e.data);
 		}

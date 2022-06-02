@@ -377,7 +377,7 @@
                                         var python_code = "";
                                         console.log("Path: "+path)
                                         python_code = doc.body.innerText.replace("{{file_path}}", path);
-                                        python_code = doc.body.innerText.replace("window.code", str);
+                                        python_code = python_code.replace("window.code", str);
                                         
                                         $('#decompiler').text(python_code);
                                         __BRYTHON__,brython();

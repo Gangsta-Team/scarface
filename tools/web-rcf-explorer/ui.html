@@ -327,6 +327,14 @@
                     click:function(e, data) {
                         data.node.toggleExpanded();
                         var ext = data.node.title.split('.')[1];
+                        
+                        var path = "";
+                        data.node.getParentList().forEach((parent)=>{
+                            path += '\\'+parent.title;
+                        })
+                        path += '\\'+data.node.title;
+                        console.log(path)
+
                         switch(ext){
                             case "rcf": console.log("Its a rcf file"); break;
                             case "cso": console.log("Its a cso file"); 
@@ -365,7 +373,10 @@
                                         $('#status-loading h3').text("Decompiling..");
                                         var parser = new DOMParser();
                                         var doc = parser.parseFromString(data, "text/html");
-                                        var python_code = doc.body.innerText.replace("window.code", str);
+                                        var python_code = "";
+                                        python_code = doc.body.innerText.replace("{{file_path}}", path);
+                                        python_code = doc.body.innerText.replace("window.code", str);
+                                        
                                         $('#decompiler').text(python_code);
                                         __BRYTHON__,brython();
                                     }

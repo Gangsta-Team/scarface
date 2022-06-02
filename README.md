@@ -28,4 +28,4 @@ WIP
 WIP
 -->
 # Tools
-- <a href="https://raw.githack.com/1h3a3x7/scarface/main/tools/web-rcf-explorer/ui.html">Web RCF Explorer</a>
+- <a href="https://1h3a3x7.github.io/scarface/tools/web-rcf-explorer/ui.html">Web RCF Explorer</a>

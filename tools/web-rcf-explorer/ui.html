@@ -374,6 +374,7 @@
                                         var parser = new DOMParser();
                                         var doc = parser.parseFromString(data, "text/html");
                                         var python_code = "";
+                                        console.log("Path: "+path)
                                         python_code = doc.body.innerText.replace("{{file_path}}", path);
                                         python_code = doc.body.innerText.replace("window.code", str);
                                         

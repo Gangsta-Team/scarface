@@ -20,12 +20,5 @@
 # Documentation
 Game reference: https://en.wikipedia.org/wiki/Scarface:_The_World_Is_Yours
 - WIP
-<!--<h2>Pure3D</h2>
-WIP
-<h2>Torque</h2>
-WIP
-<h2>ravenphysics</h2>
-WIP
--->
 # Tools
 - <a href="https://1h3a3x7.github.io/scarface/tools/web-rcf-explorer/ui.html">Web RCF Explorer</a>

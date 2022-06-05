@@ -387,11 +387,12 @@
                                         var doc = parser.parseFromString(data, "text/html");
                                         var python_code = "";
                                         console.log("Path: "+path)
+                                        path = path.replace(/\\/g, "/");
                                         python_code = doc.body.innerText.replace("{{file_path}}", path);
                                         python_code = python_code.replace("window.code", str);
                                         
                                         $('#decompiler').text(python_code);
-                                        __BRYTHON__,brython();
+                                        __BRYTHON__.brython();
                                     }
                                 }); 
                             }

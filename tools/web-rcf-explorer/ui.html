@@ -41,9 +41,20 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>This software is made for allow you preview game files for <b>Scarface: The world is yours</b>.</p>
+                    <p>This software allows you to preview the cement files for <b>Scarface: The world is yours</b>.</p>
 
                     <p>References: <a href="#" onclick="window.open('https://wikipedia.org/wiki/Scarface:_The_World_Is_Yours')">Wikipedia</a></p>
+                    <hr>
+                    <p>List of used libraries:</p>
+                    <ul>
+                        <li><a href="https://jquery.com/" target="_blank">jQuery</a></li>
+                        <li><a href="https://jqueryui.com/" target="_blank">jQuery UI</a></li>
+                        <li><a href="https://getbootstrap.com/" target="_blank">Bootstrap</a></li>
+                        <li><a href="http://kaitai.io/" target="_blank">Kaitai</a></li>
+                        <li><a href="https://github.com/mar10/fancytree" target="_blank">jQuery Fancytree</a></li>
+                        <li><a href="https://codemirror.net/" target="_blank">CodeMirror</a></li>
+                    </ul>
+                    <p>Developed by <a href="https://github.com/1h3a3x7/" target="_blank">1h3a3x7</a></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -63,15 +74,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <label>Theme:</label>
-                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <label class="btn btn-secondary active">
-                          <input type="radio" name="options" id="option1" checked> Light
-                        </label>
-                        <label class="btn btn-secondary">
-                          <input type="radio" name="options" id="option2"> Dark
-                        </label>
-                      </div>
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -180,11 +183,18 @@
     var treeview_list = null;
     var paths = [];
     var ftree = null;
+    var dictionary = [];
 
     window.print = function(text){
         decompiled_script += text;
     }
     window.end = function(){
+        
+        dictionary.forEach((itm) => {
+            var myRegExp = new RegExp(itm.stx,'g');
+            console.log(myRegExp + " to " + itm.fn)
+            decompiled_script = decompiled_script.replace(myRegExp, itm.fn);
+        });
         editor.setValue(decompiled_script);
         $('#loader').addClass("d-none");
         $('#loader').removeClass("d-flex");
@@ -316,6 +326,19 @@
                 python_script = doc.body.innerText;
             }
         }); 
+        
+        $.ajax({ 
+            type: "GET", 
+            url: "./dictionary.json",
+            dataType: "json", 
+            success: function (data) {
+                console.log(data)
+                data.forEach((item) => {
+                    if(dictionary.filter(function(e) { return e.fn === item.fn; }).length == 0 && typeof item.stx !== "undefined")
+                        dictionary.push(item);
+                });
+            }
+        }); 
 
         $('#open-rcf-file').click(function(){
             OpenRCFFile();
@@ -424,10 +447,11 @@
                                 //brython();
                                 $('#loader').removeClass("d-none");
                                 $('#loader').addClass("d-flex");
-								
+								path = path.replace(/\\/g, "\\\\");
                                 var python_code = "";
                                 python_code = python_script.replace("{{file_path}}", path);
                                 python_code = python_code.replace("window.code", str);
+
                                 $('#decompiler').text(python_code);
 
                                 $('#status-loading h3').text("Decompiling..");

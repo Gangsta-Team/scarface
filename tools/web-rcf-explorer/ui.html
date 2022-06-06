@@ -189,10 +189,8 @@
         decompiled_script += text;
     }
     window.end = function(){
-        
         dictionary.forEach((itm) => {
             var myRegExp = new RegExp(itm.stx,'g');
-            console.log(myRegExp + " to " + itm.fn)
             decompiled_script = decompiled_script.replace(myRegExp, itm.fn);
         });
         editor.setValue(decompiled_script);

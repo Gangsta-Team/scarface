@@ -9,19 +9,16 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
+
     <!-- FontAwesome CSS -->
     <link rel="stylesheet" href="css/font-awesome.min.css">
 
+    <!-- jQuery UI styles -->
+    <link rel="stylesheet" href="css/jquery-ui.css">
+
+    <!-- jQuery Fancytree styles -->
     <link href="fancytree/skin-lion/ui.fancytree.css" rel="stylesheet" type="text/css">
 
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-
-    <script type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js">
-    </script>
-    <script type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/brython@3/brython_stdlib.js">
-    </script>
     <link rel=stylesheet href="codemirror/codemirror.css">
   
     <link href="css/style.css" rel="stylesheet" type="text/css">
@@ -55,6 +52,34 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModalCenter" tabindex="-1" role="dialog" aria-labelledby="settingsModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Settings</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label>Theme:</label>
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-secondary active">
+                          <input type="radio" name="options" id="option1" checked> Light
+                        </label>
+                        <label class="btn btn-secondary">
+                          <input type="radio" name="options" id="option2"> Dark
+                        </label>
+                      </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <nav class="navbar navbar-expand-sm navbar-light bg-light p-0 pr-2 pl-2 border-bottom">
         <ul class="navbar-nav">
             <li class="nav-item dropdown">
@@ -73,6 +98,11 @@
                 </div>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="#" role="button" aria-expanded="false" data-toggle="modal" data-target="#settingsModalCenter">
+                    Settings
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#" role="button" aria-expanded="false" data-toggle="modal" data-target="#aboutModalCenter">
                     About
                 </a>
@@ -87,14 +117,13 @@
                     <div class="splitter h-100"></div>
                 </div>
                 <div class="panel-right m-0 p-0">
-                    <!--iframe id="editor" class="d-none w-100 h-100" src="editor/index.html" data-content=""></iframe-->
                     <textarea id="editor"></textarea>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="fixed-top d-none w-100 h-100 justify-content-center align-items-center flex-column" id="loader">
+    <div class="fixed-top d-flex w-100 h-100 justify-content-center align-items-center flex-column" id="loader">
         <div class="lds-ellipsis">
             <div></div>
             <div></div>
@@ -104,53 +133,63 @@
         <div id="status-loading" class="text-center text-white">
             <h3>Loading...</h3>
         </div>
-    </div>
-    
+    </div>    
 </body>
-<!--script src="js/jquery.slim.min.js"></script-->
 
+<!-- Brython -->
+<script type="text/javascript" src="js/brython.min.js"></script>
+<script type="text/javascript" src="js/brython_stdlib.js"></script>
 
-<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<!-- jQuery -->
+<script src="js/jquery-1.10.2.js"></script>
+<script src="js/jquery-ui.js"></script>
 
-
-<script src="https://cdn.jsdelivr.net/npm/kaitai-struct@0.9.0/KaitaiStream.js"></script>
-<!--script src="https://code.jquery.com/jquery-latest.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-<script src="js/jquery-resizable.js"></script-->
-<script src="js/bootstrap.min.js"></script>
-<script src="js/kaitai-rcf.js"></script>
-<!-- All in one JS -->
+<!-- jQuery Fancytree Plugin -->
 <script src="fancytree/jquery.fancytree-all.min.js"></script>
-<script src="js/context-menu.js"></script>
-<script src="codemirror/codemirror.js"></script>
 
+<!-- Kaitai -->
+<script src="js/KaitaiStream.js"></script>
+<script src="js/kaitai-rcf.js"></script>
+
+<!-- Bootstrap v4.6.1 -->
+<script src="js/bootstrap.min.js"></script>
+
+<!-- Context menu library -->
+<script src="js/context-menu.js"></script>
+
+<!-- Code mirror -->
+<script src="codemirror/codemirror.js"></script>
+<script src='js/torque.js'></script>
+
+<!-- JS Zip -->
+<script src='js/jszip.js'></script>
+<script src='js/jszip-utils.js'></script>
 <script>
     var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
         lineNumbers: true,
         styleActiveLine: true,
-        matchBrackets: true
+        matchBrackets: true,
+        mode: 'torque',
     });
   
-
-
-    var wn = null;
+    var zip = new JSZip();
     var decompiled_script = "";
+    var dec = null;
+    var rcf_file;
+    var python_script = "";
+    var treeview_list = null;
+    var paths = [];
+    var ftree = null;
+
     window.print = function(text){
-        //console.log("[PY] "+text)
         decompiled_script += text;
     }
     window.end = function(){
-        //console.log("[PY] "+text)
-        console.log(decompiled_script)
-        //wn.postMessage(decompiled_script, '*');
         editor.setValue(decompiled_script);
         $('#loader').addClass("d-none");
         $('#loader').removeClass("d-flex");
         decompiled_script = "";
     }
-    var dec = null;
-    var rcf_file;
 
     var items = [
         { name: 'Cut', fn: function(target) { console.log('Cut', target); }},
@@ -160,8 +199,8 @@
         { name: 'Select All', fn: function(target) { console.log('Select All', target); }},
     ];
 
-    const treeview = document.getElementById("treeview");
-    const editorel = document.getElementById("editor");
+    var treeview = null;
+    var editorel = null;
     
     function BuildTreeView(files_obj) {
         // Create the list element:
@@ -189,19 +228,12 @@
     }
 
     function CreateTreeView(paths_obj) {
-        treeview.innerHTML = "";
-        treeview.appendChild(BuildTreeView(paths_obj));
+        treeview.html("");
+        treeview.append(BuildTreeView(paths_obj));
     }
-
-    var once = true;
-    var treeview_list = null;
-    var paths = [];
     function AddItem(progress) {
         //console.log("AddItem: " + progress);
-        if (once) {
-            once = false;
-            treeview_list = $(treeview).append("<ul></ul>");
-        }
+        treeview_list = treeview.append("<ul></ul>");
         //$(treeview_list).append("<li class='text-'>" + progress+"</li>");
         paths.push(progress);
     }
@@ -244,8 +276,8 @@
     function GetFileContentByPath(path, download){        
         for(let i = 0; i < dec.header.numberFiles; i++){
             if("\\"+dec.filenameDirectory[i].path == path){
-                console.log("flOffset: "+dec.directory[i].flOffset)
-                console.log("flSize: "+dec.directory[i].flSize)
+                //console.log("flOffset: "+dec.directory[i].flOffset)
+                //console.log("flSize: "+dec.directory[i].flSize)
                 var filename = path.split('\\').pop();
                 if(download == true)
                     DownloadByteArray(dec.directory[i].file, filename);
@@ -269,12 +301,25 @@
         console.log(item)
     }
 
-    $(document).ready(function(){
+    $(document).ready(function(){ 
+        treeview = $("#treeview");
+        editorel = document.getElementById("editor");
+        $.ajax({ 
+            type: "GET", 
+            url: "./brokenface/decompiler.html",
+            dataType: "html", 
+            success: function (data) {
+                $('#loader').addClass("d-none");
+                $('#loader').removeClass("d-flex");                
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(data, "text/html");
+                python_script = doc.body.innerText;
+            }
+        }); 
+
         $('#open-rcf-file').click(function(){
             OpenRCFFile();
         });
-
-        var root_tree = $('#apptree');
 
         $("#rcffile").on("change", (e) => {
             $('#loader').removeClass("d-none");
@@ -284,17 +329,17 @@
             let reader = new FileReader();
 
             reader.onload = function(e) {
-                console.log(reader.result)
+                //console.log(reader.result)
+                
+                dec = null;
                 dec = new Cement(new KaitaiStream(reader.result));
                 dec.directory.sort((a, b) => a.flOffset - b.flOffset);
-                console.log(dec, dec.header.numberFiles)
+                //console.log(dec, dec.header.numberFiles)
 
-                
                 $('#loader').addClass("d-none");
                 $('#loader').removeClass("d-flex");
 
-
-                var paths = [];
+                paths = [];
                 for(let i = 0; i < dec.header.numberFiles; i++)
                 {
                     paths.push(dec.filenameDirectory[i].path);
@@ -309,7 +354,7 @@
                 }
 
                 
-                result = paths.reduce((r, p) => {
+                var result = paths.reduce((r, p) => {
                     var names = p.split('\\');
                     names.reduce((q, name) => {
                         var temp = q.find(o => o.name === name);
@@ -322,7 +367,12 @@
                 console.log(result);
                 CreateTreeView(result);
                 
-                $("#treeview").fancytree({
+                if(ftree != null){
+                    $("#treeview").fancytree("destroy");
+                    editor.setValue("");
+                    ftree = null;
+                }
+                ftree = $("#treeview").fancytree({
                     dblclick: function(e, data) {
                         //console.log(e, data, "targetType=" + data.targetType);
                         var path = "";
@@ -345,13 +395,13 @@
                             path += '\\'+parent.title;
                         })
                         path += '\\'+data.node.title;
-                        console.log(path)
+                        //console.log(path)
 
                         switch(ext){
-                            case "rcf": console.log("Its a rcf file"); break;
-                            case "cso": console.log("Its a cso file"); 
+                            case "rcf": //console.log("Its a rcf file"); 
+                            break;
+                            case "cso": //console.log("Its a cso file"); 
                             $('#editor').removeClass("d-none");
-                            wn = document.getElementById('editor').contentWindow;
                             // get reference to window inside the iframe
                             var path = "";
                             data.node.getParentList().forEach((parent)=>{
@@ -372,38 +422,26 @@
                                 window.code = str;
                                 
                                 //brython();
+                                $('#loader').removeClass("d-none");
+                                $('#loader').addClass("d-flex");
                                 
-                                $.ajax({ 
-                                    type: "GET", 
-                                    url: "./brokenface/decompiler.html", 
-                                    //url: "./brokenface/test.html",
-                                    dataType: "html", 
-                                    success: function (data) {
-                                        $('#loader').removeClass("d-none");
-                                        $('#loader').addClass("d-flex");
-                                        
-                                        $('#status-loading h3').text("Decompiling..");
-                                        var parser = new DOMParser();
-                                        var doc = parser.parseFromString(data, "text/html");
-                                        var python_code = "";
-                                        console.log("Path: "+path)
-                                        python_code = doc.body.innerText.replace("{{file_path}}", path);
-                                        python_code = python_code.replace("window.code", str);
-                                        
-                                        $('#decompiler').text(python_code);
-                                        __BRYTHON__,brython();
-                                    }
-                                }); 
+                                var python_code = "";
+                                python_code = python_script.replace("{{file_path}}", path);
+                                python_code = python_code.replace("window.code", str);
+                                $('#decompiler').text(python_code);
+
+                                $('#status-loading h3').text("Decompiling..");
+                                __BRYTHON__.brython();
+
                             }
                             reader.readAsArrayBuffer(filedata);
                             var reader_text = new FileReader();
                             reader_text.onload = function() {
-                                //wn.postMessage(reader_text.result, '*');
                                 editor.setValue(reader_text.result);
                             }
                             reader_text.readAsText(filedata);
                             break;
-                            case "dso": console.log("Its a dso file"); 
+                            case "dso": //console.log("Its a dso file"); 
                             $('#editor').removeClass("d-none");
                             // get reference to window inside the iframe
                             var wn = document.getElementById('editor').contentWindow;
@@ -415,15 +453,16 @@
                             var filedata = GetFileContentByPath(path, false);
                             var reader = new FileReader();
                             reader.onload = function() {
-                                wn.postMessage(reader.result, '*');
-                                console.log(reader.result)
+                                //console.log(reader.result)
                                 window.code = reader.result;
                                 brython(); 
                             }
                             reader.readAsText(filedata);
                             break;
-                            case "bik": console.log("Its a bik file"); break;
-                            case "p3d": console.log("Its a p3d file"); break;
+                            case "bik": //console.log("Its a bik file"); 
+                            break;
+                            case "p3d": //console.log("Its a p3d file"); 
+                            break;
                         }
                     }
                 });

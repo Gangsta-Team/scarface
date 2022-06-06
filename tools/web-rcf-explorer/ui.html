@@ -330,7 +330,6 @@
             url: "./dictionary.json",
             dataType: "json", 
             success: function (data) {
-                console.log(data)
                 data.forEach((item) => {
                     if(dictionary.filter(function(e) { return e.fn === item.fn; }).length == 0 && typeof item.stx !== "undefined")
                         dictionary.push(item);

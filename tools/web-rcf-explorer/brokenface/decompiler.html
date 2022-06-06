@@ -751,7 +751,7 @@ class ObjCreation(Node):
 
         if self.argv:
             # Second argument is object name:
-            self.argv[0] = "Name : " + str(self.argv[0])
+            self.argv[0] = str(self.argv[0])
 
         # Block declaration:
         self.block = True

@@ -192,6 +192,8 @@
         dictionary.forEach((itm) => {
             var myRegExp = new RegExp(itm.stx,'g');
             decompiled_script = decompiled_script.replace(myRegExp, itm.fn);
+            var duplicates = new RegExp(/\%\%/,'%');
+            decompiled_script = decompiled_script.replace(duplicates, itm.fn);
         });
         editor.setValue(decompiled_script);
         $('#loader').addClass("d-none");

@@ -68,7 +68,7 @@ html, body {
 .splitter {
     flex: 0 0 auto;
     width: 8px;
-    background: url(img/vsizegrip.png) center center no-repeat lightgrey;
+    background: url(../img/vsizegrip.png) center center no-repeat lightgrey;
     min-height: 200px;
     cursor: col-resize;
 }

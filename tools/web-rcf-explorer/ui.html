@@ -334,10 +334,17 @@
             url: "./dictionary.json",
             dataType: "json", 
             success: function (data) {
-                data.forEach((item) => {
+                /*data.forEach((item) => {
                     if(dictionary.filter(function(e) { return e.fn === item.fn; }).length == 0 && typeof item.stx !== "undefined")
                         dictionary.push(item);
-                });
+                });*/
+                data.forEach((item) =>{
+                    if(typeof item.stx !== 'undefined' && typeof item.fn !== 'undefined'){
+                        if(dictionary.filter(function(e) { return e.stx === item.stx; }).length == 0){
+                            dictionary.push(item);
+                        }
+                    }
+                })
             }
         }); 
 

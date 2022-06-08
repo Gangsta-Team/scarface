@@ -23,11 +23,59 @@
   
     <link href="css/style.css" rel="stylesheet" type="text/css">
 </head>
-<body oncontextmenu="return false;">
+<body oncontextmenu="return false;" onload="brython()">
 
     <script type="text/python" id="decompiler">
         
     </script>
+
+<script type="text/python" id="stxhash">
+#! /usr/bin/env python3
+from browser import document
+from os import system as System
+
+def stxHashToSymbol(h):
+	s = "stx"
+	for i in range(8):
+		sh = 4 * i
+		nib = (h & (0xF << sh)) >> sh
+		s += chr(ord('a') + nib)
+	return str(s)
+
+def stxSymbolToHash(s):
+	if(len(s) == 11 and s[0] == 's' and s[1] == 't' and s[2] == 'x'):
+		h = ord(s[10]) - ord('a')
+		for i in range(9, 2, -1):
+			h = (h << 4) + ord(s[i]) - ord('a')
+		return h & 0xFFFFFFFF
+	else:
+		return 0
+
+def stxHashString(s, h, c):
+	h &= 0x7FFFFFFF
+	for i in range(len(s)):
+		ch = ord(s[i]) + 32 if (ord(s[i]) < ord('a') and not c) else ord(s[i])
+		h = ch ^ 0x1003F * h & 0x7FFFFFFF
+	return h | 0x80000000
+
+def stxHash(s, c):
+	h = stxSymbolToHash(s)
+	if h == 0:
+		h = stxHashString(s, 0, c)
+	return h
+
+def main():
+	h = stxHash(str("stxpeadfdol"), False)
+	print(hex(h))
+	print(stxHashToSymbol(h))
+	print(stxHashToSymbol(0xB9E7D509))
+
+def do_hashtosymbol(e):
+    hashtosymbol = document["hashtosymbol"].value
+    document["hashtosymbol_res"].value = stxHashToSymbol(int(hashtosymbol, 16))
+
+document["stxhashtosymbol"].bind("click", do_hashtosymbol)
+</script>
 
     <input id="rcffile" accept=".rcf" type="file">
     <!-- Modal -->
@@ -76,7 +124,37 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    
+                    WIP
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STXHash Modal -->
+    <div class="modal fade" id="stxhashModalCenter" tabindex="-1" role="dialog" aria-labelledby="stxhashModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">stx hash</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label>stx Hash To Symbol:</label>
+                            <input type="text" id="hashtosymbol">
+                            <button id="stxhashtosymbol">Convert</button>
+                            <input type="text" id="hashtosymbol_res">
+                        </div>
+                        <label>stx Symbol To Hash: WIP</label>
+                        <label>stx Hash String: WIP</label>
+                        <label>stx Hash: WIP</label>
+                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -110,6 +188,11 @@
             <li class="nav-item">
                 <a class="nav-link" href="#" role="button" aria-expanded="false" data-toggle="modal" data-target="#aboutModalCenter">
                     About
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" role="button" aria-expanded="false" data-toggle="modal" data-target="#stxhashModalCenter">
+                    stx Hash
                 </a>
             </li>
         </ul>

@@ -31,7 +31,7 @@
 
 <script type="text/python" id="stxhash">
 #! /usr/bin/env python3
-from browser import document
+from browser import document, window
 from os import system as System
 
 def stxHashToSymbol(h):
@@ -64,17 +64,20 @@ def stxHash(s, c):
 		h = stxHashString(s, 0, c)
 	return h
 
-def main():
-	h = stxHash(str("stxpeadfdol"), False)
-	print(hex(h))
-	print(stxHashToSymbol(h))
-	print(stxHashToSymbol(0xB9E7D509))
+#def main():
+#	h = stxHash(str("stxpeadfdol"), False)
+#	print(hex(h))
+#	print(stxHashToSymbol(h))
+#	print(stxHashToSymbol(0xB9E7D509))
 
-def do_hashtosymbol(e):
-    hashtosymbol = document["hashtosymbol"].value
-    document["hashtosymbol_res"].value = stxHashToSymbol(int(hashtosymbol, 16))
+def do_hashtosymbol(h):
+    return stxHashToSymbol(int(h, 16))
 
-document["stxhashtosymbol"].bind("click", do_hashtosymbol)
+def do_stxhash(h):
+    return hex(stxHash(str(h), False))
+
+window.do_hashtosymbol = do_hashtosymbol
+window.do_stxhash = do_stxhash
 </script>
 
     <input id="rcffile" accept=".rcf" type="file">
@@ -134,7 +137,7 @@ document["stxhashtosymbol"].bind("click", do_hashtosymbol)
     </div>
 
     <!-- STXHash Modal -->
-    <div class="modal fade" id="stxhashModalCenter" tabindex="-1" role="dialog" aria-labelledby="stxhashModalCenterTitle" aria-hidden="true">
+    <!--div class="modal fade" id="stxhashModalCenter" tabindex="-1" role="dialog" aria-labelledby="stxhashModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -161,7 +164,7 @@ document["stxhashtosymbol"].bind("click", do_hashtosymbol)
                 </div>
             </div>
         </div>
-    </div>
+    </div-->
 
     <nav class="navbar navbar-expand-sm navbar-light bg-light p-0 pr-2 pl-2 border-bottom">
         <ul class="navbar-nav">
@@ -190,11 +193,11 @@ document["stxhashtosymbol"].bind("click", do_hashtosymbol)
                     About
                 </a>
             </li>
-            <li class="nav-item">
+            <!--li class="nav-item">
                 <a class="nav-link" href="#" role="button" aria-expanded="false" data-toggle="modal" data-target="#stxhashModalCenter">
                     stx Hash
                 </a>
-            </li>
+            </li-->
         </ul>
     </nav>
     <div class="main-container container-fuid">
@@ -269,6 +272,7 @@ document["stxhashtosymbol"].bind("click", do_hashtosymbol)
     var paths = [];
     var ftree = null;
     var dictionary = [];
+    var hashes = [];
 
     window.print = function(text){
         decompiled_script += text;
@@ -417,17 +421,16 @@ document["stxhashtosymbol"].bind("click", do_hashtosymbol)
             url: "./dictionary.json",
             dataType: "json", 
             success: function (data) {
-                /*data.forEach((item) => {
-                    if(dictionary.filter(function(e) { return e.fn === item.fn; }).length == 0 && typeof item.stx !== "undefined")
-                        dictionary.push(item);
-                });*/
-                data.forEach((item) =>{
-                    if(typeof item.stx !== 'undefined' && typeof item.fn !== 'undefined'){
-                        if(dictionary.filter(function(e) { return e.stx === item.stx; }).length == 0){
-                            dictionary.push(item);
-                        }
-                    }
-                })
+                dictionary = data;
+            }
+        }); 
+        
+        $.ajax({ 
+            type: "GET", 
+            url: "./hashes.json",
+            dataType: "json", 
+            success: function (data) {
+                hashes = data;
             }
         }); 
 

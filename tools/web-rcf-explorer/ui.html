@@ -209,6 +209,9 @@ window.do_stxhash = do_stxhash
                 </div>
                 <div class="panel-right m-0 p-0">
                     <textarea id="editor"></textarea>
+                    <audio controls id="audio-player">
+                      Your browser does not support the audio element.
+                    </audio>
                 </div>
             </div>
         </div>
@@ -273,6 +276,7 @@ window.do_stxhash = do_stxhash
     var ftree = null;
     var dictionary = [];
     var hashes = [];
+    var audio_player = null;
 
     window.print = function(text){
         decompiled_script += text;
@@ -402,6 +406,8 @@ window.do_stxhash = do_stxhash
 
     $(document).ready(function(){ 
         treeview = $("#treeview");
+        audio_player = $("#audio_player");
+        audio_player.hide();
         editorel = document.getElementById("editor");
         $.ajax({ 
             type: "GET", 
@@ -517,8 +523,25 @@ window.do_stxhash = do_stxhash
                         switch(ext){
                             case "rcf": //console.log("Its a rcf file"); 
                             break;
+                            case "rsd":
+                                var filedata = GetFileContentByPath(path, false);
+                                var reader = new FileReader();
+                                reader.onload = function() {
+                                    console.log(reader.result)         
+                                    $('.CodeMirror').hide();                           
+                                    var source = "<source src='"+reader.result+"' type='audio/ogg'>";
+                                    $('#audio-player').remove(); 
+                                    var audio = $('<audio controls id="audio-player"> Your browser does not support the audio element. </audio>');
+                                    $('.panel-right').append(audio);                
+                                    $('#audio-player').html(source);
+                                    console.log(audio_player)
+                                }
+                                var u32bytes = filedata.slice(2048, filedata.length);
+                                reader.readAsDataURL(u32bytes);
+                            break;
                             case "cso": //console.log("Its a cso file"); 
-                            $('#editor').removeClass("d-none");
+                            $('#editor').removeClass("d-none");      
+                            $('.CodeMirror').show();   
                             // get reference to window inside the iframe
                             var path = "";
                             data.node.getParentList().forEach((parent)=>{

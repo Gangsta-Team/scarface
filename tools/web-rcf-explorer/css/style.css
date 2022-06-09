@@ -65,11 +65,19 @@ html, body {
     border: none !important;
 }
 
-.splitter {
+.splitter-v {
     flex: 0 0 auto;
     width: 8px;
     background: url(../img/vsizegrip.png) center center no-repeat lightgrey;
     min-height: 200px;
+    cursor: col-resize;
+}
+
+.splitter-h {
+    flex: 0 0 auto;
+    height: 8px;
+    background: url(../img/vsizegrip.png) center center no-repeat lightgrey;
+    min-width: 200px;
     cursor: col-resize;
 }
 

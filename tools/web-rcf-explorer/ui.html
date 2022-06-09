@@ -22,6 +22,8 @@
     <link rel=stylesheet href="codemirror/codemirror.css">
   
     <link href="css/style.css" rel="stylesheet" type="text/css">
+
+    <link href="css/hexdump.css" rel="stylesheet" type="text/css">
 </head>
 <body oncontextmenu="return false;" onload="brython()">
 
@@ -206,9 +208,10 @@ window.do_stxhash = do_stxhash
             <div class="panel-container w-100 h-100">
                 <div class="panel-left h-100 p-0 d-flex justify-content-center align-items-center">
                     <div class="h-100 w-100 overflow-auto" id="treeview"></div>
-                    <div class="splitter h-100"></div>
+                    <div class="splitter-v h-100"></div>
                 </div>
                 <div class="panel-right m-0 p-0">
+                    <!--pre id="hexdump"></pre-->
                     <textarea id="editor"></textarea>
                     <audio controls id="audio-player">
                       Your browser does not support the audio element.
@@ -259,6 +262,9 @@ window.do_stxhash = do_stxhash
 <!-- JS Zip -->
 <script src='js/jszip.js'></script>
 <script src='js/jszip-utils.js'></script>
+
+<!-- hexdump.js -->
+<script src="js/hexdump-min.js"></script>
 <script>
     var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
         lineNumbers: true,
@@ -305,7 +311,7 @@ window.do_stxhash = do_stxhash
 
     var treeview = null;
     var editorel = null;
-    
+
     function BuildTreeView(files_obj) {
         // Create the list element:
         var list = document.createElement('ul');
@@ -394,8 +400,8 @@ window.do_stxhash = do_stxhash
     $(".panel-left").resizable({
         //handleSelector: ".splitter",
         handles:{
-            'e': '.splitter',
-            'w': '.splitter',
+            'e': '.splitter-v',
+            'w': '.splitter-v',
         }
         //resizeHeight: false,
         //handles: 'e, w'
@@ -405,7 +411,30 @@ window.do_stxhash = do_stxhash
         console.log(item)
     }
 
+    function LoadHexViewer(payload){
+
+        new Hexdump(payload, {
+            container: 'hexdump'
+            , base: 'hex'
+            , width: 7
+            , byteGrouping: 0
+            , html: false
+            , lineNumber: true
+            , style: {
+                lineNumberLeft: ''
+                , lineNumberRight: ':'
+                , stringLeft: '|'
+                , stringRight: '|'
+                , hexLeft: ''
+                , hexRight: ''
+                , hexNull: '.g'
+                , stringNull: '.'
+            }
+        });
+    }
+
     $(document).ready(function(){ 
+        
         treeview = $("#treeview");
         audio_player = $("#audio_player");
         audio_player.hide();

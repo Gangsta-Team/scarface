@@ -215,6 +215,9 @@ window.do_stxhash = do_stxhash
                     <audio controls id="audio-player">
                       Your browser does not support the audio element.
                     </audio>
+                    <div class="w-100 h-100" id="p3d-viewer">
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -247,6 +250,7 @@ window.do_stxhash = do_stxhash
 <!-- Kaitai -->
 <script src="js/KaitaiStream.js"></script>
 <script src="js/kaitai-rcf.js"></script>
+<script src="js/Kaitai-pure3d.js"></script>
 
 <!-- Bootstrap v4.6.1 -->
 <script src="js/bootstrap.min.js"></script>
@@ -631,7 +635,40 @@ window.do_stxhash = do_stxhash
                             break;
                             case "bik": //console.log("Its a bik file"); 
                             break;
-                            case "p3d": //console.log("Its a p3d file"); 
+                            case "p3d": 
+                                var path = "";
+                                data.node.getParentList().forEach((parent)=>{
+                                    path += '\\'+parent.title;
+                                })
+                                path += '\\'+data.node.title;
+                                var filedata = GetFileContentByPath(path, false);
+                                var reader = new FileReader();
+                                reader.onload = function() {
+                                    $('#editor').hide();
+                                    $('.CodeMirror').hide();
+                                    $('#audio-player').hide();
+                                    console.log(reader.result)
+                                    decp3d = null;
+                                    decp3d = new Pure3d(new KaitaiStream(reader.result));
+                                    
+                                    //decp3d.directory.sort((a, b) => a.flOffset - b.flOffset);
+                                    //console.log(decp3d, decp3d.chunk.length)
+                                    console.log(decp3d.chunk)
+                                    for(let i = 0; i < decp3d.chunk.length; i++)
+                                    {
+                                        $('#p3d-viewer').append(
+                                            `<ul class="p3d-chunk">`+
+                                                `<li>chnkId:`+decp3d.chunk[i].chunkHeader.chnkId+`</li>`+
+                                                `<li>dataSize:`+decp3d.chunk[i].chunkHeader.dataSize+`</li>`+
+                                                `<li>size:`+decp3d.chunk[i].chunkHeader.size+`</li>`+
+                                            `</ul>`+
+                                            `<textarea>`+decp3d.chunk[i].chunkBody+`</textarea>`);
+                                        console.log(decp3d.chunk[i])
+                                    }
+                                }
+                                reader.readAsArrayBuffer(filedata);
+                                console.log("Its a p3d file"); 
+                                
                             break;
                         }
                     }

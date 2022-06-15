@@ -215,7 +215,7 @@ window.do_stxhash = do_stxhash
                     <audio controls id="audio-player">
                       Your browser does not support the audio element.
                     </audio>
-                    <div class="w-100 h-100" id="p3d-viewer">
+                    <div class="w-100 h-100 overflow-auto" id="p3d-viewer">
 
                     </div>
                 </div>
@@ -436,6 +436,14 @@ window.do_stxhash = do_stxhash
         });
     }
 
+    function bin2String(array) {
+        var result = "";
+        for (var i = 0; i < array.length; i++) {
+            result += String.fromCharCode(array[i]);
+        }
+        return result;
+    }
+
     $(document).ready(function(){ 
         
         treeview = $("#treeview");
@@ -636,6 +644,11 @@ window.do_stxhash = do_stxhash
                             case "bik": //console.log("Its a bik file"); 
                             break;
                             case "p3d": 
+                                var P3D_CHUNK_TYPE = {
+                                    '102400' : "TEXTURE",
+                                    '102401' : "IMAGE",
+                                    '102402' : "IMAGE_DATA"
+                                };
                                 var path = "";
                                 data.node.getParentList().forEach((parent)=>{
                                     path += '\\'+parent.title;
@@ -647,6 +660,7 @@ window.do_stxhash = do_stxhash
                                     $('#editor').hide();
                                     $('.CodeMirror').hide();
                                     $('#audio-player').hide();
+                                    $('#p3d-viewer').html("");
                                     console.log(reader.result)
                                     decp3d = null;
                                     decp3d = new Pure3d(new KaitaiStream(reader.result));
@@ -656,14 +670,41 @@ window.do_stxhash = do_stxhash
                                     console.log(decp3d.chunk)
                                     for(let i = 0; i < decp3d.chunk.length; i++)
                                     {
+                                        var chunk_type = P3D_CHUNK_TYPE[decp3d.chunk[i].chunkHeader.chnkId.toString()];
+                                        var base64String = null;
+                                        var teximg = "";
+                                        if(chunk_type == "IMAGE_DATA"){
+                                            console.log(decp3d.chunk[i].chunkBody)
+                                            var rawimagedata = new Uint8Array(decp3d.chunk[i].chunkBody);
+                                            var imagedata = rawimagedata.slice(4, rawimagedata.length);
+                                            console.log(imagedata)
+                                            /*var imgdata = Array.from(imagedata);
+                                            var array = [];
+                                            imgdata.forEach((itm)=>{
+                                                array.push(itm.toString(16));
+                                            });
+                                            console.log(array)
+                                            //var png = rawimagedata;
+                                            //console.log(png)
+                                            //base64String = btoa(String.fromCharCode.apply(null, png));
+                                            const base64String = btoa(String.fromCharCode(array));*/
+                                            teximg = $('<img>');
+                                            teximg[0].src = URL.createObjectURL(
+                                                new Blob([imagedata.buffer], { type: 'image/png' } /* (1) */)
+                                            );
+                                        }
                                         $('#p3d-viewer').append(
-                                            `<ul class="p3d-chunk">`+
-                                                `<li>chnkId:`+decp3d.chunk[i].chunkHeader.chnkId+`</li>`+
-                                                `<li>dataSize:`+decp3d.chunk[i].chunkHeader.dataSize+`</li>`+
-                                                `<li>size:`+decp3d.chunk[i].chunkHeader.size+`</li>`+
-                                            `</ul>`+
-                                            `<textarea>`+decp3d.chunk[i].chunkBody+`</textarea>`);
-                                        console.log(decp3d.chunk[i])
+                                            `<div class="d-flex">`+
+                                                `<ul class="p3d-chunk">`+
+                                                    `<li>chnkId:0x`+decp3d.chunk[i].chunkHeader.chnkId.toString(16).toUpperCase()+` - `+ chunk_type +`</li>`+
+                                                    `<li>dataSize:`+decp3d.chunk[i].chunkHeader.dataSize+`</li>`+
+                                                    `<li>size:`+decp3d.chunk[i].chunkHeader.size+`</li>`+
+                                                `</ul>`+
+                                                `<textarea>`+bin2String(decp3d.chunk[i].chunkBody)+`</textarea>` +
+                                            `</div>`
+                                            );
+                                        $('#p3d-viewer').append(teximg);
+                                        //console.log(decp3d.chunk[i])
                                     }
                                 }
                                 reader.readAsArrayBuffer(filedata);

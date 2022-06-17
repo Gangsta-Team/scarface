@@ -35,13 +35,13 @@ project "scarface-rcf-explorer"
 	filter {}
 
 	files {
-		"..\\source\\**",
+		--"..\\source\\**",
 		"..\\source\\.editorconfig",
 		"..\\source\\Window.cs",
-		--"..\\source\\KaitaiStruct.cs",
-		--"..\\source\\KaitaiStream.cs",
+		"..\\source\\KaitaiStruct.cs",
+		"..\\source\\KaitaiStream.cs",
 		--"..\\source\\Pure3D.cs",
-		--"..\\source\\Cement.cs",
+		"..\\source\\Cement.cs",
 	}
 	
 	includedirs {

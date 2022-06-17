@@ -25,16 +25,16 @@ namespace Kaitai
         }
         private void _read()
         {
-            _header = new Header(m_io, this, m_root);
+            _rcfHeader = new RcfHeader(m_io, this, m_root);
         }
-        public partial class Header : KaitaiStruct
+        public partial class RcfHeader : KaitaiStruct
         {
-            public static Header FromFile(string fileName)
+            public static RcfHeader FromFile(string fileName)
             {
-                return new Header(new KaitaiStream(fileName));
+                return new RcfHeader(new KaitaiStream(fileName));
             }
 
-            public Header(KaitaiStream p__io, Cement p__parent = null, Cement p__root = null) : base(p__io)
+            public RcfHeader(KaitaiStream p__io, Cement p__parent = null, Cement p__root = null) : base(p__io)
             {
                 m_parent = p__parent;
                 m_root = p__root;
@@ -72,14 +72,14 @@ namespace Kaitai
             public Cement M_Root { get { return m_root; } }
             public Cement M_Parent { get { return m_parent; } }
         }
-        public partial class Directory : KaitaiStruct
+        public partial class RcfDirectory : KaitaiStruct
         {
-            public static Directory FromFile(string fileName)
+            public static RcfDirectory FromFile(string fileName)
             {
-                return new Directory(new KaitaiStream(fileName));
+                return new RcfDirectory(new KaitaiStream(fileName));
             }
 
-            public Directory(KaitaiStream p__io, Cement p__parent = null, Cement p__root = null) : base(p__io)
+            public RcfDirectory(KaitaiStream p__io, Cement p__parent = null, Cement p__root = null) : base(p__io)
             {
                 m_parent = p__parent;
                 m_root = p__root;
@@ -159,19 +159,19 @@ namespace Kaitai
             public Cement M_Parent { get { return m_parent; } }
         }
         private bool f_directory;
-        private List<Directory> _directory;
-        public List<Directory> Directory
+        private List<RcfDirectory> _directory;
+        public List<RcfDirectory> Directory
         {
             get
             {
                 if (f_directory)
                     return _directory;
                 long _pos = m_io.Pos;
-                m_io.Seek(Header.DirOffset);
-                _directory = new List<Directory>((int) (Header.NumberFiles));
-                for (var i = 0; i < Header.NumberFiles; i++)
+                m_io.Seek(RcfHeader_.DirOffset);
+                _directory = new List<RcfDirectory>((int)(RcfHeader_.NumberFiles));
+                for (var i = 0; i < RcfHeader_.NumberFiles; i++)
                 {
-                    _directory.Add(new Directory(m_io, this, m_root));
+                    _directory.Add(new RcfDirectory(m_io, this, m_root));
                 }
                 m_io.Seek(_pos);
                 f_directory = true;
@@ -180,16 +180,16 @@ namespace Kaitai
         }
         private bool f_filenameDirectory;
         private List<FilenameDirectory> _filenameDirectory;
-        public List<FilenameDirectory> FilenameDirectory
+        public List<FilenameDirectory> FilenameDirectory_
         {
             get
             {
                 if (f_filenameDirectory)
                     return _filenameDirectory;
                 long _pos = m_io.Pos;
-                m_io.Seek((Header.FlnamesDirOffset + 8));
-                _filenameDirectory = new List<FilenameDirectory>((int) (Header.NumberFiles));
-                for (var i = 0; i < Header.NumberFiles; i++)
+                m_io.Seek(RcfHeader_.FlnamesDirOffset + 8);
+                _filenameDirectory = new List<FilenameDirectory>((int)RcfHeader_.NumberFiles);
+                for (var i = 0; i < RcfHeader_.NumberFiles; i++)
                 {
                     _filenameDirectory.Add(new FilenameDirectory(m_io, this, m_root));
                 }
@@ -198,10 +198,10 @@ namespace Kaitai
                 return _filenameDirectory;
             }
         }
-        private Header _header;
+        private RcfHeader _rcfHeader;
         private Cement m_root;
         private KaitaiStruct m_parent;
-        public Header Header { get { return _header; } }
+        public RcfHeader RcfHeader_ { get { return _rcfHeader; } }
         public Cement M_Root { get { return m_root; } }
         public KaitaiStruct M_Parent { get { return m_parent; } }
     }

@@ -2,8 +2,54 @@ using Kaitai;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Forms;
+
+class IniFile
+{
+    string Path;
+    string EXE = Assembly.GetExecutingAssembly().GetName().Name;
+
+    [DllImport("kernel32", CharSet = CharSet.Unicode)]
+    static extern long WritePrivateProfileString(string Section, string Key, string Value, string FilePath);
+
+    [DllImport("kernel32", CharSet = CharSet.Unicode)]
+    static extern int GetPrivateProfileString(string Section, string Key, string Default, StringBuilder RetVal, int Size, string FilePath);
+
+    public IniFile(string IniPath = null)
+    {
+        Path = new FileInfo(IniPath ?? EXE + ".ini").FullName;
+    }
+
+    public string Read(string Key, string Section = null)
+    {
+        var RetVal = new StringBuilder(255);
+        GetPrivateProfileString(Section ?? EXE, Key, "", RetVal, 255, Path);
+        return RetVal.ToString();
+    }
+
+    public void Write(string Key, string Value, string Section = null)
+    {
+        WritePrivateProfileString(Section ?? EXE, Key, Value, Path);
+    }
+
+    public void DeleteKey(string Key, string Section = null)
+    {
+        Write(Key, null, Section ?? EXE);
+    }
+
+    public void DeleteSection(string Section = null)
+    {
+        Write(null, null, Section ?? EXE);
+    }
+
+    public bool KeyExists(string Key, string Section = null)
+    {
+        return Read(Key, Section).Length > 0;
+    }
+}
 
 class Window
 {
@@ -20,21 +66,104 @@ class Window
     const int WINDOW_H = 600;
 
     public static Form form = null;
+    public static Form settings_form = null;
     public static Cement cmnt = null;
-    public static TreeNode tvnode = null;
     public static string working_file = null;
     const string WINDOW_TITLE = "Scarface The World Is Yours: RCF Explorer";
-
+    public static IniFile MyIni = null;
 
     private static Panel panel1;
     private static MenuStrip menuStrip1;
     private static Panel panel2;
     private static SplitContainer splitContainer1;
     private static ToolStripMenuItem toolStripMenuItem1;
-    private static TreeView treeView1 = null;
+    private static ToolStripMenuItem toolStripMenuItem2;
+    private static TreeView treeView1;
+    private static TextBox textBox1;
+
+    //
+    // Settings form
+    // 
+    private static Button pySave;
+    private static Button pyDetect;
+    private static Label pyLabel;
+    private static TextBox pyPath;
+
+    enum TypeView : ushort
+    {
+        None = 0,
+        Unknown = 1,
+        TorqueScript = 2,
+        Pure3D = 3,
+        bik = 4,
+        rsd = 5
+    }
+
+    private static void InitializeSettingsComponent()
+    {
+        settings_form = new Form();
+        settings_form.Text = WINDOW_TITLE + " - Settings";
+
+        pySave = new System.Windows.Forms.Button();
+        pyDetect = new System.Windows.Forms.Button();
+        pyLabel = new System.Windows.Forms.Label();
+        pyPath = new System.Windows.Forms.TextBox();
+        settings_form.SuspendLayout();
+        // 
+        // button1
+        // 
+        pySave.Location = new System.Drawing.Point(475, 23);
+        pySave.Name = "button1";
+        pySave.Size = new System.Drawing.Size(75, 23);
+        pySave.TabIndex = 0;
+        pySave.Text = "Save";
+        pySave.UseVisualStyleBackColor = true;
+        pySave.Click += Settings_CloseButton_Click;
+        // 
+        // button2
+        // 
+        pyDetect.Location = new System.Drawing.Point(394, 23);
+        pyDetect.Name = "button2";
+        pyDetect.Size = new System.Drawing.Size(75, 23);
+        pyDetect.TabIndex = 1;
+        pyDetect.Text = "Find";
+        pyDetect.UseVisualStyleBackColor = true;
+        pyDetect.Click += Settings_FindButton_Click;
+        // 
+        // label1
+        // 
+        pyLabel.AutoSize = true;
+        pyLabel.Location = new System.Drawing.Point(12, 9);
+        pyLabel.Name = "label1";
+        pyLabel.Size = new System.Drawing.Size(67, 13);
+        pyLabel.TabIndex = 2;
+        pyLabel.Text = "Python path:";
+        // 
+        // textBox1
+        // 
+        pyPath.Location = new System.Drawing.Point(12, 25);
+        pyPath.Name = "textBox1";
+        pyPath.Size = new System.Drawing.Size(376, 20);
+        pyPath.TabIndex = 3;
+        // 
+        // Settings
+        // 
+        settings_form.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+        settings_form.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+        settings_form.ClientSize = new System.Drawing.Size(561, 59);
+        settings_form.Controls.Add(pyPath);
+        settings_form.Controls.Add(pyLabel);
+        settings_form.Controls.Add(pySave);
+        settings_form.Controls.Add(pyDetect);
+        settings_form.Name = "Settings";
+        settings_form.Text = "Settings";
+        settings_form.ResumeLayout(false);
+        settings_form.PerformLayout();
+    }
 
     private static void InitializeComponent()
     {
+
         panel1 = new System.Windows.Forms.Panel();
         panel2 = new System.Windows.Forms.Panel();
         menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -73,17 +202,24 @@ class Window
         //
         // toolStripMenuItem1
         //
-        toolStripMenuItem1 = new ToolStripMenuItem("&File");
+        toolStripMenuItem1 = new ToolStripMenuItem("File");
         toolStripMenuItem1.DropDownItems.Add("Open RCF");
         toolStripMenuItem1.DropDownItems.Add("Exit");
         toolStripMenuItem1.DropDownItems[0].Click += Item_Click;
         toolStripMenuItem1.DropDownItems[1].Click += Item_Click;
         menuStrip1.Items.Add(toolStripMenuItem1);
         //
+        // menuItem2
+        //
+        toolStripMenuItem2 = new ToolStripMenuItem("Settings");
+        toolStripMenuItem2.Click += Item_Click;
+        menuStrip1.Items.Add(toolStripMenuItem2);
+        //
         // treeView1
         //
         treeView1 = new TreeView();
         treeView1.Dock = DockStyle.Fill;
+        treeView1.NodeMouseClick += new TreeNodeMouseClickEventHandler(TreeView_Click);
         splitContainer1.Panel1.Controls.Add(treeView1);
         // 
         // splitContainer1
@@ -94,6 +230,13 @@ class Window
         splitContainer1.Size = new System.Drawing.Size(800, 426);
         splitContainer1.SplitterDistance = 266;
         splitContainer1.TabIndex = 0;
+        //
+        // textBox1
+        //
+        textBox1 = new TextBox();
+        textBox1.Dock = DockStyle.Fill;
+        textBox1.Visible = false;
+        splitContainer1.Panel2.Controls.Add(textBox1);
         // 
         // Form1
         // 
@@ -111,6 +254,15 @@ class Window
         ((System.ComponentModel.ISupportInitialize)(splitContainer1)).EndInit();
         splitContainer1.ResumeLayout(false);
         form.ResumeLayout(false);
+
+        MyIni = new IniFile("Settings.ini");
+
+        InitializeSettingsComponent();
+
+        // Read settings
+        var myPath = MyIni.Read("PythonPath");
+        if (myPath != "")
+            pyPath.Text = MyIni.Read("PythonPath").ToString();
 
     }
 
@@ -178,6 +330,7 @@ class Window
                 }
                 else
                     currentnode = currentnode.Nodes[subPath];
+
             }
         }
 
@@ -192,8 +345,41 @@ class Window
         return thisnode;
     }
 
+    private static void ToggleView(TypeView type)
+    {
+        textBox1.Visible = false;
+        switch (type)
+        {
+            case TypeView.None: break;
+            case TypeView.Pure3D: break;
+            case TypeView.TorqueScript:
+                textBox1.Visible = true;
+                break;
+            case TypeView.bik: break;
+            default: break;
+        }
+    }
+
+    private static void TreeView_Click(object sender, TreeNodeMouseClickEventArgs e)
+    {
+        string ext = null;
+        ext = Path.GetExtension(e.Node.Text).Replace(".", "");
+        if (ext.Length > 0)
+        {
+            switch (ext)
+            {
+                case "cso": ToggleView(TypeView.TorqueScript); break;
+                case "p3d": ToggleView(TypeView.Pure3D); break;
+                case "bik": ToggleView(TypeView.bik); break;
+                case "rsd": ToggleView(TypeView.rsd); break;
+                default: break;
+            }
+        }
+    }
+
     private static void Item_Click(object sender, EventArgs e)
     {
+        Debug.WriteLine("Item click" + sender.ToString());
         switch (sender.ToString())
         {
             case "Open RCF":
@@ -210,7 +396,7 @@ class Window
                     Debug.WriteLine(working_file);
                     form.Text = WINDOW_TITLE + " - File: " + openFileDialog.FileName;
                     cmnt = Cement.FromFile(openFileDialog.FileName);
-                    MessageBox.Show("Count of files: "+cmnt.FilenameDirectory_.Count);
+                    MessageBox.Show("Count of files: " + cmnt.FilenameDirectory_.Count);
                     string[] paths = new string[cmnt.FilenameDirectory_.Count];
                     for (int i = 0; i < cmnt.FilenameDirectory_.Count; i++)
                     {
@@ -223,9 +409,36 @@ class Window
             case "Exit":
                 Application.Exit();
                 break;
-
-            default: 
+            case "Settings":
+                settings_form.ShowDialog();
                 break;
+
+            default:
+                break;
+        }
+    }
+
+    private static void Settings_CloseButton_Click(object sender, EventArgs e)
+    {
+        pyPath.ReadOnly = true;
+        settings_form.Close();
+    }
+
+    private static void Settings_FindButton_Click(object sender, EventArgs e)
+    {
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        openFileDialog.InitialDirectory = @"C:\";
+        openFileDialog.Title = "Browse Python executable";
+        openFileDialog.DefaultExt = "exe";
+        openFileDialog.Filter = "exe file (*.exe)|*.exe|All files (*.*)|*.*";
+        openFileDialog.CheckFileExists = true;
+        openFileDialog.CheckPathExists = true;
+        if (openFileDialog.ShowDialog() == DialogResult.OK)
+        {
+            pyPath.ReadOnly = false;
+            pyPath.Text = openFileDialog.FileName;
+            pySave.Text = "Save";
+            MyIni.Write("PythonPath", pyPath.Text);
         }
     }
 }

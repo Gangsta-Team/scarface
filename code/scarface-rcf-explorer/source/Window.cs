@@ -139,7 +139,7 @@ class Window
         pyLabel.TabIndex = 2;
         pyLabel.Text = "Python path:";
         // 
-        // textBox1
+        // pyPath
         // 
         pyPath.Location = new System.Drawing.Point(12, 25);
         pyPath.Name = "textBox1";
@@ -236,6 +236,7 @@ class Window
         textBox1 = new TextBox();
         textBox1.Dock = DockStyle.Fill;
         textBox1.Visible = false;
+        textBox1.Multiline = true;
         splitContainer1.Panel2.Controls.Add(textBox1);
         // 
         // Form1
@@ -305,7 +306,6 @@ class Window
         char[] cachedpathseparator = pathSeparator.ToCharArray();
         foreach (string path in paths)
         {
-            Debug.WriteLine(path);
             currentnode = thisnode;
             //currentnode.FullPath = path;
             string name = Path.GetFileName(path);
@@ -360,6 +360,19 @@ class Window
         }
     }
 
+    private static byte[] GetFileContentFromPath(string file_path)
+    {
+
+        for (int i = 0; i < cmnt.FilenameDirectory_.Count; i++)
+        {
+            if (cmnt.FilenameDirectory_[i].Path == file_path)
+            {
+                return cmnt.Directory[i].File;
+            }
+        }
+        return null;
+    }
+
     private static void TreeView_Click(object sender, TreeNodeMouseClickEventArgs e)
     {
         string ext = null;
@@ -368,7 +381,14 @@ class Window
         {
             switch (ext)
             {
-                case "cso": ToggleView(TypeView.TorqueScript); break;
+                case "cso":
+                    {
+                        ToggleView(TypeView.TorqueScript);
+                        Debug.WriteLine(e.Node.Text);
+                        byte[] fcontent = GetFileContentFromPath(e.Node.Text);
+                        Debug.WriteLine(fcontent);
+                        //textBox1.Text = Encoding.ASCII.GetString(fcontent).Trim();
+                    } break;
                 case "p3d": ToggleView(TypeView.Pure3D); break;
                 case "bik": ToggleView(TypeView.bik); break;
                 case "rsd": ToggleView(TypeView.rsd); break;
@@ -393,10 +413,8 @@ class Window
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     working_file = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
-                    Debug.WriteLine(working_file);
                     form.Text = WINDOW_TITLE + " - File: " + openFileDialog.FileName;
                     cmnt = Cement.FromFile(openFileDialog.FileName);
-                    MessageBox.Show("Count of files: " + cmnt.FilenameDirectory_.Count);
                     string[] paths = new string[cmnt.FilenameDirectory_.Count];
                     for (int i = 0; i < cmnt.FilenameDirectory_.Count; i++)
                     {

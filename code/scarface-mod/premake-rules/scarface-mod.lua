@@ -6,6 +6,7 @@ workspace "scarface-mod"
 	targetextension ".asi"
 
 project "scarface-mod"
+	characterset ("MBCS")
 	system "Windows"
 	kind "SharedLib"
 
@@ -33,9 +34,16 @@ project "scarface-mod"
 	
 	filter {}
 
+	libdirs { "..\\source\\detours" }
+	linkoptions "/SAFESEH:NO"
+
 	files {
-		--"..\\source\\**",
+		"..\\source\\**",
 		"..\\source\\DllMain.cpp",
+		"..\\source\\DllMain.h",
+		"..\\source\\CConsole.h",
+		"..\\source\\CINI.h",
+		"..\\source\\CLog.h"
 	}
 	
 	includedirs {

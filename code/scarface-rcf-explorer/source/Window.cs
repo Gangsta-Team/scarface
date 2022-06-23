@@ -1,11 +1,16 @@
 using Kaitai;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using System.ComponentModel;
+using System.ComponentModel.Design;
+using Be.Windows.Forms;
+using System.Drawing;
 
 class IniFile
 {
@@ -72,14 +77,19 @@ class Window
     const string WINDOW_TITLE = "Scarface The World Is Yours: RCF Explorer";
     public static IniFile MyIni = null;
 
+    public static string[] paths;
+
     private static Panel panel1;
     private static MenuStrip menuStrip1;
     private static Panel panel2;
     private static SplitContainer splitContainer1;
+    private static SplitContainer splitContainer2;
     private static ToolStripMenuItem toolStripMenuItem1;
     private static ToolStripMenuItem toolStripMenuItem2;
     private static TreeView treeView1;
     private static TextBox textBox1;
+    private static ByteViewer byteviewer;
+    private static HexBox hexBox1;
 
     //
     // Settings form
@@ -168,10 +178,14 @@ class Window
         panel2 = new System.Windows.Forms.Panel();
         menuStrip1 = new System.Windows.Forms.MenuStrip();
         splitContainer1 = new System.Windows.Forms.SplitContainer();
+        splitContainer2 = new System.Windows.Forms.SplitContainer();
+        hexBox1 = new HexBox();
         panel1.SuspendLayout();
         panel2.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)(splitContainer1)).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)(splitContainer2)).BeginInit();
         splitContainer1.SuspendLayout();
+        splitContainer2.SuspendLayout();
         form.SuspendLayout();
         // 
         // panel1
@@ -231,24 +245,61 @@ class Window
         splitContainer1.SplitterDistance = 266;
         splitContainer1.TabIndex = 0;
         //
+        // splitContainer2
+        //
+        splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+        splitContainer2.Location = new System.Drawing.Point(0, 0);
+        splitContainer2.Name = "splitContainer2";
+        splitContainer2.Dock = DockStyle.Fill;
+        splitContainer2.SplitterDistance = 266;
+        splitContainer2.TabIndex = 0;
+        splitContainer2.Orientation = Orientation.Horizontal;
+        splitContainer1.Panel2.ControlAdded += new ControlEventHandler(splitContainer2_Panel2_ControlAdded);
+        splitContainer2.BackColor = Color.LightBlue;
+        form.Resize += new System.EventHandler(SplitContainer2_SizeChanged);
+        //
         // textBox1
         //
         textBox1 = new TextBox();
         textBox1.Dock = DockStyle.Fill;
         textBox1.Visible = false;
         textBox1.Multiline = true;
-        splitContainer1.Panel2.Controls.Add(textBox1);
+        splitContainer2.Panel1.Controls.Add(textBox1);
+        splitContainer1.Panel2.Controls.Add(splitContainer2);
+        //
+        // ByteViewer
+        //
+        //byteviewer = new ByteViewer();
+        //byteviewer.Dock = DockStyle.Fill;
+        //byteviewer.Anchor = AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Top;
+        //byteviewer.SetBytes(new byte[] { });
+        //splitContainer2.Panel2.Controls.Add(byteviewer);
+        // 
+        // hexBox1
+        // 
+        hexBox1.Font = new System.Drawing.Font("Segoe UI", 9F);
+        hexBox1.Name = "hexBox1";
+        hexBox1.Dock = DockStyle.Fill;
+        hexBox1.Visible = false;
+        hexBox1.ShadowSelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(60)))), ((int)(((byte)(188)))), ((int)(((byte)(255)))));
+        hexBox1.TabIndex = 0;
+        hexBox1.Size = form.ClientSize;
+        hexBox1.VScrollBarVisible = true;
+        hexBox1.UseFixedBytesPerLine = true;
+        hexBox1.StringViewVisible = true;
+        splitContainer2.Panel2.Controls.Add(hexBox1);
         // 
         // Form1
         // 
         form.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
         form.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        form.ClientSize = new System.Drawing.Size(800, 450);
+        form.ClientSize = new System.Drawing.Size(900, 600);
         form.Controls.Add(panel2);
         form.Controls.Add(panel1);
         form.MainMenuStrip = menuStrip1;
         form.Name = "Form1";
         form.Text = "Form1";
+        form.Load += new EventHandler(Window_Load);
         panel1.ResumeLayout(false);
         panel1.PerformLayout();
         panel2.ResumeLayout(false);
@@ -264,7 +315,6 @@ class Window
         var myPath = MyIni.Read("PythonPath");
         if (myPath != "")
             pyPath.Text = MyIni.Read("PythonPath").ToString();
-
     }
 
     [STAThread]
@@ -360,14 +410,14 @@ class Window
         }
     }
 
-    private static byte[] GetFileContentFromPath(string file_path)
+    private static Cement.RcfDirectory GetFileDirectoryFromPath(string file_path)
     {
 
-        for (int i = 0; i < cmnt.FilenameDirectory_.Count; i++)
+        for (int i = 0; i < paths.Length; i++)
         {
-            if (cmnt.FilenameDirectory_[i].Path == file_path)
+            if (working_file + "\\" + cmnt.FilenameDirectory_[i].Path == file_path)
             {
-                return cmnt.Directory[i].File;
+                return cmnt.Directory[i];
             }
         }
         return null;
@@ -383,11 +433,30 @@ class Window
             {
                 case "cso":
                     {
+                        Debug.WriteLine(e.Node.FullPath);
+                        Cement.RcfDirectory fcontent = GetFileDirectoryFromPath(e.Node.FullPath);
                         ToggleView(TypeView.TorqueScript);
-                        Debug.WriteLine(e.Node.Text);
-                        byte[] fcontent = GetFileContentFromPath(e.Node.Text);
-                        Debug.WriteLine(fcontent);
-                        //textBox1.Text = Encoding.ASCII.GetString(fcontent).Trim();
+                        Debug.WriteLine("File Length: " + fcontent.File.Length);
+                        Debug.WriteLine("File FlOffset: " + fcontent.FlOffset);
+                        Debug.WriteLine("File FlSize: " + fcontent.FlSize);
+
+                        //byteviewer.Width = splitContainer2.Panel2.Width;
+                        //byteviewer.Height = splitContainer2.Panel2.Height;
+                        if (fcontent.File.Length > 0)
+                        {
+                            //byteviewer.SetBytes(fcontent.File);
+                            hexBox1.ByteProvider = new DynamicByteProvider(fcontent.File);
+
+                            hexBox1.ByteProvider.DeleteBytes(hexBox1.SelectionStart, hexBox1.SelectionLength);
+                            hexBox1.ByteProvider.InsertBytes(hexBox1.SelectionStart, fcontent.File);
+                            hexBox1.Visible = true;
+                            hexBox1.Width = splitContainer2.Panel2.Width;
+                            hexBox1.Height = splitContainer2.Panel2.Height;
+                            Encoding encoding = Encoding.GetEncoding("ISO-8859-1");
+                            string result = encoding.GetString(fcontent.File);
+                            textBox1.AppendText(result);
+                            Debug.Write(result);
+                        }
                     } break;
                 case "p3d": ToggleView(TypeView.Pure3D); break;
                 case "bik": ToggleView(TypeView.bik); break;
@@ -395,6 +464,31 @@ class Window
                 default: break;
             }
         }
+    }
+
+    private static void Window_Load(object sender, EventArgs e)
+    {
+
+        hexBox1.Width = splitContainer2.Panel2.Width;
+        hexBox1.Height = splitContainer2.Panel2.Height;
+        Debug.WriteLine("W: " + splitContainer2.Panel2.Width);
+        Debug.WriteLine("H: " + splitContainer2.Panel2.Height);
+    }
+
+    private static void SplitContainer2_SizeChanged(object sender, System.EventArgs e)
+    {
+        // Update Byte Viewer width
+        //byteviewer.Width = splitContainer2.Panel2.Width;
+        //byteviewer.Height = splitContainer2.Panel2.Height;
+        hexBox1.Width = splitContainer2.Panel2.Width;
+        hexBox1.Height = splitContainer2.Panel2.Height;
+    }
+
+
+    private static void splitContainer2_Panel2_ControlAdded(object sender, ControlEventArgs e)
+    {
+        hexBox1.Width = splitContainer2.Panel2.Width;
+        hexBox1.Height = splitContainer2.Panel2.Height;
     }
 
     private static void Item_Click(object sender, EventArgs e)
@@ -415,7 +509,10 @@ class Window
                     working_file = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
                     form.Text = WINDOW_TITLE + " - File: " + openFileDialog.FileName;
                     cmnt = Cement.FromFile(openFileDialog.FileName);
-                    string[] paths = new string[cmnt.FilenameDirectory_.Count];
+
+                    cmnt.Directory.Sort((p, q) => p.FlOffset.CompareTo(q.FlOffset));
+
+                    paths = new string[cmnt.FilenameDirectory_.Count];
                     for (int i = 0; i < cmnt.FilenameDirectory_.Count; i++)
                     {
                         paths[i] = cmnt.FilenameDirectory_[i].Path;

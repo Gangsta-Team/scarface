@@ -3,7 +3,7 @@
 <p align="center">
   <!--img width="460" height="300" src="https://user-images.githubusercontent.com/44430306/169044742-49f5a400-72fd-405e-8adf-aa647d9f0db8.png"-->
 </p>
-
+<a href="https://discord.gg/TA9zKUXQAc">Discord</a>
 <!--hr-->
 
 <h1>Project scaffolding:</h1>
@@ -16,8 +16,12 @@
 </pre>
 
 # Code
-- WIP
-- 
+
+<ul>
+  <li>scarface-mod: WIP</li>
+  <li>scarface-rcf-explorer: WIP</li>
+</ul>
+
 # Documentation
 Game reference: https://en.wikipedia.org/wiki/Scarface:_The_World_Is_Yours
 

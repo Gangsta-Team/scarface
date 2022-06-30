@@ -2,9 +2,17 @@
 #include <Windows.h>
 #include <iostream>
 
+extern HWND			hWindow;
+
 #define PROJECT_NAME	"scarface-mod"
 #define MOD_NAME		"[-] Scarface The World Is Yours Mod [-]\n"
 
+#include <d3d9.h>
+#include <d3dx9.h>
+#pragma comment(lib, "d3d9.lib")
+
+// Helpers
+#include "Helpers.h"
 // INI
 #include "CINI.h"
 // CLog
@@ -19,3 +27,5 @@
 extern CINI*		gINI;
 extern CLog*		gLog;
 extern CConsole*	gConsole;
+
+bool InstallEndScene_Hook();

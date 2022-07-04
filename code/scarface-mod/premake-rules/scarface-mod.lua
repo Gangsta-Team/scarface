@@ -1,5 +1,6 @@
 workspace "scarface-mod"
 	configurations { "Release", "Debug" }
+	cppdialect "C++17"
 	platforms { "Win32", "Win64" }
 	language "c++"
 	location "..\\solution"
@@ -47,7 +48,6 @@ project "scarface-mod"
 		"..\\source\\CConsole.h",
 		"..\\source\\CINI.h",
 		"..\\source\\CLog.h",
-		"..\\source\\Helpers.h",
 	}
 	
 	includedirs {

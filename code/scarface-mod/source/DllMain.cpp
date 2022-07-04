@@ -1,5 +1,8 @@
 #include "DllMain.h"
 
+//Patterns
+#include "Patterns.h"
+
 CINI*                   gINI;
 CLog*                   gLog;
 CConsole*               gConsole;
@@ -9,11 +12,11 @@ int                     g_iLog = 0;
 
 HMODULE                 g_hGameBase = NULL;
 DWORD	                g_dwImageBase = 0x40000;
-HWND                    g_hWnd = NULL;
 HWND                    hWindow = NULL;
 bool                    bRenderInit = false;
 bool                    g_bRenderMenu = false;
 DWORD*                  dw_CodeBlockinstance = NULL;
+D3DPRESENT_PARAMETERS*  g_pPresentationParameters;
 
 // Dx9 EndScene
 void* pEndScene = NULL;
@@ -21,7 +24,6 @@ void* pDeviceTable[119];
 LPDIRECT3DDEVICE9       pDxDevice9 = (LPDIRECT3DDEVICE9)NULL;
 
 //Torque Script.
-typedef char* (__thiscall* compileExec_t)(void*, char* Str, char* Source, char* Args);
 compileExec_t OriginalCodeBlock_compileExec;
 
 char* __fastcall CodeBlock_compileExec_Hook(void* thisptr, void*, char* Str, char* Source, char* Args) {
@@ -30,7 +32,6 @@ char* __fastcall CodeBlock_compileExec_Hook(void* thisptr, void*, char* Str, cha
 }
 
 //_DWORD *__thiscall CodeBlock::ctor(_DWORD *this) CodeBlock::ctor 
-typedef DWORD* (__thiscall* CodeBlock_ctor_t)(BYTE* thisptr);
 CodeBlock_ctor_t OriginalCodeBlock_ctor;
 DWORD* g_pCodeBlockInstance;
 DWORD* __fastcall  CodeBlock_ctor_Hook(BYTE* thisptr, void* unk) {
@@ -45,8 +46,21 @@ signed int PddiCreate_Hook(int a1, int a2, int* a3) {
     printf("PddiCreate_Hook()\n");
     int res = OriginalPddiCreate(a1, a2, a3);
 
-    bool hooked = InstallEndScene_Hook();
+    //bool hooked = InstallEndScene_Hook();
     //printf("End Scene hook: %d\n", hooked);
+
+    auto pattern1002 = hook::pattern("50 6A 01 57 51 FF 52 40").count_hint(1);
+    if (pattern1002.size() == 1)
+    {
+        printf("[INFO]: Game version: 1.00.2\n");
+        
+        DetourFunction((PBYTE)pattern1002.get_first(0), (PBYTE)CreateD3D9DeviceHook);
+        CreateD3D9DeviceRET = pattern1002.get_first(+8);
+        
+            
+        //InjectHook(pattern1002.get_first(0), CreateD3D9DeviceHook, PATCH_JUMP);
+        //CreateD3D9DeviceRET = pattern1002.get_first(+8);
+    }
     return res;
 }
 
@@ -58,38 +72,49 @@ char __cdecl CreateGameWindow_Hook(UINT a1) {
     return OriginalCreateGameWindow(a1);
 }
 
-typedef HRESULT(__stdcall* EndScene_t)(LPDIRECT3DDEVICE9);
-EndScene_t  OriginalEndScene = (EndScene_t)NULL;
-HRESULT __stdcall EndScene_Hook(LPDIRECT3DDEVICE9 pDevice)
+static HRESULT __stdcall OnCreateD3D9Device(
+    IDirect3D9* pDirect3D9,
+    UINT Adapter,
+    D3DDEVTYPE DeviceType,
+    HWND hFocusWindow,
+    DWORD BehaviorFlags,
+    D3DPRESENT_PARAMETERS* pPresentationParameters,
+    IDirect3DDevice9** ppReturnedDeviceInterface)
 {
-    pDxDevice9 = pDevice;
+    HRESULT hResult = pDirect3D9->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
+    if (hResult != D3D_OK)
+        return hResult;
 
-    if (GetAsyncKeyState(VK_F1) & 1) {
-        if (dw_CodeBlockinstance == NULL) {
-            BYTE* ayy = (BYTE*)malloc(52);
-            memset(ayy, 0, 52);
-            dw_CodeBlockinstance = OriginalCodeBlock_ctor(ayy);
-        }
-        printf("dw_CodeBlockinstance %p\n", dw_CodeBlockinstance);
+    Direct3DDevice9Proxy* pDeviceProxy = new Direct3DDevice9Proxy(*ppReturnedDeviceInterface);
+    *ppReturnedDeviceInterface = pDeviceProxy;
 
-        std::ifstream t("./Script.cs");
-        std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-        printf("%s", str.c_str());
-        OriginalCodeBlock_compileExec(dw_CodeBlockinstance, NULL, (char*)str.c_str(), NULL);
-    }
+    printf("[INFO] Game resolution: \n\t - Width: %d\n\t - Height: %d\n", pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight);
 
-    return OriginalEndScene(pDevice);
+    g_pPresentationParameters = pPresentationParameters;
+    hWindow = hFocusWindow;
+
+    /*lpPrevWndProc = (WNDPROC)GetWindowLong(hFocusWindow, GWL_WNDPROC);
+    SetWindowLong(hFocusWindow, GWL_WNDPROC, (LONG)NewWndProc);*/
+
+        // Set mouse hook
+        /*hHook = SetWindowsHookEx(
+            WH_MOUSE_LL,
+            mouseHookProc,
+            GetModuleHandle(NULL),
+            NULL);*/
+
+    return D3D_OK;
 }
 
-bool InstallEndScene_Hook() {
-    if (GetD3D9Device((void**)pDeviceTable, 119))
-    {
-        pEndScene = pDeviceTable[42];
-        OriginalEndScene = (EndScene_t)DetourFunction((PBYTE)pEndScene, (PBYTE)EndScene_Hook);
-
-        return true;
-    }
-    return false;
+static void* CreateD3D9DeviceRET;
+static void __declspec(naked) CreateD3D9DeviceHook()
+{
+    _asm push eax
+    _asm push 1
+    _asm push edi
+    _asm push ecx
+    _asm call OnCreateD3D9Device
+    _asm jmp CreateD3D9DeviceRET
 }
 
 void InstallPatches() {

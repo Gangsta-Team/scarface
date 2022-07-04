@@ -17,10 +17,17 @@
 
 # Code
 
-<ul>
-  <li>scarface-mod: WIP</li>
-  <li>scarface-rcf-explorer: WIP</li>
-</ul>
+<h3>scarface-mod: WIP</h3>
+<u>scarface-mod.ini</u>
+
+```
+[Scarface]
+Log=0
+DebugConsole=0
+ReleaseMode=0
+```
+
+<h3>scarface-rcf-explorer: WIP</h3>
 
 # Documentation
 Game reference: https://en.wikipedia.org/wiki/Scarface:_The_World_Is_Yours

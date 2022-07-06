@@ -1,5 +1,6 @@
 workspace "scarface-mod"
 	configurations { "Release", "Debug" }
+	cppdialect "C++17"
 	platforms { "Win32", "Win64" }
 	language "c++"
 	location "..\\solution"
@@ -17,7 +18,7 @@ project "scarface-mod"
 	symbols "Off"
 	optimize "Off"
 	
-	clr "Unsafe"
+	clr "off"
 	warnings "off"
 
 	filter "configurations:Debug"
@@ -34,7 +35,10 @@ project "scarface-mod"
 	
 	filter {}
 
-	libdirs { "..\\source\\detours" }
+	libdirs { 
+		"..\\source\\detours",
+		"$(DXSDK_DIR)\\Lib\\x86" 
+	}
 	linkoptions "/SAFESEH:NO"
 
 	files {
@@ -43,9 +47,10 @@ project "scarface-mod"
 		"..\\source\\DllMain.h",
 		"..\\source\\CConsole.h",
 		"..\\source\\CINI.h",
-		"..\\source\\CLog.h"
+		"..\\source\\CLog.h",
 	}
 	
 	includedirs {
-		"$(SolutionDir)..\\source"
+		"$(SolutionDir)..\\source",
+		"$(DXSDK_DIR)\\Include",
 	}

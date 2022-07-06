@@ -1,60 +1,18 @@
 using Kaitai;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using System.ComponentModel;
 using System.ComponentModel.Design;
-using Be.Windows.Forms;
+using ProcessWithOutput;
+using System.Collections.Generic;
 using System.Drawing;
-
-class IniFile
-{
-    string Path;
-    string EXE = Assembly.GetExecutingAssembly().GetName().Name;
-
-    [DllImport("kernel32", CharSet = CharSet.Unicode)]
-    static extern long WritePrivateProfileString(string Section, string Key, string Value, string FilePath);
-
-    [DllImport("kernel32", CharSet = CharSet.Unicode)]
-    static extern int GetPrivateProfileString(string Section, string Key, string Default, StringBuilder RetVal, int Size, string FilePath);
-
-    public IniFile(string IniPath = null)
-    {
-        Path = new FileInfo(IniPath ?? EXE + ".ini").FullName;
-    }
-
-    public string Read(string Key, string Section = null)
-    {
-        var RetVal = new StringBuilder(255);
-        GetPrivateProfileString(Section ?? EXE, Key, "", RetVal, 255, Path);
-        return RetVal.ToString();
-    }
-
-    public void Write(string Key, string Value, string Section = null)
-    {
-        WritePrivateProfileString(Section ?? EXE, Key, Value, Path);
-    }
-
-    public void DeleteKey(string Key, string Section = null)
-    {
-        Write(Key, null, Section ?? EXE);
-    }
-
-    public void DeleteSection(string Section = null)
-    {
-        Write(null, null, Section ?? EXE);
-    }
-
-    public bool KeyExists(string Key, string Section = null)
-    {
-        return Read(Key, Section).Length > 0;
-    }
-}
+using System.Text.RegularExpressions;
+using System.ComponentModel;
+using System.Reflection;
+using System.Linq;
 
 class Window
 {
@@ -70,14 +28,17 @@ class Window
     const int WINDOW_W = 800;
     const int WINDOW_H = 600;
 
+    private static Control window_control;
     public static Form form = null;
-    public static Form settings_form = null;
     public static Cement cmnt = null;
     public static string working_file = null;
-    const string WINDOW_TITLE = "Scarface The World Is Yours: RCF Explorer";
-    public static IniFile MyIni = null;
+    public static string file_path = null;
+    public const string WINDOW_TITLE = "Scarface The World Is Yours: RCF Explorer";
+    public const string TEMP_PATH = "./temp";
+    public static IniFile ini = null;
 
     public static string[] paths;
+    public static List<string> opened_files = new List<string>();
 
     private static Panel panel1;
     private static MenuStrip menuStrip1;
@@ -87,17 +48,15 @@ class Window
     private static ToolStripMenuItem toolStripMenuItem1;
     private static ToolStripMenuItem toolStripMenuItem2;
     private static TreeView treeView1;
-    private static TextBox textBox1;
     private static ByteViewer byteviewer;
-    private static HexBox hexBox1;
+    private static TabControl tabControl1;
+    private static string decompile_py = null;
+    private static string decompile_path = null;
+    private static TreeNode working_node = null;
+    private static RichTextBox working_rtb = null;
+    //private TabPage tabPage1;
 
-    //
-    // Settings form
-    // 
-    private static Button pySave;
-    private static Button pyDetect;
-    private static Label pyLabel;
-    private static TextBox pyPath;
+    private static Form settings_form;
 
     enum TypeView : ushort
     {
@@ -109,68 +68,6 @@ class Window
         rsd = 5
     }
 
-    private static void InitializeSettingsComponent()
-    {
-        settings_form = new Form();
-        settings_form.Text = WINDOW_TITLE + " - Settings";
-
-        pySave = new System.Windows.Forms.Button();
-        pyDetect = new System.Windows.Forms.Button();
-        pyLabel = new System.Windows.Forms.Label();
-        pyPath = new System.Windows.Forms.TextBox();
-        settings_form.SuspendLayout();
-        // 
-        // button1
-        // 
-        pySave.Location = new System.Drawing.Point(475, 23);
-        pySave.Name = "button1";
-        pySave.Size = new System.Drawing.Size(75, 23);
-        pySave.TabIndex = 0;
-        pySave.Text = "Save";
-        pySave.UseVisualStyleBackColor = true;
-        pySave.Click += Settings_CloseButton_Click;
-        // 
-        // button2
-        // 
-        pyDetect.Location = new System.Drawing.Point(394, 23);
-        pyDetect.Name = "button2";
-        pyDetect.Size = new System.Drawing.Size(75, 23);
-        pyDetect.TabIndex = 1;
-        pyDetect.Text = "Find";
-        pyDetect.UseVisualStyleBackColor = true;
-        pyDetect.Click += Settings_FindButton_Click;
-        // 
-        // label1
-        // 
-        pyLabel.AutoSize = true;
-        pyLabel.Location = new System.Drawing.Point(12, 9);
-        pyLabel.Name = "label1";
-        pyLabel.Size = new System.Drawing.Size(67, 13);
-        pyLabel.TabIndex = 2;
-        pyLabel.Text = "Python path:";
-        // 
-        // pyPath
-        // 
-        pyPath.Location = new System.Drawing.Point(12, 25);
-        pyPath.Name = "textBox1";
-        pyPath.Size = new System.Drawing.Size(376, 20);
-        pyPath.TabIndex = 3;
-        // 
-        // Settings
-        // 
-        settings_form.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-        settings_form.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        settings_form.ClientSize = new System.Drawing.Size(561, 59);
-        settings_form.Controls.Add(pyPath);
-        settings_form.Controls.Add(pyLabel);
-        settings_form.Controls.Add(pySave);
-        settings_form.Controls.Add(pyDetect);
-        settings_form.Name = "Settings";
-        settings_form.Text = "Settings";
-        settings_form.ResumeLayout(false);
-        settings_form.PerformLayout();
-    }
-
     private static void InitializeComponent()
     {
 
@@ -179,13 +76,15 @@ class Window
         menuStrip1 = new System.Windows.Forms.MenuStrip();
         splitContainer1 = new System.Windows.Forms.SplitContainer();
         splitContainer2 = new System.Windows.Forms.SplitContainer();
-        hexBox1 = new HexBox();
+        tabControl1 = new System.Windows.Forms.TabControl();
+        //hexBox1 = new HexBox();
         panel1.SuspendLayout();
         panel2.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)(splitContainer1)).BeginInit();
         ((System.ComponentModel.ISupportInitialize)(splitContainer2)).BeginInit();
         splitContainer1.SuspendLayout();
-        splitContainer2.SuspendLayout();
+        splitContainer2.SuspendLayout(); 
+        tabControl1.SuspendLayout();
         form.SuspendLayout();
         // 
         // panel1
@@ -247,47 +146,29 @@ class Window
         //
         // splitContainer2
         //
-        splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
-        splitContainer2.Location = new System.Drawing.Point(0, 0);
         splitContainer2.Name = "splitContainer2";
         splitContainer2.Dock = DockStyle.Fill;
-        splitContainer2.SplitterDistance = 266;
         splitContainer2.TabIndex = 0;
         splitContainer2.Orientation = Orientation.Horizontal;
-        splitContainer1.Panel2.ControlAdded += new ControlEventHandler(splitContainer2_Panel2_ControlAdded);
-        splitContainer2.BackColor = Color.LightBlue;
-        form.Resize += new System.EventHandler(SplitContainer2_SizeChanged);
-        //
-        // textBox1
-        //
-        textBox1 = new TextBox();
-        textBox1.Dock = DockStyle.Fill;
-        textBox1.Visible = false;
-        textBox1.Multiline = true;
-        splitContainer2.Panel1.Controls.Add(textBox1);
-        splitContainer1.Panel2.Controls.Add(splitContainer2);
+        splitContainer2.SplitterDistance = 266;
+        splitContainer2.Panel2.ControlAdded += new ControlEventHandler(splitContainer2_Panel2_ControlAdded);
         //
         // ByteViewer
         //
-        //byteviewer = new ByteViewer();
-        //byteviewer.Dock = DockStyle.Fill;
-        //byteviewer.Anchor = AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Top;
-        //byteviewer.SetBytes(new byte[] { });
-        //splitContainer2.Panel2.Controls.Add(byteviewer);
+        byteviewer = new ByteViewer();
+        byteviewer.Dock = DockStyle.Fill;
+        byteviewer.SetBytes(new byte[] { });
+        splitContainer2.Panel2.Controls.Add(byteviewer);
         // 
-        // hexBox1
+        // tabControl1
         // 
-        hexBox1.Font = new System.Drawing.Font("Segoe UI", 9F);
-        hexBox1.Name = "hexBox1";
-        hexBox1.Dock = DockStyle.Fill;
-        hexBox1.Visible = false;
-        hexBox1.ShadowSelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(60)))), ((int)(((byte)(188)))), ((int)(((byte)(255)))));
-        hexBox1.TabIndex = 0;
-        hexBox1.Size = form.ClientSize;
-        hexBox1.VScrollBarVisible = true;
-        hexBox1.UseFixedBytesPerLine = true;
-        hexBox1.StringViewVisible = true;
-        splitContainer2.Panel2.Controls.Add(hexBox1);
+        tabControl1.Location = new System.Drawing.Point(117, 41);
+        tabControl1.Name = "tabControl1";
+        tabControl1.SelectedIndex = 0;
+        tabControl1.Dock = DockStyle.Fill;
+        tabControl1.TabIndex = 0;
+        splitContainer2.Panel1.Controls.Add(tabControl1);
+        splitContainer1.Panel2.Controls.Add(splitContainer2);
         // 
         // Form1
         // 
@@ -300,21 +181,32 @@ class Window
         form.Name = "Form1";
         form.Text = "Form1";
         form.Load += new EventHandler(Window_Load);
+        form.FormClosing += new FormClosingEventHandler(Window_FormClosing);
         panel1.ResumeLayout(false);
         panel1.PerformLayout();
         panel2.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)(splitContainer1)).EndInit();
+        ((System.ComponentModel.ISupportInitialize)(splitContainer2)).EndInit();
         splitContainer1.ResumeLayout(false);
+        splitContainer2.ResumeLayout(false);
         form.ResumeLayout(false);
 
-        MyIni = new IniFile("Settings.ini");
+        window_control = form;
 
-        InitializeSettingsComponent();
+        ini = new IniFile("Settings.ini");
 
-        // Read settings
-        var myPath = MyIni.Read("PythonPath");
-        if (myPath != "")
-            pyPath.Text = MyIni.Read("PythonPath").ToString();
+        SettingsForm.InitializeSettingsComponent();
+        settings_form = SettingsForm.GetForm();
+
+        Directory.CreateDirectory(TEMP_PATH);
+
+        Debug.WriteLine(ReadResource("decompiler.py"));
+        decompile_py = ReadResource("decompiler.py");
+        if(decompile_py != null)
+        {
+            decompile_path = TEMP_PATH + "/decompiler.py";
+            File.WriteAllText(decompile_path, decompile_py);
+        }
     }
 
     [STAThread]
@@ -397,13 +289,13 @@ class Window
 
     private static void ToggleView(TypeView type)
     {
-        textBox1.Visible = false;
+        //textBox1.Visible = false;
         switch (type)
         {
             case TypeView.None: break;
             case TypeView.Pure3D: break;
             case TypeView.TorqueScript:
-                textBox1.Visible = true;
+                //textBox1.Visible = true;
                 break;
             case TypeView.bik: break;
             default: break;
@@ -433,30 +325,43 @@ class Window
             {
                 case "cso":
                     {
-                        Debug.WriteLine(e.Node.FullPath);
                         Cement.RcfDirectory fcontent = GetFileDirectoryFromPath(e.Node.FullPath);
                         ToggleView(TypeView.TorqueScript);
-                        Debug.WriteLine("File Length: " + fcontent.File.Length);
-                        Debug.WriteLine("File FlOffset: " + fcontent.FlOffset);
-                        Debug.WriteLine("File FlSize: " + fcontent.FlSize);
 
-                        //byteviewer.Width = splitContainer2.Panel2.Width;
-                        //byteviewer.Height = splitContainer2.Panel2.Height;
                         if (fcontent.File.Length > 0)
                         {
-                            //byteviewer.SetBytes(fcontent.File);
-                            hexBox1.ByteProvider = new DynamicByteProvider(fcontent.File);
+                            file_path = TEMP_PATH + "/" + e.Node.Name;
+                            using (FileStream fs = File.Create(file_path))
+                            {
+                                fs.Write(fcontent.File, 0, (int)fcontent.FlSize);
+                            }
+                            byteviewer.SetBytes(fcontent.File);
 
-                            hexBox1.ByteProvider.DeleteBytes(hexBox1.SelectionStart, hexBox1.SelectionLength);
-                            hexBox1.ByteProvider.InsertBytes(hexBox1.SelectionStart, fcontent.File);
-                            hexBox1.Visible = true;
-                            hexBox1.Width = splitContainer2.Panel2.Width;
-                            hexBox1.Height = splitContainer2.Panel2.Height;
-                            Encoding encoding = Encoding.GetEncoding("ISO-8859-1");
-                            string result = encoding.GetString(fcontent.File);
-                            textBox1.AppendText(result);
-                            Debug.Write(result);
+                            if (!opened_files.Contains(e.Node.FullPath))
+                            {
+                                var myPath = Window.ini.Read("PythonPath");
+                                string pypath = (myPath != "") ? Window.ini.Read("PythonPath").ToString() : "python";
+
+                                working_node = e.Node;
+                                CreateTabPage(e.Node.Name);
+
+                                var process = new ProcessWrapper(pypath, decompile_path + " " + file_path);
+
+                                process.OutputDataReceived += (sendr, eventArgs) => {
+                                    Debug.WriteLine($"Received: {eventArgs.Data}");
+                                    if (eventArgs.Data != null)
+                                    {
+                                        if (eventArgs.Data.Contains("Successfully decompiled 1 out of 1 input files"))
+                                        {
+                                            Debug.WriteLine("Finished!");
+                                            LoadDecompiledFile();
+                                        }
+                                    }
+                                };
+                                process.Start();
+                            }
                         }
+
                     } break;
                 case "p3d": ToggleView(TypeView.Pure3D); break;
                 case "bik": ToggleView(TypeView.bik); break;
@@ -466,29 +371,129 @@ class Window
         }
     }
 
-    private static void Window_Load(object sender, EventArgs e)
+    private static void LoadDecompiledFile()
     {
-
-        hexBox1.Width = splitContainer2.Panel2.Width;
-        hexBox1.Height = splitContainer2.Panel2.Height;
-        Debug.WriteLine("W: " + splitContainer2.Panel2.Width);
-        Debug.WriteLine("H: " + splitContainer2.Panel2.Height);
+        opened_files.Add(working_node.FullPath);
+        using (StreamReader sr = File.OpenText(file_path+".cs"))
+        {
+            string s = "";
+            string file_content = "";
+            while ((s = sr.ReadLine()) != null)
+            {
+                file_content += s + "\n";
+            }
+            AppendTextBox(file_content);
+            
+        }
     }
 
-    private static void SplitContainer2_SizeChanged(object sender, System.EventArgs e)
+    public static void AppendTextBox(string value)
     {
-        // Update Byte Viewer width
-        //byteviewer.Width = splitContainer2.Panel2.Width;
-        //byteviewer.Height = splitContainer2.Panel2.Height;
-        hexBox1.Width = splitContainer2.Panel2.Width;
-        hexBox1.Height = splitContainer2.Panel2.Height;
+        if (form.InvokeRequired)
+        {
+            form.Invoke(new Action<string>(AppendTextBox), new object[] { value });
+            return;
+        }
+
+        Regex r = new Regex("\\n");
+        String[] lines = r.Split(value);
+
+        foreach (string l in lines)
+        {
+            ParseLine(l, working_rtb);
+        }
+    }
+
+    public static void CreateTabPage(string file_name)
+    {
+        TabPage tp = new TabPage();
+        tp.Name = file_name;
+        tp.Padding = new System.Windows.Forms.Padding(3);
+        tp.TabIndex = 0;
+        tp.Text = file_name;
+        tp.UseVisualStyleBackColor = true;
+        tabControl1.Controls.Add(tp);
+
+        RichTextBox m_rtb = new RichTextBox();
+        m_rtb = new RichTextBox();
+        m_rtb.Multiline = true;
+        m_rtb.WordWrap = false;
+        m_rtb.Name = file_name;
+        m_rtb.AcceptsTab = true;
+        m_rtb.ScrollBars = RichTextBoxScrollBars.ForcedBoth;
+        m_rtb.Dock = DockStyle.Fill;
+        m_rtb.SelectionFont = new Font("Courier New", 10, FontStyle.Regular);
+        m_rtb.SelectionColor = Color.Black;
+        working_rtb = m_rtb;
+
+        tp.Controls.Add(m_rtb);
+    }
+
+    private static void ParseLine(string line, RichTextBox m_rtb)
+    {
+        Regex r = new Regex("([ \\t{}():;])");
+        String[] tokens = r.Split(line);
+        foreach (string token in tokens)
+        {
+            // Set the tokens default color and font.  
+            m_rtb.SelectionColor = Color.Black;
+            m_rtb.SelectionFont = new Font("Courier New", 10, FontStyle.Regular);
+            // Check whether the token is a keyword.   
+            String[] keywords = { "while", "else", "function", "if" };
+            for (int i = 0; i < keywords.Length; i++)
+            {
+                if (keywords[i] == token)
+                {
+                    // Apply alternative color and font to highlight keyword.  
+                    m_rtb.SelectionColor = Color.Blue;
+                    m_rtb.SelectionFont = new Font("Courier New", 10, FontStyle.Bold);
+                    break;
+                }
+            }
+            m_rtb.SelectedText = token;
+        }
+        m_rtb.SelectedText = "\n";
+    }
+
+    private static void Window_Load(object sender, EventArgs e)
+    {
+        splitContainer2.SplitterDistance = 266;
+    }
+
+    private static void Window_FormClosing(object sender, FormClosingEventArgs e)
+    {
+        Directory.Delete(TEMP_PATH, true);
     }
 
 
     private static void splitContainer2_Panel2_ControlAdded(object sender, ControlEventArgs e)
     {
-        hexBox1.Width = splitContainer2.Panel2.Width;
-        hexBox1.Height = splitContainer2.Panel2.Height;
+        byteviewer.Width = splitContainer2.Panel2.Width;
+        byteviewer.Height = splitContainer2.Panel2.Height;
+    }
+
+    private static string ReadResource(string name)
+    {
+        // Determine path
+        var assembly = Assembly.GetExecutingAssembly();
+        string resourcePath = name;
+        // Format: "{Namespace}.{Folder}.{filename}.{Extension}"
+        if (!name.StartsWith(nameof(SignificantDrawerCompiler)))
+        {
+            resourcePath = assembly.GetManifestResourceNames()
+                .Single(str => str.EndsWith(name));
+        }
+
+        using (Stream stream = assembly.GetManifestResourceStream(resourcePath))
+        using (StreamReader reader = new StreamReader(stream))
+        {
+            return reader.ReadToEnd();
+        }
+    }
+
+    private static object SignificantDrawerCompiler()
+    {
+        throw new NotImplementedException();
     }
 
     private static void Item_Click(object sender, EventArgs e)
@@ -530,30 +535,6 @@ class Window
 
             default:
                 break;
-        }
-    }
-
-    private static void Settings_CloseButton_Click(object sender, EventArgs e)
-    {
-        pyPath.ReadOnly = true;
-        settings_form.Close();
-    }
-
-    private static void Settings_FindButton_Click(object sender, EventArgs e)
-    {
-        OpenFileDialog openFileDialog = new OpenFileDialog();
-        openFileDialog.InitialDirectory = @"C:\";
-        openFileDialog.Title = "Browse Python executable";
-        openFileDialog.DefaultExt = "exe";
-        openFileDialog.Filter = "exe file (*.exe)|*.exe|All files (*.*)|*.*";
-        openFileDialog.CheckFileExists = true;
-        openFileDialog.CheckPathExists = true;
-        if (openFileDialog.ShowDialog() == DialogResult.OK)
-        {
-            pyPath.ReadOnly = false;
-            pyPath.Text = openFileDialog.FileName;
-            pySave.Text = "Save";
-            MyIni.Write("PythonPath", pyPath.Text);
         }
     }
 }

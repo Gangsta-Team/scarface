@@ -359,7 +359,10 @@ class Window
                                     }
                                 };
                                 process.Start();
+                                SelectTabByName(e.Node.Name);
                             }
+
+                            SelectTabByName(e.Node.Name);
                         }
 
                     } break;
@@ -402,6 +405,10 @@ class Window
         {
             ParseLine(l, working_rtb);
         }
+
+        ParseStrings(working_rtb);
+        ParseComments(working_rtb);
+
     }
 
     public static void CreateTabPage(string file_name)
@@ -439,7 +446,7 @@ class Window
             m_rtb.SelectionColor = Color.Black;
             m_rtb.SelectionFont = new Font("Courier New", 10, FontStyle.Regular);
             // Check whether the token is a keyword.   
-            String[] keywords = { "while", "else", "function", "if" };
+            String[] keywords = { "while", "else", "function", "if", "new", "return" };
             for (int i = 0; i < keywords.Length; i++)
             {
                 if (keywords[i] == token)
@@ -453,6 +460,44 @@ class Window
             m_rtb.SelectedText = token;
         }
         m_rtb.SelectedText = "\n";
+    }
+
+    private static void ParseStrings(RichTextBox m_rtb)
+    {
+
+        //Format strings
+        string pattern_strings = @"(\"".*?\"")";
+        var matches = Regex.Matches(m_rtb.Text, pattern_strings, RegexOptions.IgnoreCase);
+        foreach (Match m in matches)
+        {
+            m_rtb.Select(m.Index, m.Length);
+            m_rtb.SelectionColor = Color.DarkOrange;
+        }
+    }
+
+    private static void ParseComments(RichTextBox m_rtb)
+    {
+
+        //Format strings
+        string pattern_strings = @"(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)";
+        var matches = Regex.Matches(m_rtb.Text, pattern_strings, RegexOptions.IgnoreCase);
+        foreach (Match m in matches)
+        {
+            m_rtb.Select(m.Index, m.Length);
+            m_rtb.SelectionColor = Color.Green;
+        }
+    }
+
+    private static void SelectTabByName(string name)
+    {
+        foreach (TabPage t in tabControl1.TabPages)
+        {
+            if (t.Name.Equals(name))
+            {
+                tabControl1.SelectedTab = t;
+                break;
+            }
+        }
     }
 
     private static void Window_Load(object sender, EventArgs e)

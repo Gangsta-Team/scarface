@@ -18,7 +18,7 @@ project "scarface-rcf-explorer"
 	clr "Unsafe"
 	warnings "off"
 	
-	links { "System", "System.Windows.Forms", "System.Drawing" }
+	links { "System", "System.Windows.Forms", "System.Drawing", "System.Design" }
 
 	filter "configurations:Debug"
 		defines {
@@ -31,19 +31,26 @@ project "scarface-rcf-explorer"
 			"STWIY_RELEASE"
 		}
 		targetname "scarface-rcf-explorer_release"
-	
+		
 	filter {}
 
 	files {
 		--"..\\source\\**",
 		"..\\source\\.editorconfig",
 		"..\\source\\Window.cs",
+		"..\\source\\SettingsForm.cs",
+		"..\\source\\INIFile.cs",
 		"..\\source\\KaitaiStruct.cs",
 		"..\\source\\KaitaiStream.cs",
+		"..\\source\\ProcessWithOutput.cs",
+		"..\\source\\Brokenface\\**",
 		--"..\\source\\Pure3D.cs",
 		"..\\source\\Cement.cs",
 	}
 	
+	filter "files:**.py"
+		buildaction "Embed"
+		
 	includedirs {
 		"$(SolutionDir)..\\source"
 	}

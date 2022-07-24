@@ -103,6 +103,10 @@ HRESULT Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDest
 	m_pDirect3DDevice9->Clear(1, &rect, D3DCLEAR_TARGET, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0);
 
 	if (GetAsyncKeyState(VK_F1) & 1) {
+		typedef char func(void);
+		func* f = (func*)0x652590;
+		char i = f();
+		printf("%d", i);
 		if (dw_CodeBlockinstance == NULL) {
 			BYTE* ayy = (BYTE*)malloc(52);
 			memset(ayy, 0, 52);
@@ -241,25 +245,6 @@ HRESULT Direct3DDevice9Proxy::BeginScene(void)
 
 HRESULT Direct3DDevice9Proxy::EndScene(void)
 {
-
-	/*if (g_pTexRed == NULL) D3DXCreateTextureFromFileInMemory(m_pDirect3DDevice9, (LPCVOID)&red, sizeof(red), &g_pTexRed);
-	if (g_pTexOrange == NULL) D3DXCreateTextureFromFileInMemory(m_pDirect3DDevice9, (LPCVOID)&orange, sizeof(orange), &g_pTexOrange);
-	if (g_pTexTonyBlood == NULL) D3DXCreateTextureFromFileInMemory(m_pDirect3DDevice9, (LPCVOID)&Tony_Gray_Suit_blood_tga_png, sizeof(Tony_Gray_Suit_blood_tga_png), &g_pTexTonyBlood);
-	if(g_pTexTonyBloodonly == NULL) D3DXCreateTextureFromFileInMemory(m_pDirect3DDevice9, (LPCVOID)&blood_spat_tga_png, sizeof(blood_spat_tga_png), &g_pTexTonyBloodonly);
-
-	if (g_pFont == NULL) D3DXCreateFont(m_pDirect3DDevice9, 15, 0, FW_BOLD, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Verdana", &g_pFont);
-	if (g_pLine == NULL) D3DXCreateLine(m_pDirect3DDevice9, &g_pLine);
-
-	m_pDirect3DDevice9->GetViewport(&g_ViewPort);
-
-	if (g_pFont != NULL && g_pLine != NULL) {
-		ModelRecLoggerMenu();
-		if (g_uiTimer > GetTickCount()) {
-			DrawString(g_ViewPort.Width / 2, g_ViewPort.Height / 2, 0xFF00FF00, "Values Saved");
-		}
-	}*/
-
-
 	return m_pDirect3DDevice9->EndScene();
 }
 

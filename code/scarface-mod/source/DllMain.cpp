@@ -3,9 +3,9 @@
 //Patterns
 #include "Patterns.h"
 
-CINI*                   gINI;
-CLog*                   gLog;
-CConsole*               gConsole;
+CINI* gINI;
+CLog* gLog;
+CConsole* gConsole;
 
 int                     g_iDebugConsole = 0;
 int                     g_iLog = 0;
@@ -15,8 +15,8 @@ DWORD	                g_dwImageBase = 0x40000;
 HWND                    hWindow = NULL;
 bool                    bRenderInit = false;
 bool                    g_bRenderMenu = false;
-DWORD*                  dw_CodeBlockinstance = NULL;
-D3DPRESENT_PARAMETERS*  g_pPresentationParameters;
+DWORD* dw_CodeBlockinstance = NULL;
+D3DPRESENT_PARAMETERS* g_pPresentationParameters;
 
 // Dx9 EndScene
 void* pEndScene = NULL;
@@ -28,12 +28,12 @@ compileExec_t OriginalCodeBlock_compileExec;
 U32 g_codeSize;
 U32* g_code;
 
-char* __fastcall CodeBlock_compileExec_Hook(void* thisptr, void*, char* Str, char* Source, char* Args) {
+char* __fastcall CodeBlock_compileExec_Hook(CodeBlock* thisptr, void*, char* Str, char* Source, char* Args) {
     printf("CodeBlock_compileExec_Hook(%s, %s, %s);\n", Str, Source, Args);
     char* res = OriginalCodeBlock_compileExec(thisptr, Str, Source, Args);
 
-    /*U32 codeSize = *(U32*)(((DWORD)thisptr) + 0x14);
-    U16* code = *(U16**)(((DWORD)thisptr) + 0x18);
+    U32 codeSize = *(U32*)(((DWORD)thisptr) + 0x14);
+    U32* code = *(U32**)(((DWORD)thisptr) + 0x18);
     printf("codeSize 0x%x\n", codeSize);
     printf("code 0x%p\n", code);
     if (code) {
@@ -46,7 +46,7 @@ char* __fastcall CodeBlock_compileExec_Hook(void* thisptr, void*, char* Str, cha
     }
     else {
         printf("code nullptr\n");
-    }*/
+    }
 
     return res;
 }
@@ -70,7 +70,7 @@ U32 __cdecl compileBlock_Hook(StmtNode* block, U32* codeStream, U32 ip, U32 cont
 }
 
 // Game
-typedef signed int (__cdecl* PddiCreate_t)(int a1, int a2, int* a3);
+typedef signed int(__cdecl* PddiCreate_t)(int a1, int a2, int* a3);
 PddiCreate_t OriginalPddiCreate;
 signed int PddiCreate_Hook(int a1, int a2, int* a3) {
     printf("PddiCreate_Hook()\n");
@@ -83,7 +83,7 @@ signed int PddiCreate_Hook(int a1, int a2, int* a3) {
     if (pattern1002.size() == 1)
     {
         printf("[INFO]: Game version: 1.00.2\n");
-        
+
         DetourFunction((PBYTE)pattern1002.get_first(0), (PBYTE)CreateD3D9DeviceHook);
         CreateD3D9DeviceRET = pattern1002.get_first(+8);
     }
@@ -122,12 +122,12 @@ static HRESULT __stdcall OnCreateD3D9Device(
     /*lpPrevWndProc = (WNDPROC)GetWindowLong(hFocusWindow, GWL_WNDPROC);
     SetWindowLong(hFocusWindow, GWL_WNDPROC, (LONG)NewWndProc);*/
 
-        // Set mouse hook
-        /*hHook = SetWindowsHookEx(
-            WH_MOUSE_LL,
-            mouseHookProc,
-            GetModuleHandle(NULL),
-            NULL);*/
+    // Set mouse hook
+    /*hHook = SetWindowsHookEx(
+        WH_MOUSE_LL,
+        mouseHookProc,
+        GetModuleHandle(NULL),
+        NULL);*/
 
     return D3D_OK;
 }
@@ -149,12 +149,12 @@ void InstallPatches() {
     //uint8_t* gFinalMode = (uint8_t*)0x007C1C55;
 
     int iReleaseMode = gINI->ReadSetting("ReleaseMode");
-    if(iReleaseMode == 0)
+    if (iReleaseMode == 0)
         *gReleaseMode = 0;
     //*gFinalMode = 0;
 }
 
-typedef void (__stdcall* p3d_printf_t)(char* args, ...);
+typedef void(__stdcall* p3d_printf_t)(char* args, ...);
 p3d_printf_t Originalp3d_printf;
 void p3d_printf_Hook(char* args, ...) {
     printf("p3d_printf_t(%s)\n", args);
@@ -257,22 +257,57 @@ DWORD* __fastcall REGISTER_METHOD_4_Hook(DWORD* thisptr, void*, int a1, char* fu
     return Original_REGISTER_METHOD_4(thisptr, a1, functionname, fnref, a4, a5, a6);
 }
 
+
+typedef int(__stdcall* dSprintf_t)(char* Dest, int unk0, char* Format, ...);
+dSprintf_t OriginaldSprintf;
+int dSprintf_Hook(char* Dest, int unk0, char* Format, ...) {
+    printf("dSprintf_Hook()\n");
+
+    va_list Args; // [esp+10h] [ebp+10h] BYREF
+
+    va_start(Args, Format);
+
+
+    printf("-\t");
+    vprintf(Format, Args);
+    printf("\n");
+    return vsprintf(Dest, Format, Args);
+
+}
+
 void InstallHooks() {
     OriginalCreateGameWindow = (CreateGameWindow_t)DetourFunction((PBYTE)0x00457160, (PBYTE)CreateGameWindow_Hook);
     OriginalPddiCreate = (PddiCreate_t)DetourFunction((PBYTE)0x007035B0, (PBYTE)PddiCreate_Hook);
     OriginalCodeBlock_compileExec = (compileExec_t)DetourFunction((PBYTE)0x0490390, (PBYTE)CodeBlock_compileExec_Hook);
     OriginalCodeBlock_ctor = (CodeBlock_ctor_t)DetourFunction((PBYTE)0x48CFE0, (PBYTE)CodeBlock_ctor_Hook);
     OriginalcompileBlock = (compileBlock_t)DetourFunction((PBYTE)0x48D1E0, (PBYTE)compileBlock_Hook);
+    OriginaldSprintf = (dSprintf_t)DetourFunction((PBYTE)0x0048A320, (PBYTE)dSprintf_Hook);
     //Originalp3d_printf = (p3d_printf_t)DetourFunction((PBYTE)0x005E1BB0, (PBYTE)p3d_printf_Hook);
     //OriginalBufferPrintf = (BufferPrintf_t)DetourFunction((PBYTE)0x004C0D70, (PBYTE)BufferPrintf_Hook);
-    
+
     /*Original_REGISTER_METHOD = (REGISTER_METHOD_t)DetourFunction((PBYTE)0x004374C0, (PBYTE)REGISTER_METHOD_Hook);
     Original_REGISTER_METHOD_0 = (REGISTER_METHOD_0_t)DetourFunction((PBYTE)0x004917B0, (PBYTE)REGISTER_METHOD_0_Hook);
     Original_REGISTER_METHOD_1 = (REGISTER_METHOD_1_t)DetourFunction((PBYTE)0x00491760, (PBYTE)REGISTER_METHOD_1_Hook);
     Original_REGISTER_METHOD_2 = (REGISTER_METHOD_2_t)DetourFunction((PBYTE)0x00491670, (PBYTE)REGISTER_METHOD_2_Hook);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     Original_REGISTER_METHOD_3 = (REGISTER_METHOD_3_t)DetourFunction((PBYTE)0x004916C0, (PBYTE)REGISTER_METHOD_3_Hook);
     Original_REGISTER_METHOD_4 = (REGISTER_METHOD_4_t)DetourFunction((PBYTE)0x00491710, (PBYTE)REGISTER_METHOD_4_Hook);*/
-    
+
 }
 
 void ScarfaceMod() {
@@ -289,14 +324,14 @@ void ScarfaceMod() {
     gConsole = new CConsole();
     if (g_iDebugConsole == 1)
         gConsole->Initialize();
-    
+
     printf(MOD_NAME);
 
     // Initialize Log.
     gLog = new CLog();
     if (g_iLog == 1)
         gLog->Initialize();
-    
+
 
     printf("Game base address: 0x%p\n", g_hGameBase);
 
@@ -354,11 +389,11 @@ inline StringTableEntry U32toSTE(U32 u)
     return *((StringTableEntry*)&u);
 }
 
-void dumpInstructions(void* codeBlock, U32 startIp, bool upToReturn, U32 codeSize, U16* code)
+void dumpInstructions(CodeBlock* codeBlock, U32 startIp, bool upToReturn, U32 codeSize, U32* code)
 {
     U32 ip = startIp;
-    char* functionStrings = (char*)(((DWORD)codeBlock) + 0x08);
-    double* functionFloats = (double*)(((DWORD)codeBlock) + 0x10);
+    //char* functionStrings = (char*)(((DWORD)codeBlock) + 0x08);
+    //F64* functionFloats = (F64*)(((DWORD)codeBlock) + 0x10);
 
     while (ip < codeSize)
     {
@@ -368,9 +403,9 @@ void dumpInstructions(void* codeBlock, U32 startIp, bool upToReturn, U32 codeSiz
         {
         case OP_FUNC_DECL:
         {
-           /* StringTableEntry fnName = U32toSTE(code[ip]);
-            StringTableEntry fnNamespace = U32toSTE(code[ip + 1]);
-            StringTableEntry fnPackage = U32toSTE(code[ip + 2]);*/
+            /* StringTableEntry fnName = U32toSTE(code[ip]);
+             StringTableEntry fnNamespace = U32toSTE(code[ip + 1]);
+             StringTableEntry fnPackage = U32toSTE(code[ip + 2]);*/
             bool hasBody = bool(code[ip + 3]);
             U32 newIp = code[ip + 4];
             U32 argc = code[ip + 5];
@@ -379,7 +414,7 @@ void dumpInstructions(void* codeBlock, U32 startIp, bool upToReturn, U32 codeSiz
             /*printf("%i: OP_FUNC_DECL name=%s nspace=%s package=%s hasbody=%i newip=%i argc=%i",
                 ip - 1, fnName, fnNamespace, fnPackage, hasBody, newIp, argc);*/
 
-            // Skip args.
+                // Skip args.
 
             ip += 6 + argc;
             break;
@@ -879,9 +914,9 @@ void dumpInstructions(void* codeBlock, U32 startIp, bool upToReturn, U32 codeSiz
 
             U32 callType = code[ip + 2];
 
-           /* printf("%i: OP_CALLFUNC_RESOLVE name=%s nspace=%s callType=%s", ip - 1, fnName, fnNamespace,
-                callType == FunctionCall ? "FunctionCall"
-                : callType == MethodCall ? "MethodCall" : "ParentCall");*/
+            /* printf("%i: OP_CALLFUNC_RESOLVE name=%s nspace=%s callType=%s", ip - 1, fnName, fnNamespace,
+                 callType == FunctionCall ? "FunctionCall"
+                 : callType == MethodCall ? "MethodCall" : "ParentCall");*/
             printf("%i: OP_CALLFUNC_RESOLVE callType=%s\n", ip - 1,
                 callType == FunctionCall ? "FunctionCall"
                 : callType == MethodCall ? "MethodCall" : "ParentCall");
@@ -896,9 +931,9 @@ void dumpInstructions(void* codeBlock, U32 startIp, bool upToReturn, U32 codeSiz
             StringTableEntry fnName = U32toSTE(code[ip]);*/
             U32 callType = code[ip + 2];
 
-           /* printf("%i: OP_CALLFUNC name=%s nspace=%s callType=%s", ip - 1, fnName, fnNamespace,
-                callType == FunctionCall ? "FunctionCall"
-                : callType == MethodCall ? "MethodCall" : "ParentCall");*/
+            /* printf("%i: OP_CALLFUNC name=%s nspace=%s callType=%s", ip - 1, fnName, fnNamespace,
+                 callType == FunctionCall ? "FunctionCall"
+                 : callType == MethodCall ? "MethodCall" : "ParentCall");*/
             printf("%i: OP_CALLFUNC callType=%s\n", ip - 1,
                 callType == FunctionCall ? "FunctionCall"
                 : callType == MethodCall ? "MethodCall" : "ParentCall");

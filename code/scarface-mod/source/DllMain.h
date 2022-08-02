@@ -141,4 +141,23 @@ enum {
     ParentCall
 };
 
-void dumpInstructions(void* codeBlock, U32 startIp = 0, bool upToReturn = false, U32 codeSize = NULL, U16* code = NULL);
+//#pragma pack (1)
+struct CodeBlock
+{
+    StringTableEntry name;
+    char* globalStrings;
+    char* functionStrings;
+    F64 globalFloats;
+    F64 functionFloats;
+    U32 codeSize;
+    U32* code;
+    U32 refCount;
+    U32 lineBreakPairCount;
+    U32* lineBreakPairs;
+    U32 breakListSize;
+    U32* breakList;
+    CodeBlock* nextFile;
+};
+//#pragma unpack
+
+void dumpInstructions(CodeBlock* codeBlock, U32 startIp = 0, bool upToReturn = false, U32 codeSize = 0, U32* code = 0);

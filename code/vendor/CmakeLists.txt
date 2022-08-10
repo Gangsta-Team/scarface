@@ -1,0 +1,3 @@
+project("vendors")
+
+add_subdirectory("minhook")

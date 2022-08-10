@@ -1,6 +1,5 @@
 ﻿#include "DllMain.h"
-
-//Patterns
+#include "HookingUtils.hpp"
 #include "Patterns.h"
 
 CINI* gINI;
@@ -84,7 +83,7 @@ signed int PddiCreate_Hook(int a1, int a2, int* a3) {
     {
         printf("[INFO]: Game version: 1.00.2\n");
 
-        DetourFunction((PBYTE)pattern1002.get_first(0), (PBYTE)CreateD3D9DeviceHook);
+        DetourFunction<void>((PBYTE)pattern1002.get_first(0), (PBYTE)CreateD3D9DeviceHook);
         CreateD3D9DeviceRET = pattern1002.get_first(+8);
     }
     return res;
@@ -276,12 +275,12 @@ int dSprintf_Hook(char* Dest, int unk0, char* Format, ...) {
 }
 
 void InstallHooks() {
-    OriginalCreateGameWindow = (CreateGameWindow_t)DetourFunction((PBYTE)0x00457160, (PBYTE)CreateGameWindow_Hook);
-    OriginalPddiCreate = (PddiCreate_t)DetourFunction((PBYTE)0x007035B0, (PBYTE)PddiCreate_Hook);
-    OriginalCodeBlock_compileExec = (compileExec_t)DetourFunction((PBYTE)0x0490390, (PBYTE)CodeBlock_compileExec_Hook);
-    OriginalCodeBlock_ctor = (CodeBlock_ctor_t)DetourFunction((PBYTE)0x48CFE0, (PBYTE)CodeBlock_ctor_Hook);
-    OriginalcompileBlock = (compileBlock_t)DetourFunction((PBYTE)0x48D1E0, (PBYTE)compileBlock_Hook);
-    OriginaldSprintf = (dSprintf_t)DetourFunction((PBYTE)0x0048A320, (PBYTE)dSprintf_Hook);
+    OriginalCreateGameWindow = DetourFunction<CreateGameWindow_t>((PBYTE)0x00457160, (PBYTE)CreateGameWindow_Hook);
+    OriginalPddiCreate = DetourFunction<PddiCreate_t>((PBYTE)0x007035B0, (PBYTE)PddiCreate_Hook);
+    OriginalCodeBlock_compileExec = DetourFunction<compileExec_t>((PBYTE)0x0490390, (PBYTE)CodeBlock_compileExec_Hook);
+    OriginalCodeBlock_ctor = DetourFunction<CodeBlock_ctor_t>((PBYTE)0x48CFE0, (PBYTE)CodeBlock_ctor_Hook);
+    OriginalcompileBlock = DetourFunction<compileBlock_t>((PBYTE)0x48D1E0, (PBYTE)compileBlock_Hook);
+    OriginaldSprintf = DetourFunction<dSprintf_t>((PBYTE)0x0048A320, (PBYTE)dSprintf_Hook);
     //Originalp3d_printf = (p3d_printf_t)DetourFunction((PBYTE)0x005E1BB0, (PBYTE)p3d_printf_Hook);
     //OriginalBufferPrintf = (BufferPrintf_t)DetourFunction((PBYTE)0x004C0D70, (PBYTE)BufferPrintf_Hook);
 
@@ -289,22 +288,6 @@ void InstallHooks() {
     Original_REGISTER_METHOD_0 = (REGISTER_METHOD_0_t)DetourFunction((PBYTE)0x004917B0, (PBYTE)REGISTER_METHOD_0_Hook);
     Original_REGISTER_METHOD_1 = (REGISTER_METHOD_1_t)DetourFunction((PBYTE)0x00491760, (PBYTE)REGISTER_METHOD_1_Hook);
     Original_REGISTER_METHOD_2 = (REGISTER_METHOD_2_t)DetourFunction((PBYTE)0x00491670, (PBYTE)REGISTER_METHOD_2_Hook);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     Original_REGISTER_METHOD_3 = (REGISTER_METHOD_3_t)DetourFunction((PBYTE)0x004916C0, (PBYTE)REGISTER_METHOD_3_Hook);
     Original_REGISTER_METHOD_4 = (REGISTER_METHOD_4_t)DetourFunction((PBYTE)0x00491710, (PBYTE)REGISTER_METHOD_4_Hook);*/
 

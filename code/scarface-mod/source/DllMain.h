@@ -22,8 +22,7 @@ static void CreateD3D9DeviceHook();
 #define MOD_NAME		"[-] Scarface The World Is Yours Mod [-]\n"
 
 #include <d3d9.h>
-#include <d3dx9.h>
-#pragma comment(lib, "d3d9.lib")
+//#pragma comment(lib, "d3d9.lib")
 
 //Torque3D
 #include "Torque3D/types.h"
@@ -39,8 +38,7 @@ static void CreateD3D9DeviceHook();
 #include "CConsole.h"
 
 // Detours lib
-#pragma comment(lib, "detours.lib")
-#include "detours/detours.h"
+#include <MinHook.h>
 
 extern CINI*		gINI;
 extern CLog*		gLog;

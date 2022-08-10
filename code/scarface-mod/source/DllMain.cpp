@@ -275,6 +275,8 @@ int dSprintf_Hook(char* Dest, int unk0, char* Format, ...) {
 }
 
 void InstallHooks() {
+    MH_Initialize();
+
     OriginalCreateGameWindow = DetourFunction<CreateGameWindow_t>((PBYTE)0x00457160, (PBYTE)CreateGameWindow_Hook);
     OriginalPddiCreate = DetourFunction<PddiCreate_t>((PBYTE)0x007035B0, (PBYTE)PddiCreate_Hook);
     OriginalCodeBlock_compileExec = DetourFunction<compileExec_t>((PBYTE)0x0490390, (PBYTE)CodeBlock_compileExec_Hook);
@@ -290,6 +292,8 @@ void InstallHooks() {
     Original_REGISTER_METHOD_2 = (REGISTER_METHOD_2_t)DetourFunction((PBYTE)0x00491670, (PBYTE)REGISTER_METHOD_2_Hook);
     Original_REGISTER_METHOD_3 = (REGISTER_METHOD_3_t)DetourFunction((PBYTE)0x004916C0, (PBYTE)REGISTER_METHOD_3_Hook);
     Original_REGISTER_METHOD_4 = (REGISTER_METHOD_4_t)DetourFunction((PBYTE)0x00491710, (PBYTE)REGISTER_METHOD_4_Hook);*/
+
+    MH_EnableHook(MH_ALL_HOOKS);
 
 }
 

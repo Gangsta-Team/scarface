@@ -10,5 +10,6 @@
 #include <mutex>
 #include <map>
 #include <vector>
+#include <d3d9.h>
 
 #endif

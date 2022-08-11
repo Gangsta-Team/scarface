@@ -40,7 +40,34 @@ namespace gangsta
             ExitProcess(-1);
         }
 
-        return static_cast<CPointers::PddiCreate_t>(g_Hooks.OriginalPddiCreate)(versionMajor, versionMinor, device);
+        g_Hooks.OriginalDirect3DCreate9 = HookFunc<void*>(GetProcAddress(GetModuleHandleA("d3d9.dll"), "Direct3DCreate9"), CHooks::Direct3DCreate9);
+
+        int res = static_cast<CPointers::PddiCreate_t>(g_Hooks.OriginalPddiCreate)(versionMajor, versionMinor, device);
+
+        MH_DisableHook(GetProcAddress(GetModuleHandleA("d3d9.dll"), "Direct3DCreate9"));
+        MH_RemoveHook(GetProcAddress(GetModuleHandleA("d3d9.dll"), "Direct3DCreate9"));
+
+        return res;
+    }
+
+    IDirect3D9* CHooks::Direct3DCreate9(uint32_t sdkVer)
+    {
+
+        IDirect3D9* res = static_cast<decltype(&::Direct3DCreate9)>(g_Hooks.OriginalDirect3DCreate9)(sdkVer);
+
+        Logger::GetInstance()->Info("Direct3DCreate9: [ sdkVersion: %08X ] [ device: %p ]", sdkVer, res);
+
+        if(res != nullptr)
+        {
+            Direct3DProxy *prxy = new Direct3DProxy(res);
+
+            g_Hooks.D3D9ProxyPool.emplace(res, prxy);
+
+            res = dynamic_cast<IDirect3D9*>(prxy);
+        }
+
+        return res;
+
     }
 
     void CHooks::HookSafe()

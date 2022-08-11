@@ -1,3 +1,6 @@
 project("vendors")
 
 add_subdirectory("minhook")
+add_subdirectory("json")
+
+include("imgui.cmake") # please imgui for the sake of god add a cmake

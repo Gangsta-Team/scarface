@@ -1,3 +1,10 @@
 [submodule "code/vendor/minhook"]
 	path = code/vendor/minhook
 	url = https://github.com/TsudaKageyu/minhook.git
+[submodule "code/vendor/imgui"]
+	path = code/vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = docking
+[submodule "code/vendor/json"]
+	path = code/vendor/json
+	url = https://github.com/nlohmann/json.git

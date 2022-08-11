@@ -13,4 +13,4 @@ file(GLOB ScarfaceModSource
 add_library(${PROJECT_NAME} SHARED ${ScarfaceModSource})
 target_link_libraries(${PROJECT_NAME} minhook d3d9.lib d3d11.lib)
 
-set_target_properties(scarfaceMod PROPERTIES SUFFIX ".asi")
+set_target_properties(${PORJECT_NAME} PROPERTIES SUFFIX ".asi")

@@ -17,6 +17,7 @@ namespace gangsta
         // STATIC HOOKS HERE
         static int __cdecl pddiCreate(int versionMajor, int versionMinor, class pddiDevice** device);
         static IDirect3D9* __stdcall Direct3DCreate9(uint32_t sdkVer);
+
     public:
         // ORIGINALS HERE
         PVOID OriginalPddiCreate;

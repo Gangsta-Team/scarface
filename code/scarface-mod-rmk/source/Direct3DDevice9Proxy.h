@@ -134,6 +134,7 @@ public:
 
 public:
 	IDirect3DDevice9 * m_pDirect3DDevice9;
+	bool m_hasInitializedImGui;
 };
 
 #endif

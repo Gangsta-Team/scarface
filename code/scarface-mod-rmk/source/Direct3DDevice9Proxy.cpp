@@ -1,9 +1,60 @@
 #include "Direct3DDevice9Proxy.h"
+#include "hooks.hpp"
 #include "logger.hpp"
+
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <backends/imgui_impl_dx9.h>
+#include <backends/imgui_impl_win32.h>
+
+// if this is true and another instance of d3d9 gets created the asi will shit itself
+static bool GHasCreatedImGui = false;
+static WNDPROC oWndProc = NULL;
+static bool GIsUiOpened = false;
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+static LRESULT CALLBACK hkWindowProc(
+	_In_ HWND   hwnd,
+	_In_ UINT   uMsg,
+	_In_ WPARAM wParam,
+	_In_ LPARAM lParam
+)
+{
+	if (uMsg == WM_KEYUP && wParam == VK_INSERT)
+	{
+		GIsUiOpened ^= true;
+	}
+
+	if(GIsUiOpened)
+	{
+		if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam) > 0)
+		{
+			return 1L;
+		}
+
+		return 1L;
+	}
+
+	return ::CallWindowProcA(oWndProc, hwnd, uMsg, wParam, lParam);
+}
+
+static void hkWindowProcInit(void* hwnd)
+{
+	oWndProc = (WNDPROC)::SetWindowLongPtr((HWND)hwnd, GWLP_WNDPROC, (LONG)hkWindowProc);
+}
 
 Direct3DDevice9Proxy::Direct3DDevice9Proxy(IDirect3DDevice9 *pDirect3DDevice9)
 {
+	if(GHasCreatedImGui)
+	{
+		MessageBoxA(0, "D3D9 ALREADY HOOKED!", "FUCKING OPEN A GITHUB ISSUE!", 0);
+		ExitProcess(-1);
+	}
+
 	m_pDirect3DDevice9 = pDirect3DDevice9;
+	m_hasInitializedImGui = false;
+	GHasCreatedImGui = true;
 }
 
 Direct3DDevice9Proxy::~Direct3DDevice9Proxy()
@@ -22,7 +73,13 @@ ULONG Direct3DDevice9Proxy::AddRef(void)
 
 ULONG Direct3DDevice9Proxy::Release(void)
 {
-	return m_pDirect3DDevice9->Release();
+	ULONG res = m_pDirect3DDevice9->Release();
+
+	gangsta::g_Hooks.D3D9DeviceProxyPool.erase(m_pDirect3DDevice9);
+
+	delete this; 
+
+	return res;
 }
 
 HRESULT Direct3DDevice9Proxy::TestCooperativeLevel(void)
@@ -92,7 +149,19 @@ UINT Direct3DDevice9Proxy::GetNumberOfSwapChains(void)
 
 HRESULT Direct3DDevice9Proxy::Reset(D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-	return m_pDirect3DDevice9->Reset(pPresentationParameters);
+	if(m_hasInitializedImGui)
+	{
+		ImGui_ImplDX9_InvalidateDeviceObjects();
+	}
+
+	HRESULT res = m_pDirect3DDevice9->Reset(pPresentationParameters);
+
+	if(m_hasInitializedImGui)
+	{
+		ImGui_ImplDX9_CreateDeviceObjects();
+	}
+
+	return res;
 }
 
 HRESULT Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
@@ -117,6 +186,31 @@ HRESULT Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDest
 		printf("%s", str.c_str());
 		OriginalCodeBlock_compileExec(dw_CodeBlockinstance, NULL, (char*)str.c_str(), NULL);
 	}*/
+
+	if(m_hasInitializedImGui == false)
+	{
+		D3DDEVICE_CREATION_PARAMETERS params;
+		m_pDirect3DDevice9->GetCreationParameters(&params);
+
+		hkWindowProcInit(params.hFocusWindow);
+
+		ImGui::CreateContext();
+		ImGui_ImplWin32_Init(params.hFocusWindow);
+		ImGui_ImplDX9_Init(m_pDirect3DDevice9);
+
+		m_hasInitializedImGui = true;
+	}
+
+	ImGui_ImplDX9_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	bool exmp = true;
+	ImGui::ShowDemoWindow(&exmp);
+
+	ImGui::EndFrame();
+	ImGui::Render();
+	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 
 	return m_pDirect3DDevice9->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }

@@ -28,6 +28,8 @@ void gangsta::Logger::Initialize()
 
     this->outputStream.open("CONOUT$");
     this->outputText.open("log.txt");
+
+    silentLog = false;
 }
 
 void gangsta::Logger::RawLog(const char* type, const char* format, std::va_list args)
@@ -46,7 +48,10 @@ void gangsta::Logger::RawLog(const char* type, const char* format, std::va_list 
     std::uninitialized_fill_n(messageBuffer.get(), messageLength, '\0');
     std::vsnprintf(messageBuffer.get(), messageLength, format, args);
 
-    outputStream << prefix << messageBuffer.get() << std::endl;
+    if(silentLog == false)
+    {
+        outputStream << prefix << messageBuffer.get() << std::endl;
+    }
     outputText << prefix << messageBuffer.get() << std::endl;
 
     messageBuffer.reset();

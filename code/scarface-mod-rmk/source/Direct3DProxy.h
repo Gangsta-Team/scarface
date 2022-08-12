@@ -11,7 +11,6 @@ public:
         m_pDirect3d9 = originalDirect3D9;
     }
 
-    virtual ~Direct3DProxy() = default;
 public:
     /*** IUnknown methods ***/
     STDMETHOD(QueryInterface)(THIS_ REFIID riid, void** ppvObj) ;

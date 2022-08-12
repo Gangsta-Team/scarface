@@ -2,6 +2,7 @@
 #include "pointers.hpp"
 #include "logger.hpp"
 #include "memory.hpp"
+#include "config.hpp"
 
 #include <MinHook.h>
 
@@ -70,9 +71,52 @@ namespace gangsta
 
     }
 
+    void CHooks::sub_6AE3F0(void* _this, void *edx, void* a3)
+    {
+
+        void* pUnk = *(void**)((uintptr_t)_this + 0x0C);
+
+        if(pUnk == nullptr)
+        {
+            gangsta::Logger::GetInstance()->Info("Crash fix");
+            return;
+        }
+
+        static_cast<decltype(&CHooks::sub_6AE3F0)>(g_Hooks.OriginalSub6AE3F0)(_this, edx, a3);
+    }
+
+    int CHooks::sub_65D773(void* _this, void* edx)
+    {
+
+        gangsta::Logger::GetInstance()->Info("-");
+
+        IDirect3DDevice9* pRenderDevice = *(IDirect3DDevice9 **)(*(DWORD *)(*((DWORD *)_this + 86) + 540) + 16);
+        
+        if(pRenderDevice == nullptr)
+        {
+            Logger::GetInstance()->Info("RenderDevice is null!");
+            return S_FALSE;
+        }
+
+        IDirect3DSurface9* target = 0;
+        HRESULT res_target = pRenderDevice->GetRenderTarget(0, &target);
+
+        if(target == nullptr)
+        {
+            Logger::GetInstance()->Info("RenderTarget is null!");
+            return S_FALSE;
+        }
+
+        target->Release();
+
+        return static_cast<decltype(&CHooks::sub_65D773)>(g_Hooks.OriginalSub65D773)(_this, edx);
+    }
+
     void CHooks::HookSafe()
     {
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
+        g_Hooks.OriginalSub6AE3F0 = HookFunc<void*>((void*)0x006AE3F0, CHooks::sub_6AE3F0);
+        g_Hooks.OriginalSub65D773 = HookFunc<void*>((void*)0x0065D6D0, CHooks::sub_65D773);
     }
 
     void CHooks::Hook()

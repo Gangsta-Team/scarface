@@ -23,7 +23,8 @@ namespace gangsta
         IMPL_LOGGER_FUNC(Info, "Info");
         IMPL_LOGGER_FUNC(Warning, "Warning");
         IMPL_LOGGER_FUNC(Error, "Error");
-    
+    public:
+        bool silentLog;
     private:
         void RawLog(const char* prefix, const char* fmt, std::va_list vaList);
     private:

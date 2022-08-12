@@ -60,7 +60,9 @@ HRESULT Direct3DProxy::GetAdapterDisplayMode(UINT Adapter,D3DDISPLAYMODE* pMode 
 
 HRESULT Direct3DProxy:: CheckDeviceType (UINT Adapter,D3DDEVTYPE DevType,D3DFORMAT AdapterFormat,D3DFORMAT BackBufferFormat,BOOL bWindowed)
 {
-    return m_pDirect3d9->CheckDeviceType(Adapter, DevType, AdapterFormat, BackBufferFormat, bWindowed);
+    bool _bWindowed = true;
+
+    return m_pDirect3d9->CheckDeviceType(Adapter, DevType, AdapterFormat, BackBufferFormat, _bWindowed);
 }
 
 HRESULT Direct3DProxy::CheckDeviceFormat(UINT Adapter,D3DDEVTYPE DeviceType,D3DFORMAT AdapterFormat,DWORD Usage,D3DRESOURCETYPE RType,D3DFORMAT CheckFormat )
@@ -70,7 +72,8 @@ HRESULT Direct3DProxy::CheckDeviceFormat(UINT Adapter,D3DDEVTYPE DeviceType,D3DF
 
 HRESULT Direct3DProxy::CheckDeviceMultiSampleType(UINT Adapter,D3DDEVTYPE DeviceType,D3DFORMAT SurfaceFormat,BOOL Windowed,D3DMULTISAMPLE_TYPE MultiSampleType,DWORD* pQualityLevels)
 {
-    return m_pDirect3d9->CheckDeviceMultiSampleType(Adapter, DeviceType, SurfaceFormat, Windowed, MultiSampleType, pQualityLevels);
+    bool _Windowed = true;
+    return m_pDirect3d9->CheckDeviceMultiSampleType(Adapter, DeviceType, SurfaceFormat, _Windowed, MultiSampleType, pQualityLevels);
 }
 
 HRESULT Direct3DProxy::CheckDepthStencilMatch(UINT Adapter,D3DDEVTYPE DeviceType,D3DFORMAT AdapterFormat,D3DFORMAT RenderTargetFormat,D3DFORMAT DepthStencilFormat)
@@ -123,7 +126,7 @@ HRESULT Direct3DProxy::CreateDevice(UINT Adapter,D3DDEVTYPE DeviceType,HWND hFoc
     pPresentationParameters->Windowed = true;
     pPresentationParameters->FullScreen_RefreshRateInHz = 0;
 
-    SetWindowLong(hFocusWindow, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+    SetWindowLong(hFocusWindow, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN);
 
 	SetWindowPos(hFocusWindow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 

@@ -16,7 +16,13 @@ namespace gangsta
         void Load();
     };
 
+    class CGlobals
+    {
+    public:
+    };
+
     inline CConfig g_Config;
+    inline CGlobals g_Globals;
 
 }
 

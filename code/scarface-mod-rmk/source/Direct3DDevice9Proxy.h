@@ -7,7 +7,6 @@ class Direct3DDevice9Proxy : public IDirect3DDevice9
 {
 public:
 	Direct3DDevice9Proxy(IDirect3DDevice9* pDirect3DDevice9);
-	virtual ~Direct3DDevice9Proxy();
 
 	/*** IUnknown methods ***/
 	STDMETHOD(QueryInterface)(REFIID riid, void** ppvObj);

@@ -73,6 +73,10 @@ namespace gangsta
 
     void CHooks::sub_6AE3F0(void* _this, void *edx, void* a3)
     {
+        if(GetForegroundWindow() != g_MainWindow)
+        {
+            return;
+        }
 
         void* pUnk = *(void**)((uintptr_t)_this + 0x0C);
 
@@ -87,15 +91,17 @@ namespace gangsta
 
     int CHooks::sub_65D773(void* _this, void* edx)
     {
-
-        gangsta::Logger::GetInstance()->Info("-");
+        //if(GetForegroundWindow() != g_MainWindow)
+        //{
+        //    return S_OK;
+        //}
 
         IDirect3DDevice9* pRenderDevice = *(IDirect3DDevice9 **)(*(DWORD *)(*((DWORD *)_this + 86) + 540) + 16);
         
         if(pRenderDevice == nullptr)
         {
             Logger::GetInstance()->Info("RenderDevice is null!");
-            return S_FALSE;
+            return S_OK;
         }
 
         IDirect3DSurface9* target = 0;
@@ -104,7 +110,7 @@ namespace gangsta
         if(target == nullptr)
         {
             Logger::GetInstance()->Info("RenderTarget is null!");
-            return S_FALSE;
+            return S_OK;
         }
 
         target->Release();
@@ -112,11 +118,53 @@ namespace gangsta
         return static_cast<decltype(&CHooks::sub_65D773)>(g_Hooks.OriginalSub65D773)(_this, edx);
     }
 
+    HWND CHooks::SpoofGetForegroundWindow()
+    {
+        return g_MainWindow;
+    }
+
+    static void __declspec(naked) Check0065D788()
+    {
+        static void* nullJmpLabel   = (void*)0x0065DAAB;
+        static void* workingLabel   = (void*)0x0065D78E;
+
+        __asm {
+            cmp eax, 0
+            je  eqlbl
+            jmp NOT_EQUAL_LABEL
+        }
+
+        eqlbl:
+        __asm
+        {
+            jmp nullJmpLabel
+        }
+
+        NOT_EQUAL_LABEL:
+        __asm
+        {
+            mov ecx, [eax]
+            lea edx, [esp+0x18]
+            jmp workingLabel
+        }
+    }
+
     void CHooks::HookSafe()
     {
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
         g_Hooks.OriginalSub6AE3F0 = HookFunc<void*>((void*)0x006AE3F0, CHooks::sub_6AE3F0);
         g_Hooks.OriginalSub65D773 = HookFunc<void*>((void*)0x0065D6D0, CHooks::sub_65D773);
+        
+        // GetForegroundWindow
+        *((void**)0x009CE65C) = &CHooks::SpoofGetForegroundWindow;
+        // GetActiveWindow
+        *((void**)0x009CE638) = &CHooks::SpoofGetForegroundWindow;
+        // GetFocus
+        *((void**)0x009CE658) = &CHooks::SpoofGetForegroundWindow;
+
+        {
+            HookFunc<void*>((void*)0x0065D788, Check0065D788);
+        }
     }
 
     void CHooks::Hook()

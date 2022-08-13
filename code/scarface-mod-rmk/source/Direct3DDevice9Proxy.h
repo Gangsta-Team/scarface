@@ -136,4 +136,6 @@ public:
 	bool m_hasInitializedImGui;
 };
 
+inline HWND g_MainWindow;
+
 #endif

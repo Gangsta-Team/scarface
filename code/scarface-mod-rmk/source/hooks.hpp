@@ -19,6 +19,7 @@ namespace gangsta
         static IDirect3D9* __stdcall Direct3DCreate9(uint32_t sdkVer);
         static void __fastcall sub_6AE3F0(void* _this, void* edx, void* a3);
         static int __fastcall sub_65D773(void* _this, void* edx); 
+        static HWND __stdcall SpoofGetForegroundWindow();
 
     public:
         // ORIGINALS HERE

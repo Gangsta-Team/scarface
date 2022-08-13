@@ -213,14 +213,14 @@ HRESULT Direct3DDevice9Proxy::Reset(D3DPRESENT_PARAMETERS* pPresentationParamete
 
 	if(m_hasInitializedImGui)
 	{
-		ImGui_ImplDX9_InvalidateDeviceObjects();
+		//ImGui_ImplDX9_InvalidateDeviceObjects();
 	}
 
 	HRESULT res = m_pDirect3DDevice9->Reset(pPresentationParameters);
 
 	if(m_hasInitializedImGui)
 	{
-		ImGui_ImplDX9_CreateDeviceObjects();
+		//ImGui_ImplDX9_CreateDeviceObjects();
 	}
 
 	return res;
@@ -232,6 +232,10 @@ HRESULT Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDest
 	gangsta::Logger::GetInstance()->Info("[ %s ]", __FUNCTION__);
 	#endif
 
+	D3DDEVICE_CREATION_PARAMETERS params;
+	m_pDirect3DDevice9->GetCreationParameters(&params);
+
+	g_MainWindow = params.hFocusWindow;
 
 	/*D3DRECT rect{ 10, 10, 50, 50 };
 	m_pDirect3DDevice9->Clear(1, &rect, D3DCLEAR_TARGET, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0);
@@ -253,6 +257,8 @@ HRESULT Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDest
 		printf("%s", str.c_str());
 		OriginalCodeBlock_compileExec(dw_CodeBlockinstance, NULL, (char*)str.c_str(), NULL);
 	}*/
+
+	/*
 
 	if(m_hasInitializedImGui == false)
 	{
@@ -278,7 +284,7 @@ HRESULT Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDest
 	ImGui::EndFrame();
 	ImGui::Render();
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-
+	*/
 	HRESULT res = m_pDirect3DDevice9->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 	return res;

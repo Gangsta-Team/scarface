@@ -4,6 +4,8 @@
 #include "memory.hpp"
 #include "config.hpp"
 
+#include "utils/StackwalkerUtils.hpp"
+
 #include <MinHook.h>
 
 // UTIL
@@ -149,11 +151,41 @@ namespace gangsta
         }
     }
 
+    BOOL CHooks::PeekMessageA(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg)
+    {
+        BOOL res = static_cast<decltype(&PeekMessageA)>(g_Hooks.OriginalPeekMessageA)(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
+
+        if(lpMsg->message == 2 || lpMsg->message == 16 || lpMsg->message == 18)
+        {
+            lpMsg->message = -1;
+            return TRUE;
+        }
+
+        return res;
+    }
+
+    bool CHooks::UpdateGameWindow(void* _this, void* edx)
+    {
+
+        if(GetForegroundWindow() != g_MainWindow)
+        {
+            return 0;
+        }
+
+        Logger::GetInstance()->Info("%x", *((DWORD *)_this + 17));
+
+        return static_cast<decltype(&UpdateGameWindow)>(g_Hooks.OriginalUpdateGameWindow)(_this, edx);
+    }
+
     void CHooks::HookSafe()
     {
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
         g_Hooks.OriginalSub6AE3F0 = HookFunc<void*>((void*)0x006AE3F0, CHooks::sub_6AE3F0);
         g_Hooks.OriginalSub65D773 = HookFunc<void*>((void*)0x0065D6D0, CHooks::sub_65D773);
+        g_Hooks.OriginalPeekMessageA = *((decltype(&::PeekMessageA)*)0x009CE708);
+        g_Hooks.OriginalUpdateGameWindow = HookFunc<void*>((void*)0x00437120, CHooks::UpdateGameWindow);
+
+        *((void**)0x009CE708) = &CHooks::PeekMessageA;
         
         // GetForegroundWindow
         *((void**)0x009CE65C) = &CHooks::SpoofGetForegroundWindow;

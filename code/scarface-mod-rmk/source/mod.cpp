@@ -4,6 +4,9 @@
 #include "logger.hpp"
 #include "hooks.hpp"
 
+#include <pure3d.h>
+#include <cement.h>
+
 namespace gangsta
 {
 

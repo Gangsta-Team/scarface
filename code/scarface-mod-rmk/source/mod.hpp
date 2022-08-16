@@ -10,6 +10,7 @@ namespace gangsta
         void InitSafe();
         void Init();
         void RunLoop();
+        void RunGui(bool* pGui);
     };
 
     inline CMod g_Mod;

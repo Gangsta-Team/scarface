@@ -158,7 +158,10 @@ namespace gangsta
 
     void CHooks::HookSafe()
     {
-        HookFunc<void*>((void*)0x00401140, ReWrite401140);
+        if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
+        {
+            HookFunc<void*>((void*)0x00401140, ReWrite401140);
+        }
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
     }
 

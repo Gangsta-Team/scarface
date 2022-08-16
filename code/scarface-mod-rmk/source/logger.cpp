@@ -1,4 +1,5 @@
 #include "logger.hpp"
+#include "config.hpp"
 
 static gangsta::Logger* sInstance = nullptr;
 
@@ -27,7 +28,7 @@ void gangsta::Logger::Initialize()
     SetConsoleOutputCP(CP_UTF8);
 
     this->outputStream.open("CONOUT$");
-    this->outputText.open("log.txt");
+    this->outputText.open(g_Config.gangstaDirectory / "log.txt");
 
     silentLog = false;
 }

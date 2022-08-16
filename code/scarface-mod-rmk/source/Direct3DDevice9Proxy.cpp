@@ -2,6 +2,7 @@
 #include "hooks.hpp"
 #include "logger.hpp"
 #include "config.hpp"
+#include "mod.hpp"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -244,6 +245,8 @@ HRESULT Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDest
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+
+	gangsta::g_Mod.RunGui(&GIsUiOpened);
 
 	ImGui::EndFrame();
 	ImGui::Render();

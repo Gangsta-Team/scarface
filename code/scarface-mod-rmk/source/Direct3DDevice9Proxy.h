@@ -131,6 +131,8 @@ public:
 	STDMETHOD(DeletePatch)(UINT Handle);
 	STDMETHOD(CreateQuery)(D3DQUERYTYPE Type, IDirect3DQuery9** ppQuery);
 
+	static void hkWindowProcHandler(HWND wnd);
+
 public:
 	IDirect3DDevice9 * m_pDirect3DDevice9;
 	bool m_hasInitializedImGui;

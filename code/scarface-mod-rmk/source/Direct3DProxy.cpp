@@ -3,6 +3,10 @@
 #include "logger.hpp"
 #include "hooks.hpp"
 
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <backends/imgui_impl_dx9.h>
+#include <backends/imgui_impl_win32.h>
 
 /*** IUnknown methods ***/
 HRESULT Direct3DProxy::QueryInterface(REFIID riid, void** ppvObj)
@@ -126,12 +130,12 @@ HRESULT Direct3DProxy::CreateDevice(UINT Adapter,D3DDEVTYPE DeviceType,HWND hFoc
     pPresentationParameters->Windowed = true;
     pPresentationParameters->FullScreen_RefreshRateInHz = 0;
 
+    HRESULT res = m_pDirect3d9->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
+    
     SetWindowLong(hFocusWindow, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN);
 
 	SetWindowPos(hFocusWindow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
-    HRESULT res = m_pDirect3d9->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
-    
     if(SUCCEEDED(res))
     {
 
@@ -148,6 +152,18 @@ HRESULT Direct3DProxy::CreateDevice(UINT Adapter,D3DDEVTYPE DeviceType,HWND hFoc
 
         while(1);
     }
+
+	g_MainWindow = pPresentationParameters->hDeviceWindow;
+
+    Direct3DDevice9Proxy::hkWindowProcHandler(g_MainWindow);
+
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+
+    io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange;
+
+    ImGui_ImplWin32_Init(pPresentationParameters->hDeviceWindow);
+    ImGui_ImplDX9_Init((*ppReturnedDeviceInterface));
 
     return res;
 }

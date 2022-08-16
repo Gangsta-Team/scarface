@@ -73,58 +73,6 @@ namespace gangsta
 
     }
 
-    void CHooks::sub_6AE3F0(void* _this, void *edx, void* a3)
-    {
-        if(GetForegroundWindow() != g_MainWindow)
-        {
-            return;
-        }
-
-        void* pUnk = *(void**)((uintptr_t)_this + 0x0C);
-
-        if(pUnk == nullptr)
-        {
-            gangsta::Logger::GetInstance()->Info("Crash fix");
-            return;
-        }
-
-        static_cast<decltype(&CHooks::sub_6AE3F0)>(g_Hooks.OriginalSub6AE3F0)(_this, edx, a3);
-    }
-
-    int CHooks::sub_65D773(void* _this, void* edx)
-    {
-        //if(GetForegroundWindow() != g_MainWindow)
-        //{
-        //    return S_OK;
-        //}
-
-        IDirect3DDevice9* pRenderDevice = *(IDirect3DDevice9 **)(*(DWORD *)(*((DWORD *)_this + 86) + 540) + 16);
-        
-        if(pRenderDevice == nullptr)
-        {
-            Logger::GetInstance()->Info("RenderDevice is null!");
-            return S_OK;
-        }
-
-        IDirect3DSurface9* target = 0;
-        HRESULT res_target = pRenderDevice->GetRenderTarget(0, &target);
-
-        if(target == nullptr)
-        {
-            Logger::GetInstance()->Info("RenderTarget is null!");
-            return S_OK;
-        }
-
-        target->Release();
-
-        return static_cast<decltype(&CHooks::sub_65D773)>(g_Hooks.OriginalSub65D773)(_this, edx);
-    }
-
-    HWND CHooks::SpoofGetForegroundWindow()
-    {
-        return g_MainWindow;
-    }
-
     static void __declspec(naked) Check0065D788()
     {
         static void* nullJmpLabel   = (void*)0x0065DAAB;
@@ -151,52 +99,67 @@ namespace gangsta
         }
     }
 
-    BOOL CHooks::PeekMessageA(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg)
+    static void __declspec(naked) ReWrite401140()
     {
-        BOOL res = static_cast<decltype(&PeekMessageA)>(g_Hooks.OriginalPeekMessageA)(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
+        static void* nullret_func = (void*)0x005E1BB0;
+        static void* domessage_func = (void*)0x00456DA0;
+        static void* getwndmessagecode_func = (void*)0x00456E50;
+        static void* loc_401175 = (void*)0x00401175;
+        static void* updategamewindow_func = (void*)0x00437120;
+        static void* myorig_func = (void*)0x00401140;
 
-        if(lpMsg->message == 2 || lpMsg->message == 16 || lpMsg->message == 18)
+        __asm
         {
-            lpMsg->message = -1;
-            return TRUE;
+            push eax
+            call GetForegroundWindow
+            cmp eax, g_MainWindow
+            jne spf_pop_orig
+            pop eax
+            call nullret_func
+            push 2
+            call nullret_func
+            add esp, 4
+            call domessage_func
+            call getwndmessagecode_func
+            cmp eax, 0x12
+            je spf_loc_401175
+            mov ecx, esi
+            call updategamewindow_func
+            mov bl, al
+            call nullret_func
+            call nullret_func
+            test bl, bl
+            je spf_orig
+            jmp loc_401175
         }
 
-        return res;
-    }
-
-    bool CHooks::UpdateGameWindow(void* _this, void* edx)
-    {
-
-        if(GetForegroundWindow() != g_MainWindow)
+        spf_pop_orig:
+        __asm
         {
-            return 0;
+            pop eax
+            call domessage_func
+            call _Thrd_yield
+            jmp spf_orig
         }
 
-        Logger::GetInstance()->Info("%x", *((DWORD *)_this + 17));
+        spf_loc_401175:
+        __asm
+        {
+            jmp loc_401175
+        }
 
-        return static_cast<decltype(&UpdateGameWindow)>(g_Hooks.OriginalUpdateGameWindow)(_this, edx);
+        spf_orig:
+        __asm
+        {
+            jmp myorig_func
+        }
     }
+
 
     void CHooks::HookSafe()
     {
+        HookFunc<void*>((void*)0x00401140, ReWrite401140);
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
-        g_Hooks.OriginalSub6AE3F0 = HookFunc<void*>((void*)0x006AE3F0, CHooks::sub_6AE3F0);
-        g_Hooks.OriginalSub65D773 = HookFunc<void*>((void*)0x0065D6D0, CHooks::sub_65D773);
-        g_Hooks.OriginalPeekMessageA = *((decltype(&::PeekMessageA)*)0x009CE708);
-        g_Hooks.OriginalUpdateGameWindow = HookFunc<void*>((void*)0x00437120, CHooks::UpdateGameWindow);
-
-        *((void**)0x009CE708) = &CHooks::PeekMessageA;
-        
-        // GetForegroundWindow
-        *((void**)0x009CE65C) = &CHooks::SpoofGetForegroundWindow;
-        // GetActiveWindow
-        *((void**)0x009CE638) = &CHooks::SpoofGetForegroundWindow;
-        // GetFocus
-        *((void**)0x009CE658) = &CHooks::SpoofGetForegroundWindow;
-
-        {
-            HookFunc<void*>((void*)0x0065D788, Check0065D788);
-        }
     }
 
     void CHooks::Hook()

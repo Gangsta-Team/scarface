@@ -32,6 +32,21 @@ static LRESULT CALLBACK hkWindowProc(
 		GIsUiOpened ^= true;
 	}
 
+	if(GetForegroundWindow() != g_MainWindow)
+	{
+		return ::DefWindowProc(hwnd, uMsg, wParam, lParam);
+	}
+
+	if(uMsg == WM_KILLFOCUS)
+	{
+		ImGui::GetIO().MouseDrawCursor = true;
+	}
+
+	if(uMsg == WM_SETFOCUS)
+	{
+		ImGui::GetIO().MouseDrawCursor = false;
+	}
+
 	if(GIsUiOpened)
 	{
 		if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam) > 0)
@@ -41,13 +56,14 @@ static LRESULT CALLBACK hkWindowProc(
 
 		return 1L;
 	}
-
+	
 	return ::CallWindowProcA(oWndProc, hwnd, uMsg, wParam, lParam);
 }
 
-static void hkWindowProcInit(void* hwnd)
+void Direct3DDevice9Proxy::hkWindowProcHandler(HWND wnd)
 {
-	oWndProc = (WNDPROC)::SetWindowLongPtr((HWND)hwnd, GWLP_WNDPROC, (LONG)hkWindowProc);
+	oWndProc = (WNDPROC)::SetWindowLongPtr((HWND)wnd, GWLP_WNDPROC, (LONG)hkWindowProc);
+	gangsta::Logger::GetInstance()->Info("WndProc: %p", oWndProc);
 }
 
 Direct3DDevice9Proxy::Direct3DDevice9Proxy(IDirect3DDevice9 *pDirect3DDevice9)
@@ -211,17 +227,10 @@ HRESULT Direct3DDevice9Proxy::Reset(D3DPRESENT_PARAMETERS* pPresentationParamete
 	gangsta::Logger::GetInstance()->Info("[ %s ]", __FUNCTION__);
 	#endif
 
-	if(m_hasInitializedImGui)
-	{
-		//ImGui_ImplDX9_InvalidateDeviceObjects();
-	}
+	ImGui_ImplDX9_InvalidateDeviceObjects();
+	ImGui_ImplDX9_CreateDeviceObjects();
 
 	HRESULT res = m_pDirect3DDevice9->Reset(pPresentationParameters);
-
-	if(m_hasInitializedImGui)
-	{
-		//ImGui_ImplDX9_CreateDeviceObjects();
-	}
 
 	return res;
 }
@@ -232,59 +241,14 @@ HRESULT Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDest
 	gangsta::Logger::GetInstance()->Info("[ %s ]", __FUNCTION__);
 	#endif
 
-	D3DDEVICE_CREATION_PARAMETERS params;
-	m_pDirect3DDevice9->GetCreationParameters(&params);
-
-	g_MainWindow = params.hFocusWindow;
-
-	/*D3DRECT rect{ 10, 10, 50, 50 };
-	m_pDirect3DDevice9->Clear(1, &rect, D3DCLEAR_TARGET, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0);
-
-	if (GetAsyncKeyState(VK_F1) & 1) {
-		typedef char func(void);
-		func* f = (func*)0x652590;
-		char i = f();
-		printf("%d", i);
-		if (dw_CodeBlockinstance == NULL) {
-			BYTE* ayy = (BYTE*)malloc(52);
-			memset(ayy, 0, 52);
-			dw_CodeBlockinstance = OriginalCodeBlock_ctor(ayy);
-		}
-		printf("dw_CodeBlockinstance %p\n", dw_CodeBlockinstance);
-
-		std::ifstream t("./Script.cs");
-		std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-		printf("%s", str.c_str());
-		OriginalCodeBlock_compileExec(dw_CodeBlockinstance, NULL, (char*)str.c_str(), NULL);
-	}*/
-
-	/*
-
-	if(m_hasInitializedImGui == false)
-	{
-		D3DDEVICE_CREATION_PARAMETERS params;
-		m_pDirect3DDevice9->GetCreationParameters(&params);
-
-		hkWindowProcInit(params.hFocusWindow);
-
-		ImGui::CreateContext();
-		ImGui_ImplWin32_Init(params.hFocusWindow);
-		ImGui_ImplDX9_Init(m_pDirect3DDevice9);
-
-		m_hasInitializedImGui = true;
-	}
-
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	bool exmp = true;
-	ImGui::ShowDemoWindow(&exmp);
-
 	ImGui::EndFrame();
 	ImGui::Render();
 	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-	*/
+	
 	HRESULT res = m_pDirect3DDevice9->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 	return res;
@@ -530,6 +494,11 @@ HRESULT Direct3DDevice9Proxy::SetTransform(D3DTRANSFORMSTATETYPE State, CONST D3
 	#if _LOG_FUNC_CALLS
 	gangsta::Logger::GetInstance()->Info("[ %s ]", __FUNCTION__);
 	#endif
+
+	if(GetForegroundWindow() != g_MainWindow)
+	{
+		return S_OK;
+	}
 
 	return m_pDirect3DDevice9->SetTransform(State, pMatrix);
 }

@@ -1,6 +1,6 @@
 
 # Scarface The World Is Yours
-This is Project is intended for changing and fixing the Game Issues and extending the Game Functionality!
+This is Project is intended for changing and fixing the game issues and extending the game functionality!
 
 ## Folder Structure
 |  Folder | Description |
@@ -11,7 +11,7 @@ This is Project is intended for changing and fixing the Game Issues and extendin
 | [web-rcf-explorer](https://1h3a3x7.github.io/scarface/web-rcf-explorer/ui.html)  | Tool for online exploring .RCF files |
 
 ## Modification Files
-When you first launch the Game with the ASI a folder in `%appdata%` <br> will be created called `%appdata%/Gangsta`. In there will be Files called `config.json` and `log.txt`. <br>In `log.txt`when logging enabled will be every Log Entry in the Console saved! But `config.json` on the other<br>hand is a little bit more complicated.<br>
+When you launch the game for first time with the ASI plugin, a folder in `%appdata%` <br> will be created with name `%appdata%/Gangsta`. Inside of this folder will be existing two files: `config.json` and `log.txt`. <br>In `log.txt` when logging enabled will be every Log Entry in the Console saved! But `config.json` on the other<br>hand is a little bit more complicated.<br>
 ### Example of config.json
  ```json
  {
@@ -19,7 +19,7 @@ When you first launch the Game with the ASI a folder in `%appdata%` <br> will be
 "ImGuiTextSize": 20.0, // Original is 16.f
 "Log": false, // Not used for now
 "ReleaseMode": false, // Default false -> spoofs your Game into Dev Mode
-"WindowedSpoof": true // if on true your game will be forces into a borderless window mode!
+"WindowedSpoof": true // if on true your game will be forced into a borderless window mode!
 }
 ```
 

@@ -19,6 +19,7 @@ namespace gangsta
     class CGlobals
     {
     public:
+        bool guiOpened = false;
     };
 
     inline CConfig g_Config;

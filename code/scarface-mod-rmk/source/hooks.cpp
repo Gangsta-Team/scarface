@@ -30,7 +30,7 @@ namespace gangsta
     {
 
         Logger::GetInstance()->Info("pddiCreate: [ versionMajor: %i ] [ versionMinor: %i ] [ device: %p ]", versionMajor, versionMinor, device);
-        Logger::GetInstance()->Info("pddiCreate: [ out   device: %p ]", (device != nullptr ? *device : nullptr));
+        Logger::GetInstance()->Info("pddiCreate: [ return device: %p ]", (device != nullptr ? *device : nullptr));
 
         auto pattern1002 = Signature("50 6A 01 57 51 FF 52 40").Scan().As<void*>();
         if (pattern1002)
@@ -170,6 +170,26 @@ namespace gangsta
         return TRUE;
     }
 
+    void CHooks::ControllerInput__ReadControllerInput(void *_this, void* edx, void *actionMap)
+    {
+        if(g_Globals.guiOpened)
+        {
+            return;
+        }
+
+        static_cast<decltype(&ControllerInput__ReadControllerInput)>(g_Hooks.OriginalControllerInputReadControllerInput)(_this, edx, actionMap);
+    }
+
+    void CHooks::GenericCharacterCamera__ControllerInput__Update(void *_this, void* edx, float accelThreshold, float accelTime, float decelTime, float deltaTime)
+    {
+        if(g_Globals.guiOpened)
+        {
+            return;
+        }
+
+        static_cast<decltype(&GenericCharacterCamera__ControllerInput__Update)>(g_Hooks.OriginalGenericCharacterCameraControllerInputUpdate)(_this, edx, accelThreshold, accelTime, decelTime, deltaTime);
+    }
+
     void CHooks::HookSafe()
     {
         if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
@@ -179,6 +199,9 @@ namespace gangsta
             *((void**)0x009CE76C) = &CHooks::h_ShowCursor;
             *((void**)0x009CE760) = &CHooks::h_SetWindowPos;
         }
+
+        g_Hooks.OriginalControllerInputReadControllerInput = HookFunc<void*>((void*)0x0057E310, CHooks::ControllerInput__ReadControllerInput);
+        g_Hooks.OriginalGenericCharacterCameraControllerInputUpdate = HookFunc<void*>((void*)0x00565060, CHooks::GenericCharacterCamera__ControllerInput__Update);
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
        
     }

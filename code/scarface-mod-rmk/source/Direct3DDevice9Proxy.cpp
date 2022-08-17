@@ -18,7 +18,6 @@
 // if this is true and another instance of d3d9 gets created the asi will shit itself
 static bool GHasCreatedImGui = false;
 static WNDPROC oWndProc = NULL;
-static bool GIsUiOpened = false;
 static Direct3DDevice9Proxy* GCurrentProxy = NULL;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -40,10 +39,7 @@ static LRESULT CALLBACK hkWindowProc(
 	case WM_KEYUP:
 		if(wParam == VK_INSERT)
 		{
-			GIsUiOpened ^= true;
-
-			//gangsta::g_Pointers.m_Con__evaluate((GIsUiOpened == true) ? "PauseGame(); HUD_Hide(); " : "UnpauseGame(); HUD_Show(); ", 0, 0, 0, -1);
-			
+			gangsta::g_Globals.guiOpened ^= true;
 		}
 		break;
 	case WM_KILLFOCUS:
@@ -59,7 +55,7 @@ static LRESULT CALLBACK hkWindowProc(
 		break;
 	}
 
-	if(GIsUiOpened)
+	if(gangsta::g_Globals.guiOpened)
 	{
 		ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam);
 
@@ -488,9 +484,9 @@ HRESULT Direct3DDevice9Proxy::EndScene(void)
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	ImGui::GetIO().MouseDrawCursor = GIsUiOpened;
+	ImGui::GetIO().MouseDrawCursor = gangsta::g_Globals.guiOpened;
 
-	gangsta::g_Mod.RunGui(&GIsUiOpened, g_MainWindow);
+	gangsta::g_Mod.RunGui(&gangsta::g_Globals.guiOpened, g_MainWindow);
 
 	ImGui::EndFrame();
 	ImGui::Render();

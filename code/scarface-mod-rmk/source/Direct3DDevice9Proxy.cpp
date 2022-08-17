@@ -245,8 +245,9 @@ HRESULT Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDest
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+	ImGui::GetIO().MouseDrawCursor = GIsUiOpened;
 
-	gangsta::g_Mod.RunGui(&GIsUiOpened);
+	gangsta::g_Mod.RunGui(&GIsUiOpened, g_MainWindow);
 
 	ImGui::EndFrame();
 	ImGui::Render();

@@ -8,4 +8,7 @@ BOOL WINAPI DllMain(
     DWORD fdwReason,     // reason for calling function
     LPVOID lpvReserved );  // reserved
 
+
+inline TextEditor* g_TE;
+
 #endif

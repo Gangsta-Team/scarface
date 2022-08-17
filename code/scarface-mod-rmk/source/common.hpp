@@ -12,4 +12,8 @@
 #include <vector>
 #include <d3d9.h>
 
+// imgui TextEditor
+#include "TextEditor.h"
+#include "imfilebrowser.h"
+
 #endif

@@ -30,7 +30,7 @@ namespace gangsta
     {
 
         Logger::GetInstance()->Info("pddiCreate: [ versionMajor: %i ] [ versionMinor: %i ] [ device: %p ]", versionMajor, versionMinor, device);
-        Logger::GetInstance()->Info("pddiCreate: [ out   device: %p ]", (device != nullptr ? *device : nullptr));
+        Logger::GetInstance()->Info("pddiCreate: [ device: %p ]", (device != nullptr ? *device : nullptr));
 
         auto pattern1002 = Signature("50 6A 01 57 51 FF 52 40").Scan().As<void*>();
         if (pattern1002)

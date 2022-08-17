@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include "config.hpp"
 #include "mod.hpp"
+#include "pointers.hpp"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -40,6 +41,9 @@ static LRESULT CALLBACK hkWindowProc(
 		if(wParam == VK_INSERT)
 		{
 			GIsUiOpened ^= true;
+
+			//gangsta::g_Pointers.m_Con__evaluate((GIsUiOpened == true) ? "PauseGame(); HUD_Hide(); " : "UnpauseGame(); HUD_Show(); ", 0, 0, 0, -1);
+			
 		}
 		break;
 	case WM_KILLFOCUS:

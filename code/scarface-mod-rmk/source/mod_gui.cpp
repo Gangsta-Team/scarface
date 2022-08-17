@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 #include "logger.hpp"
+#include "pointers.hpp"
 
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
@@ -47,9 +48,22 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                     ImGuiFileDialog::Instance()->OpenDialog("ScriptSaveDialog", "Gangster / File Browser [ Save ]", ".cs", ".");
                                 }
 
-                                if(ImGui::MenuItem("Execute"))
+                                if (ImGui::MenuItem("Compile & Run"))
                                 {
-                                    
+                                    static void* p_CBInstance = nullptr;
+                                    if (p_CBInstance == nullptr) {
+                                        BYTE* cb_ctor = (BYTE*)malloc(52);
+                                        memset(cb_ctor, 0, 52);
+                                        p_CBInstance = gangsta::g_Pointers.m_CodeBlock_ctor(cb_ctor);
+                                    }
+
+                                    gangsta::g_Pointers.m_compileExec(p_CBInstance, NULL, (char*)gScriptEditor.GetText().c_str(), NULL);
+
+                                }
+
+                                if (ImGui::MenuItem("Run"))
+                                {
+                                    gangsta::g_Pointers.m_Con__evaluate((char*)gScriptEditor.GetText().c_str(), 0, 0, 0, -1);
                                 }
 
                                 ImGui::EndMenu();
@@ -63,6 +77,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                     ImGui::EndChild();
                     ImGui::EndTabItem();
                 }
+
                 ImGui::EndTabBar();
             }
         }

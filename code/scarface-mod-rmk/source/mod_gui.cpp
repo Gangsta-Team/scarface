@@ -25,8 +25,8 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
         
 
         ImVec2 a;
-        a.x = 100;
-        a.y = 300;
+        a.x = 500;
+        a.y = 400;
         g_TE->Render("a", a, true);
 
         //...do other stuff like ImGui::NewFrame();

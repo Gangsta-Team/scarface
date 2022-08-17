@@ -155,11 +155,32 @@ namespace gangsta
         }
     }
 
+    HWND CHooks::h_CreateWindowExA(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
+    {
+        return ::CreateWindowExA(dwExStyle, lpClassName, lpWindowName, WS_OVERLAPPEDWINDOW|WS_VISIBLE, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+    }
+
+    int CHooks::h_ShowCursor(BOOL bShow)
+    {
+        return TRUE;
+    }
+
+    BOOL CHooks::h_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags)
+    {
+        return TRUE;
+    }
 
     void CHooks::HookSafe()
     {
-        HookFunc<void*>((void*)0x00401140, ReWrite401140);
+        if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
+        {
+            HookFunc<void*>((void*)0x00401140, ReWrite401140);
+            *((void**)0x009CE5E8) = &CHooks::h_CreateWindowExA;
+            *((void**)0x009CE76C) = &CHooks::h_ShowCursor;
+            *((void**)0x009CE760) = &CHooks::h_SetWindowPos;
+        }
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
+       
     }
 
     void CHooks::Hook()

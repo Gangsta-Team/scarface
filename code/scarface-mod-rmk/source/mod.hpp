@@ -1,6 +1,8 @@
 #ifndef _MOD_HPP
 #define _MOD_HPP
 
+#include "common.hpp"
+
 namespace gangsta
 {
 
@@ -9,11 +11,15 @@ namespace gangsta
     public:
         void InitSafe();
         void Init();
+        void InitImGuiStyle();
         void RunLoop();
+        void RunGui(bool* pGui, HWND hMainWindow);
+        void InputWatcher(HWND hMainWindow);
     };
 
     inline CMod g_Mod;
 
 }
+
 
 #endif

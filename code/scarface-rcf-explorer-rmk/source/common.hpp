@@ -12,7 +12,4 @@
 #include <vector>
 #include <d3d9.h>
 
-#include "TextEditor.h"
-#include <ImGuiFileDialog.h>
-
 #endif

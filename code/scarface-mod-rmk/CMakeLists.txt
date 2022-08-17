@@ -10,6 +10,6 @@ file(GLOB ScarfaceModRemakeSrc
 )
 
 add_library(${PROJECT_NAME} SHARED ${ScarfaceModRemakeSrc})
-target_link_libraries(${PROJECT_NAME} minhook lib::imgui lib::stackwalker lib::kaitai_generated nlohmann_json::nlohmann_json d3d9.lib d3d11.lib)
+target_link_libraries(${PROJECT_NAME} minhook lib::imgui lib::stackwalker lib::kaitai_generated nlohmann_json::nlohmann_json lib::filedialog d3d9.lib d3d11.lib)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".asi")

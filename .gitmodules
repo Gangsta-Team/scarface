@@ -14,3 +14,7 @@
 [submodule "kaitai/cpp_runtime"]
 	path = kaitai/cpp_runtime
 	url = https://github.com/kaitai-io/kaitai_struct_cpp_stl_runtime.git
+[submodule "code/vendor/ImGuiFileDialog"]
+	path = code/vendor/ImGuiFileDialog
+	url = https://github.com/aiekick/ImGuiFileDialog.git
+	branch = Lib_Only

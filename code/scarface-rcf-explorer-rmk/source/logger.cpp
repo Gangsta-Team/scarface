@@ -1,5 +1,4 @@
 #include "logger.hpp"
-#include "config.hpp"
 
 static gangsta::Logger* sInstance = nullptr;
 
@@ -16,21 +15,6 @@ gangsta::Logger* gangsta::Logger::GetInstance()
 
 void gangsta::Logger::Initialize()
 {
-
-    if (!AttachConsole(GetCurrentProcessId()))
-    {
-		AllocConsole();
-    }
-
-    SetConsoleTitleW(L"Gangsta");
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN);
-    SetConsoleCP(CP_UTF8);
-    SetConsoleOutputCP(CP_UTF8);
-
-    this->outputStream.open("CONOUT$");
-    this->outputText.open(g_Config.gangstaDirectory / "log.txt");
-
-    silentLog = false;
 }
 
 void gangsta::Logger::RawLog(const char* type, const char* format, std::va_list args)
@@ -49,12 +33,8 @@ void gangsta::Logger::RawLog(const char* type, const char* format, std::va_list 
     std::uninitialized_fill_n(messageBuffer.get(), messageLength, '\0');
     std::vsnprintf(messageBuffer.get(), messageLength, format, args);
 
-    if(silentLog == false)
-    {
-        outputStream << prefix << messageBuffer.get() << std::endl;
-    }
-    outputText << prefix << messageBuffer.get() << std::endl;
-
+    std::cout << prefix << messageBuffer.get() << std::endl;
+    
     messageBuffer.reset();
 
 }

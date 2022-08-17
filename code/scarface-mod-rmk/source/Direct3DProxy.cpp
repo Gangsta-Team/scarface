@@ -2,6 +2,8 @@
 #include "Direct3DDevice9Proxy.h"
 #include "logger.hpp"
 #include "hooks.hpp"
+#include "config.hpp"
+#include "mod.hpp"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -64,7 +66,7 @@ HRESULT Direct3DProxy::GetAdapterDisplayMode(UINT Adapter,D3DDISPLAYMODE* pMode 
 
 HRESULT Direct3DProxy:: CheckDeviceType (UINT Adapter,D3DDEVTYPE DevType,D3DFORMAT AdapterFormat,D3DFORMAT BackBufferFormat,BOOL bWindowed)
 {
-    bool _bWindowed = true;
+    bool _bWindowed = gangsta::g_Config.parsedJson["WindowedSpoof"].get<bool>();
 
     return m_pDirect3d9->CheckDeviceType(Adapter, DevType, AdapterFormat, BackBufferFormat, _bWindowed);
 }
@@ -76,7 +78,7 @@ HRESULT Direct3DProxy::CheckDeviceFormat(UINT Adapter,D3DDEVTYPE DeviceType,D3DF
 
 HRESULT Direct3DProxy::CheckDeviceMultiSampleType(UINT Adapter,D3DDEVTYPE DeviceType,D3DFORMAT SurfaceFormat,BOOL Windowed,D3DMULTISAMPLE_TYPE MultiSampleType,DWORD* pQualityLevels)
 {
-    bool _Windowed = true;
+    bool _Windowed = gangsta::g_Config.parsedJson["WindowedSpoof"].get<bool>();
     return m_pDirect3d9->CheckDeviceMultiSampleType(Adapter, DeviceType, SurfaceFormat, _Windowed, MultiSampleType, pQualityLevels);
 }
 
@@ -126,15 +128,19 @@ std::string GetLastErrorAsString()
 
 HRESULT Direct3DProxy::CreateDevice(UINT Adapter,D3DDEVTYPE DeviceType,HWND hFocusWindow,DWORD BehaviorFlags,D3DPRESENT_PARAMETERS* pPresentationParameters,IDirect3DDevice9** ppReturnedDeviceInterface )
 {
+    HRESULT res = NULL;
 
-    pPresentationParameters->Windowed = true;
-    pPresentationParameters->FullScreen_RefreshRateInHz = 0;
+    if(gangsta::g_Config.parsedJson["WindowedSpoof"].get<bool>())
+    {
+        pPresentationParameters->Windowed = true;
+        pPresentationParameters->FullScreen_RefreshRateInHz = 0;
 
-    HRESULT res = m_pDirect3d9->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
-    
-    SetWindowLong(hFocusWindow, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN);
-
-	SetWindowPos(hFocusWindow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+        res = m_pDirect3d9->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
+    }
+    else
+    {
+        res = m_pDirect3d9->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
+    }
 
     if(SUCCEEDED(res))
     {
@@ -144,26 +150,36 @@ HRESULT Direct3DProxy::CreateDevice(UINT Adapter,D3DDEVTYPE DeviceType,HWND hFoc
         gangsta::g_Hooks.D3D9DeviceProxyPool.emplace((void*)*ppReturnedDeviceInterface, prxy);
 
         *ppReturnedDeviceInterface = dynamic_cast<IDirect3DDevice9*>(prxy);
+
+        memcpy(&prxy->m_presentParams, pPresentationParameters, sizeof(*pPresentationParameters));
+
+        if(g_MainWindow)
+        {
+            gangsta::Logger::GetInstance()->Error("g_MainWindow was not null! Please contact on GitHub thank you!");
+            
+            while(1);
+        }
+
+        g_MainWindow = pPresentationParameters->hDeviceWindow;
+
+        Direct3DDevice9Proxy::hkWindowProcHandler(g_MainWindow);
+
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+
+        io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange;
+
+        gangsta::g_Mod.InitImGuiStyle();
+
+        ImGui_ImplWin32_Init(pPresentationParameters->hDeviceWindow);
+        ImGui_ImplDX9_Init(*ppReturnedDeviceInterface);
     }
     else
     {
-        gangsta::Logger::GetInstance()->Error("CreateDevice: %s \n",
-        GetLastErrorAsString().c_str());
+        gangsta::Logger::GetInstance()->Error("D3D9::CreateDevice is dead :-)");
 
         while(1);
     }
-
-	g_MainWindow = pPresentationParameters->hDeviceWindow;
-
-    Direct3DDevice9Proxy::hkWindowProcHandler(g_MainWindow);
-
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-
-    io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange;
-
-    ImGui_ImplWin32_Init(pPresentationParameters->hDeviceWindow);
-    ImGui_ImplDX9_Init((*ppReturnedDeviceInterface));
 
     return res;
 }

@@ -35,6 +35,6 @@ namespace gangsta
     void CMod::RunLoop()
     {}
 
-    // No cleanup or anything because its a ontime load mod :-)
+    // No cleanup or anything because its a onetime load mod :-)
 
 }

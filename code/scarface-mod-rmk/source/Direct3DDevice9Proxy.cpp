@@ -2,6 +2,8 @@
 #include "hooks.hpp"
 #include "logger.hpp"
 #include "config.hpp"
+#include "mod.hpp"
+#include "pointers.hpp"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -17,6 +19,7 @@
 static bool GHasCreatedImGui = false;
 static WNDPROC oWndProc = NULL;
 static bool GIsUiOpened = false;
+static Direct3DDevice9Proxy* GCurrentProxy = NULL;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -27,34 +30,40 @@ static LRESULT CALLBACK hkWindowProc(
 	_In_ LPARAM lParam
 )
 {
-	if (uMsg == WM_KEYUP && wParam == VK_INSERT)
-	{
-		GIsUiOpened ^= true;
-	}
-
 	if(GetForegroundWindow() != g_MainWindow)
 	{
 		return ::DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 
-	if(uMsg == WM_KILLFOCUS)
+	switch (uMsg)
 	{
-		ImGui::GetIO().MouseDrawCursor = true;
-	}
+	case WM_KEYUP:
+		if(wParam == VK_INSERT)
+		{
+			GIsUiOpened ^= true;
 
-	if(uMsg == WM_SETFOCUS)
-	{
+			//gangsta::g_Pointers.m_Con__evaluate((GIsUiOpened == true) ? "PauseGame(); HUD_Hide(); " : "UnpauseGame(); HUD_Show(); ", 0, 0, 0, -1);
+			
+		}
+		break;
+	case WM_KILLFOCUS:
+		ImGui::GetIO().MouseDrawCursor = true;
+		break;
+	case WM_SETFOCUS:
 		ImGui::GetIO().MouseDrawCursor = false;
+		break;
+	case WM_DESTROY:
+		exit(0);
+		break;
+	default:
+		break;
 	}
 
 	if(GIsUiOpened)
 	{
-		if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam) > 0)
-		{
-			return 1L;
-		}
+		ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam);
 
-		return 1L;
+		return ::DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 	
 	return ::CallWindowProcA(oWndProc, hwnd, uMsg, wParam, lParam);
@@ -63,20 +72,21 @@ static LRESULT CALLBACK hkWindowProc(
 void Direct3DDevice9Proxy::hkWindowProcHandler(HWND wnd)
 {
 	oWndProc = (WNDPROC)::SetWindowLongPtr((HWND)wnd, GWLP_WNDPROC, (LONG)hkWindowProc);
-	gangsta::Logger::GetInstance()->Info("WndProc: %p", oWndProc);
+	gangsta::Logger::GetInstance()->Info("Old WndProc [ %p ]", oWndProc);
 }
 
 Direct3DDevice9Proxy::Direct3DDevice9Proxy(IDirect3DDevice9 *pDirect3DDevice9)
 {
 	if(GHasCreatedImGui)
 	{
-		MessageBoxA(0, "D3D9 ALREADY HOOKED!", "FUCKING OPEN A GITHUB ISSUE!", 0);
+		MessageBoxA(0, "D3D9 ALREADY HOOKED!", "OPEN A GITHUB ISSUE!", 0);
 		ExitProcess(-1);
 	}
 
 	m_pDirect3DDevice9 = pDirect3DDevice9;
 	m_hasInitializedImGui = false;
 	GHasCreatedImGui = true;
+	GCurrentProxy = this;
 }
 
 HRESULT Direct3DDevice9Proxy::QueryInterface(REFIID riid, void** ppvObj)
@@ -100,6 +110,8 @@ ULONG Direct3DDevice9Proxy::Release(void)
 	gangsta::g_Hooks.D3D9DeviceProxyPool.erase(m_pDirect3DDevice9);
 
 	delete this; 
+
+	GCurrentProxy = nullptr;
 
 	return res;
 }
@@ -227,10 +239,14 @@ HRESULT Direct3DDevice9Proxy::Reset(D3DPRESENT_PARAMETERS* pPresentationParamete
 	gangsta::Logger::GetInstance()->Info("[ %s ]", __FUNCTION__);
 	#endif
 
+	pPresentationParameters->FullScreen_RefreshRateInHz = 0;
+	pPresentationParameters->Windowed = true;
+
 	ImGui_ImplDX9_InvalidateDeviceObjects();
-	ImGui_ImplDX9_CreateDeviceObjects();
 
 	HRESULT res = m_pDirect3DDevice9->Reset(pPresentationParameters);
+
+	ImGui_ImplDX9_CreateDeviceObjects();
 
 	return res;
 }
@@ -241,14 +257,6 @@ HRESULT Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDest
 	gangsta::Logger::GetInstance()->Info("[ %s ]", __FUNCTION__);
 	#endif
 
-	ImGui_ImplDX9_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	ImGui::EndFrame();
-	ImGui::Render();
-	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-	
 	HRESULT res = m_pDirect3DDevice9->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 	return res;
@@ -476,6 +484,17 @@ HRESULT Direct3DDevice9Proxy::EndScene(void)
 	#if _LOG_FUNC_CALLS
 	gangsta::Logger::GetInstance()->Info("[ %s ]", __FUNCTION__);
 	#endif
+
+	ImGui_ImplDX9_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	ImGui::GetIO().MouseDrawCursor = GIsUiOpened;
+
+	gangsta::g_Mod.RunGui(&GIsUiOpened, g_MainWindow);
+
+	ImGui::EndFrame();
+	ImGui::Render();
+	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
 
 	return m_pDirect3DDevice9->EndScene();
 }

@@ -15,9 +15,9 @@ BOOL WINAPI DllMain(
     {
 
         MH_Initialize();
-
-        gangsta::Logger::GetInstance()->Info("Loading!");
+        
         gangsta::g_Config.Load();
+        gangsta::Logger::GetInstance()->Info("Loading!");
         gangsta::g_Mod.InitSafe();
 
         CreateThread(nullptr, 0, [] (void*) -> DWORD

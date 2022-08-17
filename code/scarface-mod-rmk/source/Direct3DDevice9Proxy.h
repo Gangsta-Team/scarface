@@ -136,6 +136,7 @@ public:
 public:
 	IDirect3DDevice9 * m_pDirect3DDevice9;
 	bool m_hasInitializedImGui;
+	D3DPRESENT_PARAMETERS m_presentParams;
 };
 
 inline HWND g_MainWindow;

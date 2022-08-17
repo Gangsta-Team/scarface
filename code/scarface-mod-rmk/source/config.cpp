@@ -45,6 +45,16 @@ namespace gangsta
                 }
                 return false;
             },
+            [] (nlohmann::json& input) -> bool
+            {
+                if(input["ImGuiTextSize"].is_null())
+                {
+                    // using (float) just to make sure that it doesn't do any funny
+                    input["ImGuiTextSize"] = (float)16.f;
+                    return true;
+                }
+                return false;
+            },
         };
 
         gangstaDirectory = std::getenv("appdata");

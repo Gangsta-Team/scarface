@@ -7,11 +7,6 @@
 #include <pure3d.h>
 #include <cement.h>
 
-TextEditor* g_TE;
-
-// create a file browser instance
-ImGui::FileBrowser fileDialog;
-
 namespace gangsta
 {
 
@@ -34,18 +29,12 @@ namespace gangsta
     {
         g_Pointers.Scan();
         g_Hooks.Hook();
-
-        // (optional) set browser properties
-        fileDialog.SetTitle("Gangster / File Browser");
-        fileDialog.SetTypeFilters({ ".cs" });
-
-        g_TE = new TextEditor();
     }
 
     // Called often in Thread
     void CMod::RunLoop()
     {}
 
-    // No cleanup or anything because its a ontime load mod :-)
+    // No cleanup or anything because its a onetime load mod :-)
 
 }

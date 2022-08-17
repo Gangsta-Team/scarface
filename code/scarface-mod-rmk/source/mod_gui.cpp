@@ -9,8 +9,8 @@ void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     POINT mPos;
     GetCursorPos(&mPos);
     ScreenToClient(hMainWindow, &mPos);
-    io.MousePos.x = mPos.x;
-    io.MousePos.y = mPos.y;
+    io.MousePos.x = (float)mPos.x;
+    io.MousePos.y = (float)mPos.y;
     io.MouseDown[0] = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
     io.MouseDown[1] = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
     io.MouseDown[2] = (GetAsyncKeyState(VK_MBUTTON) & 0x8000) != 0;
@@ -18,41 +18,93 @@ void gangsta::CMod::InputWatcher(HWND hMainWindow) {
 
 void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 {
+    static TextEditor gScriptEditor = TextEditor();
     // pGui = is opened
     if(*pGui)
     {
         gangsta::g_Mod.InputWatcher(hMainWindow);
-        
 
-        ImVec2 a;
-        a.x = 500;
-        a.y = 400;
-        g_TE->Render("a", a, true);
-
-        //...do other stuff like ImGui::NewFrame();
-
-        if (ImGui::Begin("Gangster"))
+        if(ImGui::Begin("Gangster"))
         {
-            // open file dialog when user clicks this button
-            if (ImGui::Button("Open file"))
-                fileDialog.Open();
+
+            if(ImGui::BeginTabBar("##MainTabBar"))
+            {
+                if(ImGui::BeginTabItem("Scripting"))
+                {
+                    if(ImGui::BeginChild("##ScriptingChild", {-1, -1}, true, ImGuiWindowFlags_MenuBar))
+                    {
+                        if(ImGui::BeginMenuBar())
+                        {
+                            if(ImGui::BeginMenu("Actions"))
+                            {
+                                
+                                if(ImGui::MenuItem("Load Script File"))
+                                {
+                                    ImGuiFileDialog::Instance()->OpenDialog("ScriptOpenDialog", "Gangster / File Browser [ Open ]", ".cs", ".");
+                                }
+                                if(ImGui::MenuItem("Save Script File"))
+                                {
+                                    ImGuiFileDialog::Instance()->OpenDialog("ScriptSaveDialog", "Gangster / File Browser [ Save ]", ".cs", ".");
+                                }
+
+                                if(ImGui::MenuItem("Execute"))
+                                {
+                                    
+                                }
+
+                                ImGui::EndMenu();
+                            }
+                        }
+                        ImGui::EndMenuBar();
+
+                        // -1, -1 = max size
+                        gScriptEditor.Render("##ScriptTextEditor", {-1, -1}, true);
+                    }
+                    ImGui::EndChild();
+                    ImGui::EndTabItem();
+                }
+                ImGui::EndTabBar();
+            }
         }
         ImGui::End();
-
-        fileDialog.Display();
-
-        if (fileDialog.HasSelected())
+        
+        if (ImGuiFileDialog::Instance()->Display("ScriptOpenDialog"))
         {
-            std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
+            if(ImGuiFileDialog::Instance()->IsOk())
+            {
+                std::string filenameWithPath = ImGuiFileDialog::Instance()->GetFilePathName();
+                // std::cout doesn't work use the logger
+                // std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
 
-            std::ifstream ifs(fileDialog.GetSelected().string());
-            std::string content((std::istreambuf_iterator<char>(ifs)),
-                (std::istreambuf_iterator<char>()));
+                std::ifstream ifs(filenameWithPath);
+                std::string content((std::istreambuf_iterator<char>(ifs)),
+                    (std::istreambuf_iterator<char>()));
 
-            gangsta::Logger::GetInstance()->Info("Opening file: [ %s ]", fileDialog.GetSelected().string());
+                // do c_str() on a string !!!! a STRING is not a char* or const char* you need to to .c_str() that returns a const char*!!!!
+                gangsta::Logger::GetInstance()->Info("Opening file: [ %s ]", filenameWithPath.c_str());
 
-            g_TE->SetText(content);
-            fileDialog.ClearSelected();
+                gScriptEditor.SetText(content);
+            }
+
+            ImGuiFileDialog::Instance()->Close();
+        }
+
+        if (ImGuiFileDialog::Instance()->Display("ScriptSaveDialog"))
+        {
+            if(ImGuiFileDialog::Instance()->IsOk())
+            {
+                std::string filenameWithPath = ImGuiFileDialog::Instance()->GetFilePathName();
+
+                std::ofstream ofs(filenameWithPath, std::ios::trunc);
+
+                gangsta::Logger::GetInstance()->Info("Saving file: [ %s ]", filenameWithPath.c_str());
+
+                ofs << gScriptEditor.GetText();
+                ofs.flush();
+                ofs.close();
+            }
+
+            ImGuiFileDialog::Instance()->Close();
         }
     }
 }

@@ -11,14 +11,13 @@ namespace gangsta
     public:
         void InitSafe();
         void Init();
+        void InitImGuiStyle();
         void RunLoop();
         void RunGui(bool* pGui, HWND hMainWindow);
         void InputWatcher(HWND hMainWindow);
     };
 
-    inline CMod         g_Mod;
-    inline TextEditor*  g_TE;
-    inline ImGui::FileBrowser fileDialog;
+    inline CMod g_Mod;
 
 }
 

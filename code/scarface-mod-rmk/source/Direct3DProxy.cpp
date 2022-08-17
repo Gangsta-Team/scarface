@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include "hooks.hpp"
 #include "config.hpp"
+#include "mod.hpp"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -135,10 +136,6 @@ HRESULT Direct3DProxy::CreateDevice(UINT Adapter,D3DDEVTYPE DeviceType,HWND hFoc
         pPresentationParameters->FullScreen_RefreshRateInHz = 0;
 
         res = m_pDirect3d9->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
-        
-        SetWindowLong(hFocusWindow, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN);
-
-        SetWindowPos(hFocusWindow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
     }
     else
     {
@@ -153,32 +150,36 @@ HRESULT Direct3DProxy::CreateDevice(UINT Adapter,D3DDEVTYPE DeviceType,HWND hFoc
         gangsta::g_Hooks.D3D9DeviceProxyPool.emplace((void*)*ppReturnedDeviceInterface, prxy);
 
         *ppReturnedDeviceInterface = dynamic_cast<IDirect3DDevice9*>(prxy);
+
+        memcpy(&prxy->m_presentParams, pPresentationParameters, sizeof(*pPresentationParameters));
+
+        if(g_MainWindow)
+        {
+            gangsta::Logger::GetInstance()->Error("g_MainWindow was not null! Please contact on GitHub thank you!");
+            
+            while(1);
+        }
+
+        g_MainWindow = pPresentationParameters->hDeviceWindow;
+
+        Direct3DDevice9Proxy::hkWindowProcHandler(g_MainWindow);
+
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+
+        io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange;
+
+        gangsta::g_Mod.InitImGuiStyle();
+
+        ImGui_ImplWin32_Init(pPresentationParameters->hDeviceWindow);
+        ImGui_ImplDX9_Init(*ppReturnedDeviceInterface);
     }
     else
     {
-        gangsta::Logger::GetInstance()->Error("CreateDevice: %s \n", GetLastErrorAsString().c_str());
+        gangsta::Logger::GetInstance()->Error("D3D9::CreateDevice is dead :-)");
 
         while(1);
     }
-
-    if(g_MainWindow)
-    {
-        gangsta::Logger::GetInstance()->Error("g_MainWindow was not null! Please contact on GitHub thank you!");
-        
-        while(1);
-    }
-
-	g_MainWindow = pPresentationParameters->hDeviceWindow;
-
-    Direct3DDevice9Proxy::hkWindowProcHandler(g_MainWindow);
-
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-
-    io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange;
-
-    ImGui_ImplWin32_Init(pPresentationParameters->hDeviceWindow);
-    ImGui_ImplDX9_Init((*ppReturnedDeviceInterface));
 
     return res;
 }

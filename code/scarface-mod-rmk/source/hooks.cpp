@@ -170,6 +170,16 @@ namespace gangsta
         return TRUE;
     }
 
+    void CHooks::ControllerInput__ReadControllerInput(void *_this, void* edx, void *actionMap)
+    {
+        if(g_Globals.guiOpened)
+        {
+            return;
+        }
+
+        static_cast<decltype(&ControllerInput__ReadControllerInput)>(g_Hooks.OriginalControllerInputReadControllerInput)(_this, edx, actionMap);
+    }
+
     void CHooks::HookSafe()
     {
         if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
@@ -179,6 +189,8 @@ namespace gangsta
             *((void**)0x009CE76C) = &CHooks::h_ShowCursor;
             *((void**)0x009CE760) = &CHooks::h_SetWindowPos;
         }
+        
+        g_Hooks.OriginalControllerInputReadControllerInput = HookFunc<void*>((void*)0x0057E310, CHooks::ControllerInput__ReadControllerInput);
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
        
     }

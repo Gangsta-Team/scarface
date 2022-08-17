@@ -1,17 +1,17 @@
 
 # Scarface The World Is Yours
-This is Project is intended for changing and fixing the game issues and extending the game functionality!
+This project is intended for changing and fixing the game issues and extending the game functionality!
 
 ## Folder Structure
 |  Folder | Description |
 | - | - |
-| [code](https://github.com/1h3a3x7/scarface/tree/main/code)  | Code for the Main Mod and also Code for the RCF Explorer and P3D Explorer |
-| [documents](https://github.com/1h3a3x7/scarface/tree/main/documents) | Documentation for Natives, Structures and General Stuff about Scarface |
-| [kaitai](https://github.com/1h3a3x7/scarface/tree/main/kaitai) | Kaitai Structures and generated Header and Code files for C++ |
-| [web-rcf-explorer](https://1h3a3x7.github.io/scarface/web-rcf-explorer/ui.html)  | Tool for online exploring .RCF files |
+| [code](https://github.com/1h3a3x7/scarface/tree/main/code)  | Contains the code for the main mod and also code for the RCF Explorer and P3D Explorer |
+| [documents](https://github.com/1h3a3x7/scarface/tree/main/documents) | Contains the documentation for game natives, structures and general information about Scarface |
+| [kaitai](https://github.com/1h3a3x7/scarface/tree/main/kaitai) | Contains the Kaitai Structures and generated Header and Code files for C++ |
+| [web-rcf-explorer](https://1h3a3x7.github.io/scarface/web-rcf-explorer/ui.html)  | Contains and small Tool for online exploring .RCF files |
 
 ## Modification Files
-When you launch the game for first time with the ASI plugin, a folder in `%appdata%` <br> will be created with name `%appdata%/Gangsta`. Inside of this folder will be existing two files: `config.json` and `log.txt`. <br>In `log.txt` when logging enabled will be every Log Entry in the Console saved! But `config.json` on the other<br>hand is a little bit more complicated.<br>
+When you launch the game for first time with the ASI plugin, a folder in `%appdata%` <br> will be created with the name `%appdata%/Gangsta`. Inside of this folder will be existing two files: `config.json` and `log.txt`. <br>In `log.txt` when logging enabled will be every Log Entry in the Console saved! But `config.json` on the other<br>hand is a little bit more complicated.<br>
 ### Example of config.json
  ```json
  {
@@ -24,4 +24,4 @@ When you launch the game for first time with the ASI plugin, a folder in `%appda
 ```
 
 # Contribution
-Everyone can contribute it does not matter which Coding Style you have!<br>Everyone can help! if you want to Help contact me us Discord (`Soon ™#7513` or `PatchByte#9884`)
+Everyone can contribute on this project, if you want to colaborate contact us through discord (`Soon ™#7513` or `PatchByte#9884`)

@@ -21,12 +21,14 @@ namespace gangsta
         static int __stdcall h_ShowCursor(BOOL bShow);
         static BOOL __stdcall h_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
         static void __fastcall ControllerInput__ReadControllerInput(void *_this, void* edx, void *actionMap);
+        static void __fastcall GenericCharacterCamera__ControllerInput__Update(void *_this, void* edx, float accelThreshold, float accelTime, float decelTime, float deltaTime);
 
     public:
         // ORIGINALS HERE
         PVOID OriginalPddiCreate;
         PVOID OriginalDirect3DCreate9;
         PVOID OriginalControllerInputReadControllerInput;
+        PVOID OriginalGenericCharacterCameraControllerInputUpdate;
     public:
         std::map<void*, Direct3DProxy*> D3D9ProxyPool;
         std::map<void*, Direct3DDevice9Proxy*> D3D9DeviceProxyPool;

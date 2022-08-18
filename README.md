@@ -6,9 +6,6 @@ This is Project is intended for changing and fixing the Game Issues and extendin
 |  Folder | Description |
 | - | - |
 | [code](https://github.com/1h3a3x7/scarface/tree/main/code)  | Code for the Main Mod and also Code for the RCF Explorer and P3D Explorer |
-| [documents](https://github.com/1h3a3x7/scarface/tree/main/documents) | Documentation for Natives, Structures and General Stuff about Scarface |
-| [kaitai](https://github.com/1h3a3x7/scarface/tree/main/kaitai) | Kaitai Structures and generated Header and Code files for C++ |
-| [web-rcf-explorer](https://1h3a3x7.github.io/scarface/web-rcf-explorer/ui.html)  | Tool for online exploring .RCF files |
 
 ## Modification Files
 When you first launch the Game with the ASI a folder in `%appdata%` <br> will be created called `%appdata%/Gangsta`. In there will be Files called `config.json` and `log.txt`. <br>In `log.txt`when logging enabled will be every Log Entry in the Console saved! But `config.json` on the other<br>hand is a little bit more complicated.<br>

@@ -210,22 +210,26 @@ namespace gangsta
 
 
     char* CHooks::CodeBlock_compileExec(torque3d::CodeBlock* codeBlock, void* edx, char* Str, char* Source, char* Args) {
-        Logger::GetInstance()->Info("CodeBlock_compileExec_Hook(%s, %s, %s);", Str, Source, Args);
         char* res = static_cast<decltype(&CodeBlock_compileExec)>(g_Hooks.OriginalCodeBlock_compileExec)(codeBlock, edx, Str, Source, Args);
 
-        Logger::GetInstance()->Info("\tcodeSize 0x%x", codeBlock->codeSize);
-        Logger::GetInstance()->Info("\tcode 0x%p", codeBlock->code);
-        if (codeBlock->code) {
-            for (uint32_t i = 0; i < codeBlock->codeSize; ++i) {
-                uint8_t c = ((uint8_t*)codeBlock->code)[i];
-                Logger::GetInstance()->Info("%02X ", c);
+        if(g_Config.parsedJson["DumpCodeBlocks"])
+        {
+            Logger::GetInstance()->Info("CodeBlock_compileExec_Hook(%s, %s, %s);", Str, Source, Args);
+            Logger::GetInstance()->Info("\tcodeSize 0x%x", codeBlock->codeSize);
+            Logger::GetInstance()->Info("\tcode 0x%p", codeBlock->code);
+            if (codeBlock->code) {
+                for (uint32_t i = 0; i < codeBlock->codeSize; ++i) {
+                    uint8_t c = ((uint8_t*)codeBlock->code)[i];
+                    Logger::GetInstance()->Info("%02X ", c);
+                }
+                Logger::GetInstance()->Info("\n");
+                torque3d::CodeBlock::dumpInstructions(codeBlock, 0, false);
             }
-            Logger::GetInstance()->Info("\n");
-            torque3d::CodeBlock::dumpInstructions(codeBlock, 0, false);
+            else {
+                Logger::GetInstance()->Info("code nullptr");
+            }
         }
-        else {
-            Logger::GetInstance()->Info("code nullptr");
-        }
+        
         return res;
     }
 

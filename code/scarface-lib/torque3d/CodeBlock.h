@@ -84,6 +84,7 @@ namespace torque3d
         OP_TAG_TO_STR,
         OP_CALLFUNC_RESOLVE,
         OP_CALLFUNC,
+        OP_76,
         OP_ADVANCE_STR,
         OP_ADVANCE_STR_APPENDCHAR,
         OP_ADVANCE_STR_COMMA,

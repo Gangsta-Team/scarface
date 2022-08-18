@@ -23,6 +23,7 @@ namespace gangsta
         static void __fastcall ControllerInput__ReadControllerInput(void *_this, void* edx, void *actionMap);
         static void __fastcall GenericCharacterCamera__ControllerInput__Update(void *_this, void* edx, float accelThreshold, float accelTime, float decelTime, float deltaTime);
         static uint32_t __cdecl GetHashFromFileName(const char *Str);
+        static char* __fastcall CodeBlock_compileExec(torque3d::CodeBlock* codeBlock, void* edx, char* Str, char* Source, char* Args);
     public:
         // ORIGINALS HERE
         PVOID OriginalPddiCreate;
@@ -30,6 +31,7 @@ namespace gangsta
         PVOID OriginalControllerInputReadControllerInput;
         PVOID OriginalGenericCharacterCameraControllerInputUpdate;
         PVOID OriginalGetHashFromFileName;
+        PVOID OriginalCodeBlock_compileExec;
     public:
         std::map<void*, Direct3DProxy*> D3D9ProxyPool;
         std::map<void*, Direct3DDevice9Proxy*> D3D9DeviceProxyPool;

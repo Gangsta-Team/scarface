@@ -12,6 +12,8 @@
 #include <vector>
 #include <d3d9.h>
 
+#include <imgui.h>
+
 #include "TextEditor.h"
 #include <ImGuiFileDialog.h>
 

@@ -4,6 +4,7 @@
 #include "logger.hpp"
 #include "pointers.hpp"
 #include "config.hpp"
+#include "utils/ImGuiExtras.hpp"
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     ImGuiIO& io = ImGui::GetIO();
@@ -50,11 +51,9 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 
                                 if (ImGui::MenuItem("Compile & Run"))
                                 {
-                                    static void* p_CBInstance = nullptr;
+                                    static torque3d::CodeBlock* p_CBInstance = nullptr;
                                     if (p_CBInstance == nullptr) {
-                                        BYTE* cb_ctor = (BYTE*)malloc(52);
-                                        memset(cb_ctor, 0, 52);
-                                        p_CBInstance = gangsta::g_Pointers.m_CodeBlock_ctor(cb_ctor);
+                                        p_CBInstance = new torque3d::CodeBlock();
                                     }
 
                                     gangsta::g_Pointers.m_compileExec(p_CBInstance, NULL, (char*)gScriptEditor.GetText().c_str(), NULL);
@@ -136,6 +135,105 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                     currentCodeBlock = currentCodeBlock->nextFile;
                                 }
                                 
+                            }
+                        }
+                        ImGui::EndChild();
+                        ImGui::SameLine();
+                        if(ImGui::BeginChild("##CodeBlockListContainer##InfoPanel", {-1, -1}, true))
+                        {
+                            if(selectedCodeBlockPointer)
+                            {
+                                enum TableEntryFuncRenderType
+                                {
+                                    POINTER,
+                                    STRING,
+                                    STIRNG_FILEHASH,
+                                    INT,
+                                    UINT
+                                };
+
+                                using TableEntryFunc = struct {
+                                    std::string renderName;
+                                    TableEntryFuncRenderType renderType;
+                                    uint32_t renderOffset;
+                                };
+
+                                /*
+                                uint32_t name;
+                                char *globalStrings;
+                                char *functionStrings;
+                                void *globalFloats;
+                                void *functionFloats;
+                                uint32_t codeSize;
+                                uint32_t *code;
+                                uint32_t refCount;
+                                uint32_t lineBreakPairCount;
+                                uint32_t *lineBreakPairs;
+                                uint32_t breakListSize;
+                                uint32_t *breakList;
+                                CodeBlock *nextFile;
+                                */
+
+                                std::vector<TableEntryFunc> fEntryFuncs
+                                =
+                                {
+                                    { "Name", TableEntryFuncRenderType::STIRNG_FILEHASH, offsetof(torque3d::CodeBlock, name) },
+                                    { "Global Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, globalStrings) },
+                                    { "Function Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, functionStrings) },
+                                    { "Global Floats", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, globalFloats) }
+                                };
+
+                                
+
+                                if(ImGui::BeginTable("##DisplayTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+                                {
+                                    for(auto e : fEntryFuncs)
+                                    {
+                                        ImGui::TableNextRow();
+                                        ImGui::TableSetColumnIndex(0);
+                                        ImGui::Text("%s", e.renderName.c_str());
+                                        ImGui::TableSetColumnIndex(1);
+                                        uintptr_t valueBegin = (uintptr_t)selectedCodeBlockPointer;
+                                        switch (e.renderType)
+                                        {
+                                        case TableEntryFuncRenderType::POINTER:
+                                        {
+                                            void* val = *(void**)(valueBegin + e.renderOffset);
+                                            ImGui::Text("%p", val);
+                                            break;
+                                        }
+                                        case TableEntryFuncRenderType::STRING:
+                                        {
+                                            void* val = *(char**)(valueBegin + e.renderOffset);
+                                            ImGui::Text("%s", val);
+                                            break;
+                                        }
+                                        case TableEntryFuncRenderType::STIRNG_FILEHASH:
+                                        {
+                                            uint32_t valHash = *(uint32_t*)(valueBegin + e.renderOffset);
+                                            std::string val = g_Globals.fileHashRegister[valHash];
+                                            ImGui::Text("%s", val.c_str());
+                                            break;
+                                        }
+                                        case TableEntryFuncRenderType::INT:
+                                        {
+                                            int val = *(int*)(valueBegin + e.renderOffset);
+                                            ImGui::Text("%i", val);
+                                            break;
+                                        }
+                                        case TableEntryFuncRenderType::UINT:
+                                        {
+                                            uint32_t val = *(uint32_t*)(valueBegin + e.renderOffset);
+                                            ImGui::Text("%u", val);
+                                            break;
+                                        }
+                                        default:
+                                            break;
+                                        }
+                                    }
+
+                                    ImGui::EndTable();
+                                }
                             }
                         }
                         ImGui::EndChild();

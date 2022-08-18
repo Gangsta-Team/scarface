@@ -6,9 +6,10 @@
 namespace torque3d
 {
 
-    class CodeBlock
+    struct CodeBlock
     {
-        char *name;
+        // in the original Torque3D engine its a char*; But they have changed it to a hash!
+        uint32_t name;
         char *globalStrings;
         char *functionStrings;
         void *globalFloats;
@@ -22,6 +23,7 @@ namespace torque3d
         uint32_t *breakList;
         CodeBlock *nextFile;
     };
+
 
     static_assert(sizeof(CodeBlock) == 52, "torque3d::CodeBlock has not the size of 52!");
 }

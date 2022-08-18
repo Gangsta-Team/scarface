@@ -212,7 +212,7 @@ namespace gangsta
     char* CHooks::CodeBlock_compileExec(torque3d::CodeBlock* codeBlock, void* edx, char* Str, char* Source, char* Args) {
         char* res = static_cast<decltype(&CodeBlock_compileExec)>(g_Hooks.OriginalCodeBlock_compileExec)(codeBlock, edx, Str, Source, Args);
 
-        if(g_Config.parsedJson["DumpCodeBlocks"])
+        if(g_Config.parsedJson["DumpCodeBlocks"].get<bool>())
         {
             Logger::GetInstance()->Info("CodeBlock_compileExec_Hook(%s, %s, %s);", Str, Source, Args);
             Logger::GetInstance()->Info("\tcodeSize 0x%x", codeBlock->codeSize);

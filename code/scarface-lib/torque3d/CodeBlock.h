@@ -6,8 +6,10 @@
 namespace torque3d
 {
 
-    struct CodeBlock
+    class CodeBlock
     {
+    public:
+        CodeBlock();
         // in the original Torque3D engine its a char*; But they have changed it to a hash!
         uint32_t name;
         char *globalStrings;

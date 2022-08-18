@@ -104,25 +104,24 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 
                                     it++;
                                     
-                                    char rndrBuf[256] = {0};
+                                    std::string endNameBuffer = "";
                                     if(currentCodeBlock->name != NULL)
                                     {
                                         if(g_Globals.fileHashRegister.count(currentCodeBlock->name) == 0)
                                         {
-                                            sprintf_s(rndrBuf, "%p", currentCodeBlock);
+                                            endNameBuffer = std::to_string((uint32_t)currentCodeBlock);
                                         }
                                         else
                                         {
-                                            std::string fName = g_Globals.fileHashRegister[currentCodeBlock->name];
-                                            sprintf_s(rndrBuf, "%s", fName.c_str());
+                                            endNameBuffer = g_Globals.fileHashRegister[currentCodeBlock->name];
                                         }
                                     }
                                     else
                                     {
-                                        sprintf_s(rndrBuf, "%p", currentCodeBlock);
+                                        endNameBuffer = std::to_string((uint32_t)currentCodeBlock);
                                     }
 
-                                    if(ImGui::Selectable(rndrBuf, it == selectedCodeBlockIndex))
+                                    if(ImGui::Selectable(endNameBuffer.c_str(), it == selectedCodeBlockIndex))
                                     {
                                         selectedCodeBlockIndex = it;
                                     }

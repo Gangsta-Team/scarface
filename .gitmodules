@@ -11,10 +11,13 @@
 [submodule "code/vendor/StackWalker"]
 	path = code/vendor/StackWalker
 	url = https://github.com/JochenKalmbach/StackWalker.git
-[submodule "kaitai/cpp_runtime"]
-	path = kaitai/cpp_runtime
-	url = https://github.com/kaitai-io/kaitai_struct_cpp_stl_runtime.git
 [submodule "code/vendor/ImGuiFileDialog"]
 	path = code/vendor/ImGuiFileDialog
 	url = https://github.com/aiekick/ImGuiFileDialog.git
 	branch = Lib_Only
+[submodule "code/vendor/kaitai_cpp"]
+	path = code/vendor/kaitai_cpp
+	url = https://github.com/kaitai-io/kaitai_struct_cpp_stl_runtime.git
+[submodule "code/vendor/kaitai_definitions"]
+	path = code/vendor/kaitai_definitions
+	url = https://github.com/Gangsta-Team/kaitai.git

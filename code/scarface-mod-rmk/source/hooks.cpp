@@ -190,6 +190,23 @@ namespace gangsta
         static_cast<decltype(&GenericCharacterCamera__ControllerInput__Update)>(g_Hooks.OriginalGenericCharacterCameraControllerInputUpdate)(_this, edx, accelThreshold, accelTime, decelTime, deltaTime);
     }
 
+    uint32_t CHooks::GetHashFromFileName(const char *Str)
+    {
+        uint32_t result = static_cast<CPointers::CodeBlock_GetName_t>(g_Hooks.OriginalGetHashFromFileName)(Str);
+
+        if ( !Str || !*Str )
+        {
+            return 0;
+        }
+
+        if(strlen(Str) > 0)
+        {
+            g_Globals.fileHashRegister[result] = std::string(Str);
+        }
+
+        return result;
+    }
+
     void CHooks::HookSafe()
     {
         if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
@@ -203,7 +220,7 @@ namespace gangsta
         g_Hooks.OriginalControllerInputReadControllerInput = HookFunc<void*>((void*)0x0057E310, CHooks::ControllerInput__ReadControllerInput);
         g_Hooks.OriginalGenericCharacterCameraControllerInputUpdate = HookFunc<void*>((void*)0x00565060, CHooks::GenericCharacterCamera__ControllerInput__Update);
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
-       
+        g_Hooks.OriginalGetHashFromFileName = HookFunc<CPointers::CodeBlock_GetName_t>((void*)0x0042BF90, CHooks::GetHashFromFileName);
     }
 
     void CHooks::Hook()

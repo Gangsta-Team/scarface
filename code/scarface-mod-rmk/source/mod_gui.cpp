@@ -3,7 +3,7 @@
 #include <imgui.h>
 #include "logger.hpp"
 #include "pointers.hpp"
-
+#include "config.hpp"
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     ImGuiIO& io = ImGui::GetIO();
@@ -74,6 +74,73 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                         // -1, -1 = max size
                         gScriptEditor.Render("##ScriptTextEditor", {-1, -1}, true);
                     }
+                    ImGui::EndChild();
+                    ImGui::EndTabItem();
+                }
+
+                if(ImGui::BeginTabItem("CodeBlock List"))
+                {
+                    if(ImGui::BeginChild("##CodeBlockListContainer", {-1, -1}))
+                    {
+                        ImVec2 containerSize = ImGui::GetWindowSize();
+
+                        torque3d::CodeBlock** firstBlockPointer = g_Pointers.m_smCodeBlockList;
+                        torque3d::CodeBlock* currentCodeBlock = *firstBlockPointer;
+
+                        static int selectedCodeBlockIndex = -1;
+
+                        torque3d::CodeBlock* selectedCodeBlockPointer = nullptr;
+
+                        if(ImGui::BeginChild("##CodeBlockListContainer##SideBar", {containerSize.x / 3, -1}, true))
+                        {
+                            if(currentCodeBlock)
+                            {
+                                int it = 0;
+                                while (1)
+                                {
+                                    if(currentCodeBlock == nullptr)
+                                    {
+                                        break;
+                                    }
+
+                                    it++;
+                                    
+                                    char rndrBuf[256] = {0};
+                                    if(currentCodeBlock->name != NULL)
+                                    {
+                                        if(g_Globals.fileHashRegister.count(currentCodeBlock->name) == 0)
+                                        {
+                                            sprintf_s(rndrBuf, "%p", currentCodeBlock);
+                                        }
+                                        else
+                                        {
+                                            std::string fName = g_Globals.fileHashRegister[currentCodeBlock->name];
+                                            sprintf_s(rndrBuf, "%s", fName.c_str());
+                                        }
+                                    }
+                                    else
+                                    {
+                                        sprintf_s(rndrBuf, "%p", currentCodeBlock);
+                                    }
+
+                                    if(ImGui::Selectable(rndrBuf, it == selectedCodeBlockIndex))
+                                    {
+                                        selectedCodeBlockIndex = it;
+                                    }
+
+                                    if(selectedCodeBlockIndex == it)
+                                    {
+                                        selectedCodeBlockPointer = currentCodeBlock;
+                                    }
+
+                                    currentCodeBlock = currentCodeBlock->nextFile;
+                                }
+                                
+                            }
+                        }
+                        ImGui::EndChild();
+                    }
+
                     ImGui::EndChild();
                     ImGui::EndTabItem();
                 }

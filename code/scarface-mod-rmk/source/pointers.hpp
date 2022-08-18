@@ -20,6 +20,7 @@ namespace gangsta
         using CodeBlock_ctor_t = void* (__thiscall*)(void* _this);
         using CompileExec_t = void* (__thiscall*)(void* _this, char* str, char* source, char* arg);
         using Con__evaluate_t = char* (__cdecl*)(char* unk0, char unk1, char* Str, int unk3, int unk4);
+        using CodeBlock_GetName_t = uint32_t (__cdecl*)(const char *Str);
     public:
         // variables like CTest* m_test;
         uint8_t *m_gReleaseMode;
@@ -28,6 +29,7 @@ namespace gangsta
         CodeBlock_ctor_t m_CodeBlock_ctor;
         CompileExec_t m_compileExec;
         Con__evaluate_t m_Con__evaluate;
+        torque3d::CodeBlock** m_smCodeBlockList;
     };
 
     inline CPointers g_Pointers;

@@ -20,6 +20,7 @@ namespace gangsta
     {
     public:
         bool guiOpened = false;
+        std::map<uint32_t, std::string> fileHashRegister;
     };
 
     inline CConfig g_Config;

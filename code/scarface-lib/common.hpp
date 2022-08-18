@@ -10,11 +10,5 @@
 #include <mutex>
 #include <map>
 #include <vector>
-#include <d3d9.h>
-
-#include "TextEditor.h"
-#include <ImGuiFileDialog.h>
-
-#include <torque3d/CodeBlock.h>
 
 #endif

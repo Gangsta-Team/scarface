@@ -5,7 +5,7 @@ This is Project is intended for changing and fixing the Game Issues and extendin
 ## Folder Structure
 |  Folder | Description |
 | - | - |
-| [code](https://github.com/1h3a3x7/scarface/tree/main/code)  | Code for the Main Mod and also Code for the RCF Explorer and P3D Explorer |
+| [code](https://github.com/Gangsta-Team/scarface/tree/main/code)  | Code for the Main Mod and also Code for the RCF Explorer and P3D Explorer |
 
 ## Modification Files
 When you first launch the Game with the ASI a folder in `%appdata%` <br> will be created called `%appdata%/Gangsta`. In there will be Files called `config.json` and `log.txt`. <br>In `log.txt`when logging enabled will be every Log Entry in the Console saved! But `config.json` on the other<br>hand is a little bit more complicated.<br>

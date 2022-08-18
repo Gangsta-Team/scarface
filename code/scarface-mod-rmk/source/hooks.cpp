@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include "memory.hpp"
 #include "config.hpp"
+#include "common.hpp"
 
 #include "utils/StackwalkerUtils.hpp"
 
@@ -207,6 +208,27 @@ namespace gangsta
         return result;
     }
 
+
+    char* CHooks::CodeBlock_compileExec(torque3d::CodeBlock* codeBlock, void* edx, char* Str, char* Source, char* Args) {
+        Logger::GetInstance()->Info("CodeBlock_compileExec_Hook(%s, %s, %s);", Str, Source, Args);
+        char* res = static_cast<decltype(&CodeBlock_compileExec)>(g_Hooks.OriginalCodeBlock_compileExec)(codeBlock, edx, Str, Source, Args);
+
+        Logger::GetInstance()->Info("\tcodeSize 0x%x", codeBlock->codeSize);
+        Logger::GetInstance()->Info("\tcode 0x%p", codeBlock->code);
+        if (codeBlock->code) {
+            for (uint32_t i = 0; i < codeBlock->codeSize; ++i) {
+                uint8_t c = ((uint8_t*)codeBlock->code)[i];
+                Logger::GetInstance()->Info("%02X ", c);
+            }
+            Logger::GetInstance()->Info("\n");
+            torque3d::CodeBlock::dumpInstructions(codeBlock, 0, false);
+        }
+        else {
+            Logger::GetInstance()->Info("code nullptr");
+        }
+        return res;
+    }
+
     void CHooks::HookSafe()
     {
         if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
@@ -221,6 +243,7 @@ namespace gangsta
         g_Hooks.OriginalGenericCharacterCameraControllerInputUpdate = HookFunc<void*>((void*)0x00565060, CHooks::GenericCharacterCamera__ControllerInput__Update);
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
         g_Hooks.OriginalGetHashFromFileName = HookFunc<CPointers::CodeBlock_GetName_t>((void*)0x0042BF90, CHooks::GetHashFromFileName);
+        g_Hooks.OriginalCodeBlock_compileExec = HookFunc<CPointers::CompileExec_t>((void*)0x00490390, CHooks::CodeBlock_compileExec);
     }
 
     void CHooks::Hook()

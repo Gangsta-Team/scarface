@@ -173,7 +173,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                 CodeBlock *nextFile;
                                 */
 
-                                std::vector<TableEntryFunc> fEntryFuncs
+                                static std::vector<TableEntryFunc> fEntryFuncs
                                 =
                                 {
                                     { "Name", TableEntryFuncRenderType::STIRNG_FILEHASH, offsetof(torque3d::CodeBlock, name) },

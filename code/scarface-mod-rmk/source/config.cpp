@@ -55,6 +55,15 @@ namespace gangsta
                 }
                 return false;
             },
+            [] (nlohmann::json& input) -> bool
+            {
+                if(input["DumpCodeBlocks"].is_null())
+                {
+                    input["DumpCodeBlocks"] = false;
+                    return true;
+                }
+                return false;
+            },
         };
 
         gangstaDirectory = std::getenv("appdata");

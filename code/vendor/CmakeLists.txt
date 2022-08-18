@@ -6,3 +6,6 @@ add_subdirectory("json")
 include("imgui.cmake") # please imgui for the sake of god add a cmake
 include("stackwalker.cmake") # stackwalker has a cmakelists.txt but just for testing bruv
 include("imguifiledialog.cmake")
+include("kaitai.cmake")
+
+add_subdirectory("kaitai_definitions")

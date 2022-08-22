@@ -46,7 +46,7 @@ namespace con
         int max_arg_count;
 
         // just set this to null!
-        int unk;
+        char* usage;
         char *method_name;
         char *class_name;
         RegisteredMethod *flink;

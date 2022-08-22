@@ -8,6 +8,7 @@ file(GLOB ScarfaceLibSrc
     "*.c"
     "torque3d/*.*"
     "pure3d/*.*"
+    "scripting/*.*"
 )
 
 

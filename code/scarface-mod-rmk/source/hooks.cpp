@@ -233,6 +233,22 @@ namespace gangsta
         return res;
     }
 
+    int CHooks::GenericSpawnObject__GetTotalNumToSpawn(void* _this, void* edx)
+    {
+        //int res = static_cast<decltype(&GenericSpawnObject__GetTotalNumToSpawn)>(g_Hooks.OriginalGenericSpawnObjectGetTotalNumToSpawn)(_this, edx);
+        int res = 0;
+        //Logger::GetInstance()->Info("T");
+
+        res = 0;
+
+        return res;
+    }
+
+    int CHooks::GenericSpawnObject__GetCoexistingCount(void* _this, void* edx)
+    {
+        return 0;
+    }
+
     void CHooks::HookSafe()
     {
         if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
@@ -248,6 +264,8 @@ namespace gangsta
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
         g_Hooks.OriginalGetHashFromFileName = HookFunc<CPointers::CodeBlock_GetName_t>((void*)0x0042BF90, CHooks::GetHashFromFileName);
         g_Hooks.OriginalCodeBlock_compileExec = HookFunc<CPointers::CompileExec_t>((void*)0x00490390, CHooks::CodeBlock_compileExec);
+        // g_Hooks.OriginalGenericSpawnObjectGetTotalNumToSpawn = HookFunc<void*>((void*)0x005F9DD0, CHooks::GenericSpawnObject__GetTotalNumToSpawn);
+        // g_Hooks.OriginalGenericSpawnObjectGetCoexistingCount = HookFunc<void*>((void*)0x005F9E80, CHooks::GenericSpawnObject__GetCoexistingCount);
     }
 
     void CHooks::Hook()

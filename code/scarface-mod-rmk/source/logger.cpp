@@ -57,5 +57,4 @@ void gangsta::Logger::RawLog(const char* type, const char* format, std::va_list 
     outputText << prefix << messageBuffer << std::endl;
 
     free(messageBuffer);
-
 }

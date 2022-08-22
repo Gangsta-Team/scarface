@@ -249,9 +249,52 @@ namespace gangsta
         return 0;
     }
 
-    static bool __cdecl TestFunc(int a1, int arg_count, char **arg_text)
+    bool CHooks::TestFunc(void*, int arg_count, char ** arg_text)
     {
-        Logger::GetInstance()->Info("Called Test Function!");
+        Logger::GetInstance()->Info("Called Test Function! Arg Count: %i", arg_count);
+        return 1;
+    }
+
+    bool CHooks::NativeHook_Echo(void*, int _arg_count, char** arg_text)
+    {
+        int arg_count = _arg_count - 1;
+
+        Logger::GetInstance()->Info("[Echo (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+
+        return 1;
+    }
+
+    bool CHooks::NativeHook_SlowEcho(void*, int _arg_count, char** arg_text)
+    {
+        Logger::GetInstance()->Info("[SlowEcho] %s: %s", arg_text[1], arg_text[2]);
+
+        return 1;
+    }
+
+    bool CHooks::NativeHook_WarningMsg(void*, int _arg_count, char** arg_text)
+    {
+        int arg_count = _arg_count - 1;
+
+        Logger::GetInstance()->Info("[WarningMsg (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+
+        return 1;
+    }
+
+    bool CHooks::NativeHook_DebugMsg(void*, int _arg_count, char** arg_text)
+    {
+        int arg_count = _arg_count - 1;
+
+        Logger::GetInstance()->Info("[DebugMsg (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+
+        return 1;
+    }
+
+    bool CHooks::NativeHook_AssertMsg(void*, int _arg_count, char** arg_text)
+    {
+        int arg_count = _arg_count - 1;
+
+        Logger::GetInstance()->Info("[AssertMsg (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+
         return 1;
     }
 
@@ -260,12 +303,50 @@ namespace gangsta
         Logger::GetInstance()->Info("[Con::Init] Loading Registered Weapons to Namespaces!");
 
         {
-            con::RegisteredMethod* testMethod = new con::RegisteredMethod();
+           
+            con::RegisteredMethod* testMethod = new con::RegisteredMethod(1, 1, nullptr, "GangstaTestFunc");
+            testMethod->PutInList(g_Pointers.m_smRegisteredMethods);
+            testMethod->func_return_void = TestFunc;
 
-            testMethod->flag_1 = 2;
-            testMethod->flag_2 = 2;
+        }
 
-            
+        {
+
+            con::RegisteredMethod* currentMethod = (*g_Pointers.m_smRegisteredMethods);
+
+            if(currentMethod != nullptr)
+            {
+                while(currentMethod != nullptr)
+                {
+                    if(strcmp(currentMethod->method_name, "Echo") == 0)
+                    {
+                        currentMethod->func_return_void = NativeHook_Echo;
+                    }
+
+                    if(strcmp(currentMethod->method_name, "SlowEcho") == 0)
+                    {
+                        currentMethod->func_return_void = NativeHook_SlowEcho;
+                    }
+
+                    if(strcmp(currentMethod->method_name, "WarningMsg") == 0)
+                    {
+                        currentMethod->func_return_void = NativeHook_WarningMsg;
+                    }
+
+                    if(strcmp(currentMethod->method_name, "DebugMsg") == 0)
+                    {
+                        currentMethod->func_return_void = NativeHook_DebugMsg;
+                    }
+
+                    if(strcmp(currentMethod->method_name, "AssertMsg") == 0)
+                    {
+                        currentMethod->func_return_void = NativeHook_AssertMsg;
+                    }
+
+                    currentMethod = currentMethod->flink;
+                }
+            }
+
         }
 
         static_cast<decltype(&AssignRegisteredMethodsToNamespaces)>(g_Hooks.OriginalAssignRegisteredMethodsToNamespaces)();

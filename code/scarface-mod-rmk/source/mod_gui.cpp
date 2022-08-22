@@ -250,9 +250,9 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                     {
                         while(curMethod != nullptr)
                         {
-                            if(ImGui::Text("%s", curMethod->method_name))
+                            if(curMethod->method_name)
                             {
-
+                                ImGui::Text("%s", curMethod->method_name);
                             }
                             curMethod = curMethod->flink;
                         }

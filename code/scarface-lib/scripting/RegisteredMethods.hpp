@@ -23,7 +23,7 @@ namespace con
             min_arg_count = _min_args;
             max_arg_count = _max_args;
 
-            unk = 0;
+            usage = 0;
 
             method_name = (char*)_method_name;
             class_name = (char*)_class_name;

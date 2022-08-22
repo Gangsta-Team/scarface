@@ -1,5 +1,5 @@
+#include "common.hpp"
 #include "mod.hpp"
-
 #include <imgui.h>
 #include "logger.hpp"
 #include "pointers.hpp"
@@ -239,6 +239,25 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                     }
 
                     ImGui::EndChild();
+                    ImGui::EndTabItem();
+                }
+
+                if(ImGui::BeginTabItem("Registered Methods"))
+                {
+                    con::RegisteredMethod* curMethod = *g_Pointers.m_smRegisteredMethods;
+
+                    if(curMethod)
+                    {
+                        while(curMethod != nullptr)
+                        {
+                            if(ImGui::Text("%s", curMethod->method_name))
+                            {
+
+                            }
+                            curMethod = curMethod->flink;
+                        }
+                    }
+
                     ImGui::EndTabItem();
                 }
 

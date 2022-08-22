@@ -5,6 +5,7 @@ namespace con
 {
     class RegisteredMethod
     {
+    public:
         void* func_return_string;
         void* func_return_int;
         void* func_return_float;

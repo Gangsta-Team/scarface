@@ -26,6 +26,7 @@ namespace gangsta
         static char* __fastcall CodeBlock_compileExec(torque3d::CodeBlock* codeBlock, void* edx, char* Str, char* Source, char* Args);
         static int __fastcall GenericSpawnObject__GetTotalNumToSpawn(void* _this, void* edx);
         static int __fastcall GenericSpawnObject__GetCoexistingCount(void* _this, void* edx);
+        static void __stdcall AssignRegisteredMethodsToNamespaces();
     public:
         // ORIGINALS HERE
         PVOID OriginalPddiCreate;
@@ -36,6 +37,7 @@ namespace gangsta
         PVOID OriginalCodeBlock_compileExec;
         PVOID OriginalGenericSpawnObjectGetTotalNumToSpawn;
         PVOID OriginalGenericSpawnObjectGetCoexistingCount;
+        PVOID OriginalAssignRegisteredMethodsToNamespaces;
     public:
         std::map<void*, Direct3DProxy*> D3D9ProxyPool;
         std::map<void*, Direct3DDevice9Proxy*> D3D9DeviceProxyPool;

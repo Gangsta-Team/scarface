@@ -233,6 +233,127 @@ namespace gangsta
         return res;
     }
 
+    int CHooks::GenericSpawnObject__GetTotalNumToSpawn(void* _this, void* edx)
+    {
+        //int res = static_cast<decltype(&GenericSpawnObject__GetTotalNumToSpawn)>(g_Hooks.OriginalGenericSpawnObjectGetTotalNumToSpawn)(_this, edx);
+        int res = 0;
+        //Logger::GetInstance()->Info("T");
+
+        res = 0;
+
+        return res;
+    }
+
+    int CHooks::GenericSpawnObject__GetCoexistingCount(void* _this, void* edx)
+    {
+        return 0;
+    }
+
+    bool CHooks::TestFunc(void*, int arg_count, char ** arg_text)
+    {
+        Logger::GetInstance()->Info("Called Test Function! Arg Count: %i", arg_count);
+        return 1;
+    }
+
+    bool CHooks::NativeHook_Echo(void*, int _arg_count, char** arg_text)
+    {
+        int arg_count = _arg_count - 1;
+
+        Logger::GetInstance()->Info("[Echo (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+
+        return 1;
+    }
+
+    bool CHooks::NativeHook_SlowEcho(void*, int _arg_count, char** arg_text)
+    {
+        Logger::GetInstance()->Info("[SlowEcho] %s: %s", arg_text[1], arg_text[2]);
+
+        return 1;
+    }
+
+    bool CHooks::NativeHook_WarningMsg(void*, int _arg_count, char** arg_text)
+    {
+        int arg_count = _arg_count - 1;
+
+        Logger::GetInstance()->Info("[WarningMsg (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+
+        return 1;
+    }
+
+    bool CHooks::NativeHook_DebugMsg(void*, int _arg_count, char** arg_text)
+    {
+        int arg_count = _arg_count - 1;
+
+        Logger::GetInstance()->Info("[DebugMsg (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+
+        return 1;
+    }
+
+    bool CHooks::NativeHook_AssertMsg(void*, int _arg_count, char** arg_text)
+    {
+        int arg_count = _arg_count - 1;
+
+        Logger::GetInstance()->Info("[AssertMsg (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+
+        return 1;
+    }
+
+    void CHooks::AssignRegisteredMethodsToNamespaces()
+    {
+        Logger::GetInstance()->Info("[Con::Init] Loading Registered Weapons to Namespaces!");
+
+        {
+           
+            con::RegisteredMethod* testMethod = new con::RegisteredMethod(1, 1, nullptr, "GangstaTestFunc");
+            testMethod->PutInList(g_Pointers.m_smRegisteredMethods);
+            testMethod->func_return_void = TestFunc;
+
+        }
+
+        {
+
+            con::RegisteredMethod* currentMethod = (*g_Pointers.m_smRegisteredMethods);
+
+            if(currentMethod != nullptr)
+            {
+                while(currentMethod != nullptr)
+                {
+                    if(strcmp(currentMethod->method_name, "Echo") == 0)
+                    {
+                        currentMethod->func_return_void = NativeHook_Echo;
+                    }
+
+                    if(strcmp(currentMethod->method_name, "SlowEcho") == 0)
+                    {
+                        currentMethod->func_return_void = NativeHook_SlowEcho;
+                    }
+
+                    if(strcmp(currentMethod->method_name, "WarningMsg") == 0)
+                    {
+                        currentMethod->func_return_void = NativeHook_WarningMsg;
+                    }
+
+                    if(strcmp(currentMethod->method_name, "DebugMsg") == 0)
+                    {
+                        currentMethod->func_return_void = NativeHook_DebugMsg;
+                    }
+
+                    if(strcmp(currentMethod->method_name, "AssertMsg") == 0)
+                    {
+                        currentMethod->func_return_void = NativeHook_AssertMsg;
+                    }
+
+                    currentMethod = currentMethod->flink;
+                }
+            }
+
+        }
+
+        static_cast<decltype(&AssignRegisteredMethodsToNamespaces)>(g_Hooks.OriginalAssignRegisteredMethodsToNamespaces)();
+
+        Logger::GetInstance()->Info("[Con::Init] Finished Loading Namespaces!");
+    }
+
     void CHooks::HookSafe()
     {
         if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
@@ -248,6 +369,9 @@ namespace gangsta
         g_Hooks.OriginalPddiCreate = HookFunc<CPointers::PddiCreate_t>(g_Pointers.m_pddiCreate, CHooks::pddiCreate);
         g_Hooks.OriginalGetHashFromFileName = HookFunc<CPointers::CodeBlock_GetName_t>((void*)0x0042BF90, CHooks::GetHashFromFileName);
         g_Hooks.OriginalCodeBlock_compileExec = HookFunc<CPointers::CompileExec_t>((void*)0x00490390, CHooks::CodeBlock_compileExec);
+        // g_Hooks.OriginalGenericSpawnObjectGetTotalNumToSpawn = HookFunc<void*>((void*)0x005F9DD0, CHooks::GenericSpawnObject__GetTotalNumToSpawn);
+        // g_Hooks.OriginalGenericSpawnObjectGetCoexistingCount = HookFunc<void*>((void*)0x005F9E80, CHooks::GenericSpawnObject__GetCoexistingCount);
+        g_Hooks.OriginalAssignRegisteredMethodsToNamespaces = HookFunc<void*>((void*)0x004926D0, CHooks::AssignRegisteredMethodsToNamespaces);
     }
 
     void CHooks::Hook()

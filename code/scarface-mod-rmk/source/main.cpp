@@ -33,7 +33,6 @@ BOOL WINAPI DllMain(
                 std::this_thread::yield();
             }
             
-
             return 0;
 
         }, nullptr, 0, nullptr);

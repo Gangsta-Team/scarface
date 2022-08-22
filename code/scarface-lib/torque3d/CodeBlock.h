@@ -10,8 +10,8 @@ namespace torque3d
     {
         OP_FUNC_DECL,
         OP_CREATE_OBJECT,
-        OP_2,
-        OP_3,
+        OP_2, // CONTINUE;
+        OP_3, // CONTINUE;
         OP_ADD_OBJECT,
         OP_END_OBJECT,
         OP_JMPIFFNOT,
@@ -84,7 +84,7 @@ namespace torque3d
         OP_TAG_TO_STR,
         OP_CALLFUNC_RESOLVE,
         OP_CALLFUNC,
-        OP_76,
+        OP_76, // CONTINUE;
         OP_ADVANCE_STR,
         OP_ADVANCE_STR_APPENDCHAR,
         OP_ADVANCE_STR_COMMA,

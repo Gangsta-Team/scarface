@@ -24,6 +24,16 @@ namespace gangsta
         static void __fastcall GenericCharacterCamera__ControllerInput__Update(void *_this, void* edx, float accelThreshold, float accelTime, float decelTime, float deltaTime);
         static uint32_t __cdecl GetHashFromFileName(const char *Str);
         static char* __fastcall CodeBlock_compileExec(torque3d::CodeBlock* codeBlock, void* edx, char* Str, char* Source, char* Args);
+        static int __fastcall GenericSpawnObject__GetTotalNumToSpawn(void* _this, void* edx);
+        static int __fastcall GenericSpawnObject__GetCoexistingCount(void* _this, void* edx);
+        static void __stdcall AssignRegisteredMethodsToNamespaces();
+
+        static bool __cdecl TestFunc(void*, int, char **);
+        static bool __cdecl NativeHook_Echo(void*, int, char**);
+        static bool __cdecl NativeHook_SlowEcho(void*, int, char**);
+        static bool __cdecl NativeHook_WarningMsg(void*, int, char**);
+        static bool __cdecl NativeHook_DebugMsg(void*, int, char**);
+        static bool __cdecl NativeHook_AssertMsg(void*, int, char**);
     public:
         // ORIGINALS HERE
         PVOID OriginalPddiCreate;
@@ -32,6 +42,9 @@ namespace gangsta
         PVOID OriginalGenericCharacterCameraControllerInputUpdate;
         PVOID OriginalGetHashFromFileName;
         PVOID OriginalCodeBlock_compileExec;
+        PVOID OriginalGenericSpawnObjectGetTotalNumToSpawn;
+        PVOID OriginalGenericSpawnObjectGetCoexistingCount;
+        PVOID OriginalAssignRegisteredMethodsToNamespaces;
     public:
         std::map<void*, Direct3DProxy*> D3D9ProxyPool;
         std::map<void*, Direct3DDevice9Proxy*> D3D9DeviceProxyPool;

@@ -44,17 +44,17 @@ void gangsta::Logger::RawLog(const char* type, const char* format, std::va_list 
     std::snprintf(prefix, sizeof(prefix) - 1, "[%02d:%02d:%02d] [%s] ", tm->tm_hour, tm->tm_min, tm->tm_sec, type);
 
     std::size_t messageLength = std::vsnprintf(nullptr, 0, format, args) + 1;
-    auto messageBuffer = std::make_unique<char[]>(messageLength);
+    char* messageBuffer = (char*) malloc(messageLength);
     
-    std::uninitialized_fill_n(messageBuffer.get(), messageLength, '\0');
-    std::vsnprintf(messageBuffer.get(), messageLength, format, args);
+    memset(messageBuffer, 0, messageLength);
+    
+    std::vsnprintf(messageBuffer, messageLength, format, args);
 
     if(silentLog == false)
     {
-        outputStream << prefix << messageBuffer.get() << std::endl;
+        outputStream << prefix << messageBuffer << std::endl;
     }
-    outputText << prefix << messageBuffer.get() << std::endl;
+    outputText << prefix << messageBuffer << std::endl;
 
-    messageBuffer.reset();
-
+    free(messageBuffer);
 }

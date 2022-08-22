@@ -18,5 +18,6 @@
 #include <ImGuiFileDialog.h>
 
 #include <torque3d/CodeBlock.h>
+#include <scripting/RegisteredMethods.hpp>
 
 #endif

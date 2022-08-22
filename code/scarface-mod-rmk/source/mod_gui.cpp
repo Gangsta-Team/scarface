@@ -1,5 +1,5 @@
+#include "common.hpp"
 #include "mod.hpp"
-
 #include <imgui.h>
 #include "logger.hpp"
 #include "pointers.hpp"
@@ -104,25 +104,24 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 
                                     it++;
                                     
-                                    char rndrBuf[256] = {0};
+                                    std::string endNameBuffer = "";
                                     if(currentCodeBlock->name != NULL)
                                     {
                                         if(g_Globals.fileHashRegister.count(currentCodeBlock->name) == 0)
                                         {
-                                            sprintf_s(rndrBuf, "%p", currentCodeBlock);
+                                            endNameBuffer = std::to_string((uint32_t)currentCodeBlock);
                                         }
                                         else
                                         {
-                                            std::string fName = g_Globals.fileHashRegister[currentCodeBlock->name];
-                                            sprintf_s(rndrBuf, "%s", fName.c_str());
+                                            endNameBuffer = g_Globals.fileHashRegister[currentCodeBlock->name];
                                         }
                                     }
                                     else
                                     {
-                                        sprintf_s(rndrBuf, "%p", currentCodeBlock);
+                                        endNameBuffer = std::to_string((uint32_t)currentCodeBlock);
                                     }
 
-                                    if(ImGui::Selectable(rndrBuf, it == selectedCodeBlockIndex))
+                                    if(ImGui::Selectable(endNameBuffer.c_str(), it == selectedCodeBlockIndex))
                                     {
                                         selectedCodeBlockIndex = it;
                                     }
@@ -174,7 +173,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                 CodeBlock *nextFile;
                                 */
 
-                                std::vector<TableEntryFunc> fEntryFuncs
+                                static std::vector<TableEntryFunc> fEntryFuncs
                                 =
                                 {
                                     { "Name", TableEntryFuncRenderType::STIRNG_FILEHASH, offsetof(torque3d::CodeBlock, name) },
@@ -240,6 +239,25 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                     }
 
                     ImGui::EndChild();
+                    ImGui::EndTabItem();
+                }
+
+                if(ImGui::BeginTabItem("Registered Methods"))
+                {
+                    con::RegisteredMethod* curMethod = *g_Pointers.m_smRegisteredMethods;
+
+                    if(curMethod)
+                    {
+                        while(curMethod != nullptr)
+                        {
+                            if(curMethod->method_name)
+                            {
+                                ImGui::Text("%s", curMethod->method_name);
+                            }
+                            curMethod = curMethod->flink;
+                        }
+                    }
+
                     ImGui::EndTabItem();
                 }
 

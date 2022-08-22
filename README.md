@@ -16,7 +16,8 @@ When you launch the game for first time with the ASI plugin, a folder in `%appda
 "ImGuiTextSize": 20.0, // Original is 16.f
 "Log": false, // Not used for now
 "ReleaseMode": false, // Default false -> spoofs your Game into Dev Mode
-"WindowedSpoof": true // if on true your game will be forced into a borderless window mode!
+"WindowedSpoof": true, // if on true your game will be forced into a borderless window mode!
+"DumpCodeBlocks": false
 }
 ```
 

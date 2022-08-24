@@ -252,7 +252,17 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                         {
                             if(curMethod->method_name)
                             {
-                                ImGui::Text("%s", curMethod->method_name);
+                                std::string funcName = "";
+
+                                if(curMethod->class_name != nullptr)
+                                {
+                                    funcName += curMethod->class_name;
+                                    funcName += "::";
+                                }
+
+                                funcName += curMethod->method_name;
+
+                                ImGui::Text("%s", funcName.c_str());
                             }
                             curMethod = curMethod->flink;
                         }

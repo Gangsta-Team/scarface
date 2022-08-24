@@ -6,6 +6,8 @@
 #include "config.hpp"
 #include "utils/ImGuiExtras.hpp"
 
+#include <radKey.hpp>
+
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     ImGuiIO& io = ImGui::GetIO();
     POINT mPos;
@@ -265,6 +267,24 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                 ImGui::Text("%s", funcName.c_str());
                             }
                             curMethod = curMethod->flink;
+                        }
+                    }
+
+                    ImGui::EndTabItem();
+                }
+
+                if(ImGui::BeginTabItem("Testing"))
+                {
+
+                    {
+                        static char bbuf[256] = {0};
+                        static bool ignoreCase = true;
+
+                        ImGui::InputText("##testhash", bbuf, sizeof(bbuf)-1);
+                        ImGui::Checkbox("Ignore Case", &ignoreCase);
+                        if(ImGui::Button("Hash It"))
+                        {
+                            Logger::GetInstance()->Info("Hash: 0x%08x", core::MakeKey(bbuf, ignoreCase));
                         }
                     }
 

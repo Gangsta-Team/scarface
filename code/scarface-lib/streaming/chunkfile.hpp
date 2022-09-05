@@ -18,4 +18,15 @@ struct tChunkFile
   class radLoadBaseStream *realFile;
 };
 
+class radLoadBaseStream
+{
+public:
+  unsigned char gap0[15];
+  bool m_endianSwap;
+  void *vtable_ptr;
+  uint32_t m_size;
+  uint32_t m_position;
+};
+
+
 #endif // !_CHUNKFILE_HPP

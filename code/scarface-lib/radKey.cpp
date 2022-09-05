@@ -1,4 +1,4 @@
-#include "radKey.hpp"
+#include "radkey.hpp"
 
 core::Key core::stxHashString(const char *txt, Key keyValue)
 {

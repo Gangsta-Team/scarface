@@ -19,5 +19,10 @@
 
 #include <torque3d/CodeBlock.h>
 #include <scripting/RegisteredMethods.hpp>
+#include <radobjects.hpp>
+#include <radkey.hpp>
+#include <streaming/chunkfile.hpp>
+
+#include <MinHook.h>
 
 #endif

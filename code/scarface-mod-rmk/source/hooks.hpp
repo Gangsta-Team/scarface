@@ -27,6 +27,7 @@ namespace gangsta
         static int __fastcall GenericSpawnObject__GetTotalNumToSpawn(void* _this, void* edx);
         static int __fastcall GenericSpawnObject__GetCoexistingCount(void* _this, void* edx);
         static void __stdcall AssignRegisteredMethodsToNamespaces();
+        static int __fastcall ScriptFileChunkLoader__LoadObject(void *_this, void* edx, core::IRefCount **object, uint32_t *name, tChunkFile *file, void *a5);
 
         static bool __cdecl TestFunc(void*, int, char **);
         static bool __cdecl NativeHook_Echo(void*, int, char**);
@@ -45,6 +46,7 @@ namespace gangsta
         PVOID OriginalGenericSpawnObjectGetTotalNumToSpawn;
         PVOID OriginalGenericSpawnObjectGetCoexistingCount;
         PVOID OriginalAssignRegisteredMethodsToNamespaces;
+        PVOID OriginalScriptFileChunkLoaderLoadObject;
     public:
         std::map<void*, Direct3DProxy*> D3D9ProxyPool;
         std::map<void*, Direct3DDevice9Proxy*> D3D9DeviceProxyPool;

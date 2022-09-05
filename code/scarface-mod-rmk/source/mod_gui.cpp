@@ -6,7 +6,7 @@
 #include "config.hpp"
 #include "utils/ImGuiExtras.hpp"
 
-#include <radKey.hpp>
+#include <radkey.hpp>
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     ImGuiIO& io = ImGui::GetIO();

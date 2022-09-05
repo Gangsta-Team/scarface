@@ -7,6 +7,7 @@ file(GLOB ScarfaceModRemakeSrc
     "source/*.c"
     "source/*.h"
     "source/utils/*.hpp"
+    "source/gameutils/*.hpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${ScarfaceModRemakeSrc})

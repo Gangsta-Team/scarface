@@ -7,7 +7,7 @@
 
 #include "utils/StackwalkerUtils.hpp"
 
-#include <MinHook.h>
+#include "gameutils/radLoadBaseStreamImpl.hpp"
 
 // UTIL
 
@@ -354,6 +354,15 @@ namespace gangsta
         Logger::GetInstance()->Info("[Con::Init] Finished Loading Namespaces!");
     }
 
+    int CHooks::ScriptFileChunkLoader__LoadObject(void *_this, void* edx, core::IRefCount **object, uint32_t *name, tChunkFile *file, void *a5)
+    {
+
+
+        auto res = static_cast<decltype(&ScriptFileChunkLoader__LoadObject)>(g_Hooks.OriginalScriptFileChunkLoaderLoadObject)(_this, edx, object, name, file, a5);
+
+        return res;
+    }
+
     void CHooks::HookSafe()
     {
         if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
@@ -372,6 +381,7 @@ namespace gangsta
         // g_Hooks.OriginalGenericSpawnObjectGetTotalNumToSpawn = HookFunc<void*>((void*)0x005F9DD0, CHooks::GenericSpawnObject__GetTotalNumToSpawn);
         // g_Hooks.OriginalGenericSpawnObjectGetCoexistingCount = HookFunc<void*>((void*)0x005F9E80, CHooks::GenericSpawnObject__GetCoexistingCount);
         g_Hooks.OriginalAssignRegisteredMethodsToNamespaces = HookFunc<void*>((void*)0x004926D0, CHooks::AssignRegisteredMethodsToNamespaces);
+        g_Hooks.OriginalScriptFileChunkLoaderLoadObject = HookFunc<void*>((void*)0x00489360, CHooks::ScriptFileChunkLoader__LoadObject);
     }
 
     void CHooks::Hook()

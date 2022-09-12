@@ -246,7 +246,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 
                 if(ImGui::BeginTabItem("Registered Methods"))
                 {
-                    con::RegisteredMethod* curMethod = *g_Pointers.m_smRegisteredMethods;
+                    con::RegisteredMethod* curMethod = *con::m_smRegisteredMethods;
 
                     if(curMethod)
                     {

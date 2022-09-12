@@ -52,7 +52,7 @@ namespace con
         RegisteredMethod *flink;
     };
 
-    inline RegisteredMethod** m_smRegisteredMethods = (RegisteredMethod**)0x00816688;
+    inline RegisteredMethod** smRegisteredMethods = (RegisteredMethod**)0x00816688;
 }
 
 #endif  _REGISTEREDMETHODS

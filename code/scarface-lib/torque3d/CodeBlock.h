@@ -126,8 +126,9 @@ namespace torque3d
         static void dumpInstructions(CodeBlock* codeBlock, uint32_t startIp, bool upToReturn);
     };
 
-
     static_assert(sizeof(CodeBlock) == 52, "torque3d::CodeBlock has not the size of 52!");
+
+    inline CodeBlock** smCodeBlockList = (CodeBlock**)0x0081518C;
 }
 
 #endif

@@ -304,14 +304,14 @@ namespace gangsta
         {
            
             con::RegisteredMethod* testMethod = new con::RegisteredMethod(1, 1, nullptr, "GangstaTestFunc");
-            testMethod->PutInList(con::m_smRegisteredMethods);
+            testMethod->PutInList(con::smRegisteredMethods);
             testMethod->func_return_void = TestFunc;
 
         }
 
         {
 
-            con::RegisteredMethod* currentMethod = (*con::m_smRegisteredMethods);
+            con::RegisteredMethod* currentMethod = (*con::smRegisteredMethods);
 
             if(currentMethod != nullptr)
             {

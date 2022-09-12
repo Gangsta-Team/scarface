@@ -85,7 +85,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                     {
                         ImVec2 containerSize = ImGui::GetWindowSize();
 
-                        torque3d::CodeBlock** firstBlockPointer = g_Pointers.m_smCodeBlockList;
+                        torque3d::CodeBlock** firstBlockPointer = torque3d::smCodeBlockList;
                         torque3d::CodeBlock* currentCodeBlock = *firstBlockPointer;
 
                         static int selectedCodeBlockIndex = -1;
@@ -246,7 +246,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 
                 if(ImGui::BeginTabItem("Registered Methods"))
                 {
-                    con::RegisteredMethod* curMethod = *con::m_smRegisteredMethods;
+                    con::RegisteredMethod* curMethod = *con::smRegisteredMethods;
 
                     if(curMethod)
                     {

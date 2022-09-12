@@ -1,11 +1,14 @@
 #include "common.hpp"
 #include "mod.hpp"
-#include <imgui.h>
 #include "logger.hpp"
 #include "pointers.hpp"
 #include "config.hpp"
+
 #include "utils/ImGuiExtras.hpp"
 
+#include "tools/nativedumper/nativeDumper.hpp"
+
+#include <imgui.h>
 #include <radkey.hpp>
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
@@ -159,22 +162,6 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                     uint32_t renderOffset;
                                 };
 
-                                /*
-                                uint32_t name;
-                                char *globalStrings;
-                                char *functionStrings;
-                                void *globalFloats;
-                                void *functionFloats;
-                                uint32_t codeSize;
-                                uint32_t *code;
-                                uint32_t refCount;
-                                uint32_t lineBreakPairCount;
-                                uint32_t *lineBreakPairs;
-                                uint32_t breakListSize;
-                                uint32_t *breakList;
-                                CodeBlock *nextFile;
-                                */
-
                                 static std::vector<TableEntryFunc> fEntryFuncs
                                 =
                                 {
@@ -246,30 +233,42 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 
                 if(ImGui::BeginTabItem("Registered Methods"))
                 {
-                    con::RegisteredMethod* curMethod = *con::smRegisteredMethods;
-
-                    if(curMethod)
+                    if(ImGui::BeginChild("##RegMethodChild", { -1, -1 }, true, ImGuiWindowFlags_MenuBar))
                     {
-                        while(curMethod != nullptr)
+                        if(ImGui::BeginMenuBar())
                         {
-                            if(curMethod->method_name)
+                            if(ImGui::MenuItem("Dump Methods"))
                             {
-                                std::string funcName = "";
-
-                                if(curMethod->class_name != nullptr)
-                                {
-                                    funcName += curMethod->class_name;
-                                    funcName += "::";
-                                }
-
-                                funcName += curMethod->method_name;
-
-                                ImGui::Text("%s", funcName.c_str());
+                                tools::NativeDumper::Dump(g_Config.gangstaDirectory / "NativeDump.json");
                             }
-                            curMethod = curMethod->flink;
+
+                            ImGui::EndMenuBar();
+                        }
+                        con::RegisteredMethod* curMethod = *con::smRegisteredMethods;
+
+                        if(curMethod)
+                        {
+                            while(curMethod != nullptr)
+                            {
+                                if(curMethod->method_name)
+                                {
+                                    std::string funcName = "";
+
+                                    if(curMethod->class_name != nullptr)
+                                    {
+                                        funcName += curMethod->class_name;
+                                        funcName += "::";
+                                    }
+
+                                    funcName += curMethod->method_name;
+
+                                    ImGui::Text("%s", funcName.c_str());
+                                }
+                                curMethod = curMethod->flink;
+                            }
                         }
                     }
-
+                    ImGui::EndChild();
                     ImGui::EndTabItem();
                 }
 

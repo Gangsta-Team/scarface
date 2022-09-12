@@ -12,6 +12,7 @@
 #include <vector>
 #include <d3d9.h>
 #include <format>
+#include <filesystem>
 
 #include <imgui.h>
 #include <ImGuiFileDialog.h>

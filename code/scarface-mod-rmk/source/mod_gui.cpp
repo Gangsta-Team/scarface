@@ -107,15 +107,15 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                     it++;
                                     
                                     std::string endNameBuffer = "";
-                                    if(currentCodeBlock->name != NULL)
+                                    if(currentCodeBlock->m_name != NULL)
                                     {
-                                        if(g_Globals.fileHashRegister.count(currentCodeBlock->name) == 0)
+                                        if(g_Globals.fileHashRegister.count(currentCodeBlock->m_name) == 0)
                                         {
                                             endNameBuffer = std::to_string((uint32_t)currentCodeBlock);
                                         }
                                         else
                                         {
-                                            endNameBuffer = g_Globals.fileHashRegister[currentCodeBlock->name];
+                                            endNameBuffer = g_Globals.fileHashRegister[currentCodeBlock->m_name];
                                         }
                                     }
                                     else
@@ -133,7 +133,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                         selectedCodeBlockPointer = currentCodeBlock;
                                     }
 
-                                    currentCodeBlock = currentCodeBlock->nextFile;
+                                    currentCodeBlock = currentCodeBlock->m_next_file;
                                 }
                                 
                             }
@@ -178,10 +178,10 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                 static std::vector<TableEntryFunc> fEntryFuncs
                                 =
                                 {
-                                    { "Name", TableEntryFuncRenderType::STIRNG_FILEHASH, offsetof(torque3d::CodeBlock, name) },
-                                    { "Global Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, globalStrings) },
-                                    { "Function Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, functionStrings) },
-                                    { "Global Floats", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, globalFloats) }
+                                    { "Name", TableEntryFuncRenderType::STIRNG_FILEHASH, offsetof(torque3d::CodeBlock, m_name) },
+                                    { "Global Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_global_strings) },
+                                    { "Function Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_function_strings) },
+                                    { "Global Floats", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_global_floats) }
                                 };
 
                                 

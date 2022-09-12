@@ -107,19 +107,19 @@ namespace torque3d
     public:
         CodeBlock();
         // in the original Torque3D engine its a char*; But they have changed it to a hash!
-        uint32_t name;
-        char *globalStrings;
-        char *functionStrings;
-        void *globalFloats;
-        void *functionFloats;
-        uint32_t codeSize;
-        uint32_t *code;
-        uint32_t refCount;
-        uint32_t lineBreakPairCount;
-        uint32_t *lineBreakPairs;
-        uint32_t breakListSize;
-        uint32_t *breakList;
-        CodeBlock *nextFile;
+        uint32_t m_name;
+        char *m_global_strings;
+        char *m_function_strings;
+        void *m_global_floats;
+        void *m_function_floats;
+        uint32_t m_code_size;
+        uint32_t *m_code;
+        uint32_t m_ref_count;
+        uint32_t m_line_break_pair_count;
+        uint32_t *m_line_break_pairs;
+        uint32_t m_break_list_size;
+        uint32_t *m_break_list;
+        CodeBlock *m_next_file;
 
 
         static char* U32toSTE(uint32_t u);

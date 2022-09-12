@@ -17,9 +17,9 @@ char* CodeBlock::U32toSTE(uint32_t u)
 void CodeBlock::dumpInstructions(torque3d::CodeBlock* codeBlock, uint32_t startIp, bool upToReturn)
 {
     uint32_t ip = startIp;
-    while (ip < codeBlock->codeSize)
+    while (ip < codeBlock->m_code_size)
     {
-        const auto opcode = codeBlock->code[ip++];
+        const auto opcode = codeBlock->m_code[ip++];
 
         switch (opcode)
         {
@@ -28,9 +28,9 @@ void CodeBlock::dumpInstructions(torque3d::CodeBlock* codeBlock, uint32_t startI
             /* StringTableEntry fnName = U32toSTE(code[ip]);
              StringTableEntry fnNamespace = U32toSTE(code[ip + 1]);
              StringTableEntry fnPackage = U32toSTE(code[ip + 2]);*/
-            bool hasBody = bool(codeBlock->code[ip + 3]);
-            uint32_t newIp = codeBlock->code[ip + 4];
-            uint32_t argc = codeBlock->code[ip + 5];
+            bool hasBody = bool(codeBlock->m_code[ip + 3]);
+            uint32_t newIp = codeBlock->m_code[ip + 4];
+            uint32_t argc = codeBlock->m_code[ip + 5];
             printf("%i: OP_FUNC_DECL hasbody=%i newip=%i argc=%i\n",
                 ip - 1, hasBody, newIp, argc);
             /*printf("%i: OP_FUNC_DECL name=%s nspace=%s package=%s hasbody=%i newip=%i argc=%i",
@@ -45,11 +45,11 @@ void CodeBlock::dumpInstructions(torque3d::CodeBlock* codeBlock, uint32_t startI
         case OP_CREATE_OBJECT:
         {
             //StringTableEntry objParent = U32toSTE(code[ip]);
-            bool isDataBlock = codeBlock->code[ip + 1];
-            bool isInternal = codeBlock->code[ip + 2];
-            bool isSingleton = codeBlock->code[ip + 3];
-            uint32_t  lineNumber = codeBlock->code[ip + 4];
-            uint32_t failJump = codeBlock->code[ip + 5];
+            bool isDataBlock = codeBlock->m_code[ip + 1];
+            bool isInternal = codeBlock->m_code[ip + 2];
+            bool isSingleton = codeBlock->m_code[ip + 3];
+            uint32_t  lineNumber = codeBlock->m_code[ip + 4];
+            uint32_t failJump = codeBlock->m_code[ip + 5];
             printf("%i: OP_CREATE_OBJECT isDataBlock=%i isInternal=%i isSingleton=%i lineNumber=%i failJump=%i\n",
                 ip - 1, isDataBlock, isInternal, isSingleton, lineNumber, failJump);
             /*printf("%i: OP_CREATE_OBJECT objParent=%s isDataBlock=%i isInternal=%i isSingleton=%i lineNumber=%i failJump=%i",
@@ -61,14 +61,14 @@ void CodeBlock::dumpInstructions(torque3d::CodeBlock* codeBlock, uint32_t startI
 
         case OP_ADD_OBJECT:
         {
-            bool placeAtRoot = codeBlock->code[ip++];
+            bool placeAtRoot = codeBlock->m_code[ip++];
             printf("%i: OP_ADD_OBJECT placeAtRoot=%i\n", ip - 1, placeAtRoot);
             break;
         }
 
         case OP_END_OBJECT:
         {
-            bool placeAtRoot = codeBlock->code[ip++];
+            bool placeAtRoot = codeBlock->m_code[ip++];
             printf("%i: OP_END_OBJECT placeAtRoot=%i\n", ip - 1, placeAtRoot);
             break;
         }
@@ -81,49 +81,49 @@ void CodeBlock::dumpInstructions(torque3d::CodeBlock* codeBlock, uint32_t startI
 
         case OP_JMPIFFNOT:
         {
-            printf("%i: OP_JMPIFFNOT ip=%i\n", ip - 1, codeBlock->code[ip]);
+            printf("%i: OP_JMPIFFNOT ip=%i\n", ip - 1, codeBlock->m_code[ip]);
             ++ip;
             break;
         }
 
         case OP_JMPIFNOT:
         {
-            printf("%i: OP_JMPIFNOT ip=%i\n", ip - 1, codeBlock->code[ip]);
+            printf("%i: OP_JMPIFNOT ip=%i\n", ip - 1, codeBlock->m_code[ip]);
             ++ip;
             break;
         }
 
         case OP_JMPIFF:
         {
-            printf("%i: OP_JMPIFF ip=%i\n", ip - 1, codeBlock->code[ip]);
+            printf("%i: OP_JMPIFF ip=%i\n", ip - 1, codeBlock->m_code[ip]);
             ++ip;
             break;
         }
 
         case OP_JMPIF:
         {
-            printf("%i: OP_JMPIF ip=%i\n", ip - 1, codeBlock->code[ip]);
+            printf("%i: OP_JMPIF ip=%i\n", ip - 1, codeBlock->m_code[ip]);
             ++ip;
             break;
         }
 
         case OP_JMPIFNOT_NP:
         {
-            printf("%i: OP_JMPIFNOT_NP ip=%i\n", ip - 1, codeBlock->code[ip]);
+            printf("%i: OP_JMPIFNOT_NP ip=%i\n", ip - 1, codeBlock->m_code[ip]);
             ++ip;
             break;
         }
 
         case OP_JMPIF_NP:
         {
-            printf("%i: OP_JMPIF_NP ip=%i\n", ip - 1, codeBlock->code[ip]);
+            printf("%i: OP_JMPIF_NP ip=%i\n", ip - 1, codeBlock->m_code[ip]);
             ++ip;
             break;
         }
 
         case OP_JMP:
         {
-            printf("%i: OP_JMP ip=%i\n", ip - 1, codeBlock->code[ip]);
+            printf("%i: OP_JMP ip=%i\n", ip - 1, codeBlock->m_code[ip]);
             ++ip;
             break;
         }
@@ -481,7 +481,7 @@ void CodeBlock::dumpInstructions(torque3d::CodeBlock* codeBlock, uint32_t startI
 
         case OP_LOADIMMED_UINT:
         {
-            uint32_t val = codeBlock->code[ip];
+            uint32_t val = codeBlock->m_code[ip];
             printf("%i: OP_LOADIMMED_UINT val=%i\n", ip - 1, val);
             ++ip;
             break;
@@ -534,7 +534,7 @@ void CodeBlock::dumpInstructions(torque3d::CodeBlock* codeBlock, uint32_t startI
             StringTableEntry fnName = U32toSTE(code[ip]);
             printf("fnNamespace=%p, fnName=%p\n", fnNamespace, fnName);*/
 
-            uint32_t callType = codeBlock->code[ip + 2];
+            uint32_t callType = codeBlock->m_code[ip + 2];
 
             /* printf("%i: OP_CALLFUNC_RESOLVE name=%s nspace=%s callType=%s", ip - 1, fnName, fnNamespace,
                  callType == FunctionCall ? "FunctionCall"
@@ -551,7 +551,7 @@ void CodeBlock::dumpInstructions(torque3d::CodeBlock* codeBlock, uint32_t startI
         {
             /*StringTableEntry fnNamespace = U32toSTE(code[ip + 1]);
             StringTableEntry fnName = U32toSTE(code[ip]);*/
-            uint32_t callType = codeBlock->code[ip + 2];
+            uint32_t callType = codeBlock->m_code[ip + 2];
 
             /* printf("%i: OP_CALLFUNC name=%s nspace=%s callType=%s", ip - 1, fnName, fnNamespace,
                  callType == FunctionCall ? "FunctionCall"
@@ -572,7 +572,7 @@ void CodeBlock::dumpInstructions(torque3d::CodeBlock* codeBlock, uint32_t startI
 
         case OP_ADVANCE_STR_APPENDCHAR:
         {
-            char ch = codeBlock->code[ip];
+            char ch = codeBlock->m_code[ip];
             printf("%i: OP_ADVANCE_STR_APPENDCHAR char=%c\n", ip - 1, ch);
             ++ip;
             break;

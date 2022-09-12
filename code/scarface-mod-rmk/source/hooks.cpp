@@ -215,11 +215,11 @@ namespace gangsta
         if(g_Config.parsedJson["DumpCodeBlocks"].get<bool>())
         {
             Logger::GetInstance()->Info("CodeBlock_compileExec_Hook(%s, %s, %s);", Str, Source, Args);
-            Logger::GetInstance()->Info("\tcodeSize 0x%x", codeBlock->codeSize);
-            Logger::GetInstance()->Info("\tcode 0x%p", codeBlock->code);
-            if (codeBlock->code) {
-                for (uint32_t i = 0; i < codeBlock->codeSize; ++i) {
-                    uint8_t c = ((uint8_t*)codeBlock->code)[i];
+            Logger::GetInstance()->Info("\tcodeSize 0x%x", codeBlock->m_code_size);
+            Logger::GetInstance()->Info("\tcode 0x%p", codeBlock->m_code);
+            if (codeBlock->m_code) {
+                for (uint32_t i = 0; i < codeBlock->m_code_size; ++i) {
+                    uint8_t c = ((uint8_t*)codeBlock->m_code)[i];
                     Logger::GetInstance()->Info("%02X ", c);
                 }
                 Logger::GetInstance()->Info("\n");

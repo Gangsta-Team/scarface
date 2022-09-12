@@ -31,6 +31,8 @@ namespace gangsta
     class Logger
     {
     public:
+        static void Init();
+
         IMPL_LOGGER_FUNC(Info, "Info", logColor::grey);
         IMPL_LOGGER_FUNC(Warning, "Warning", logColor::white);
         IMPL_LOGGER_FUNC(Error, "Error", logColor::lightRed);

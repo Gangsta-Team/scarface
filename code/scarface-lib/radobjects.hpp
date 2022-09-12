@@ -23,15 +23,15 @@ namespace pure3d
     {
         Name(const char* name)
         {
-            uid = core::stxHashStringLowerCase(name, 0);
+            m_uid = core::stxHashStringLowerCase(name, 0);
         }
 
         core::Key GetUID()
         {
-            return uid;
+            return m_uid;
         }
     private:
-        core::Key uid;
+        core::Key m_uid;
     };
 
 }

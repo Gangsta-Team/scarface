@@ -13,8 +13,6 @@ namespace gangsta
         m_CodeBlock_ctor = (CodeBlock_ctor_t)0x0048CFE0;
         m_compileExec = (CompileExec_t)0x00490390;
         m_Con__evaluate = (Con__evaluate_t)0x004922D0;
-        m_smCodeBlockList = (torque3d::CodeBlock**)0x0081518C;
-        m_smRegisteredMethods = (con::RegisteredMethod**)0x00816688;
     }
 
     // called from @CMod::Init

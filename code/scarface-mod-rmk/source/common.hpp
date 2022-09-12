@@ -11,18 +11,19 @@
 #include <map>
 #include <vector>
 #include <d3d9.h>
+#include <format>
+#include <filesystem>
 
 #include <imgui.h>
-
-#include "TextEditor.h"
 #include <ImGuiFileDialog.h>
+#include <MinHook.h>
+
+#include <utils/TextEditor.h>
 
 #include <torque3d/CodeBlock.h>
 #include <scripting/RegisteredMethods.hpp>
 #include <radobjects.hpp>
 #include <radkey.hpp>
 #include <streaming/chunkfile.hpp>
-
-#include <MinHook.h>
 
 #endif

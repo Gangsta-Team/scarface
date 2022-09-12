@@ -11,7 +11,7 @@ namespace gangsta
     class StackWalkerToConsole : public StackWalker
     {
     protected:
-    virtual void OnOutput(LPCSTR szText) { Logger::GetInstance()->Info("[StackWalker] %s", szText); }
+    virtual void OnOutput(LPCSTR szText) { Logger::Info("[StackWalker] {}", szText); }
     };
 
 }

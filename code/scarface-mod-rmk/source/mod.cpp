@@ -18,7 +18,7 @@ namespace gangsta
         if(g_Config.parsedJson["ReleaseMode"].get<bool>() == false)
         {
             *g_Pointers.m_gReleaseMode = 0;
-            Logger::GetInstance()->Info("Spoofing Release Mode!");
+            Logger::Info("Spoofing Release Mode!");
         }
 
         g_Hooks.HookSafe();

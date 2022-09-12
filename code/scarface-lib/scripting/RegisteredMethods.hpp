@@ -51,6 +51,8 @@ namespace con
         char *class_name;
         RegisteredMethod *flink;
     };
+
+    inline RegisteredMethod** smRegisteredMethods = (RegisteredMethod**)0x00816688;
 }
 
 #endif  _REGISTEREDMETHODS

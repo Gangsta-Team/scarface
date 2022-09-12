@@ -1,11 +1,14 @@
 #include "common.hpp"
 #include "mod.hpp"
-#include <imgui.h>
 #include "logger.hpp"
 #include "pointers.hpp"
 #include "config.hpp"
+
 #include "utils/ImGuiExtras.hpp"
 
+#include "tools/nativedumper/nativeDumper.hpp"
+
+#include <imgui.h>
 #include <radkey.hpp>
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
@@ -85,7 +88,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                     {
                         ImVec2 containerSize = ImGui::GetWindowSize();
 
-                        torque3d::CodeBlock** firstBlockPointer = g_Pointers.m_smCodeBlockList;
+                        torque3d::CodeBlock** firstBlockPointer = torque3d::smCodeBlockList;
                         torque3d::CodeBlock* currentCodeBlock = *firstBlockPointer;
 
                         static int selectedCodeBlockIndex = -1;
@@ -107,15 +110,15 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                     it++;
                                     
                                     std::string endNameBuffer = "";
-                                    if(currentCodeBlock->name != NULL)
+                                    if(currentCodeBlock->m_name != NULL)
                                     {
-                                        if(g_Globals.fileHashRegister.count(currentCodeBlock->name) == 0)
+                                        if(g_Globals.fileHashRegister.count(currentCodeBlock->m_name) == 0)
                                         {
                                             endNameBuffer = std::to_string((uint32_t)currentCodeBlock);
                                         }
                                         else
                                         {
-                                            endNameBuffer = g_Globals.fileHashRegister[currentCodeBlock->name];
+                                            endNameBuffer = g_Globals.fileHashRegister[currentCodeBlock->m_name];
                                         }
                                     }
                                     else
@@ -133,7 +136,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                         selectedCodeBlockPointer = currentCodeBlock;
                                     }
 
-                                    currentCodeBlock = currentCodeBlock->nextFile;
+                                    currentCodeBlock = currentCodeBlock->m_next_file;
                                 }
                                 
                             }
@@ -159,29 +162,13 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                     uint32_t renderOffset;
                                 };
 
-                                /*
-                                uint32_t name;
-                                char *globalStrings;
-                                char *functionStrings;
-                                void *globalFloats;
-                                void *functionFloats;
-                                uint32_t codeSize;
-                                uint32_t *code;
-                                uint32_t refCount;
-                                uint32_t lineBreakPairCount;
-                                uint32_t *lineBreakPairs;
-                                uint32_t breakListSize;
-                                uint32_t *breakList;
-                                CodeBlock *nextFile;
-                                */
-
                                 static std::vector<TableEntryFunc> fEntryFuncs
                                 =
                                 {
-                                    { "Name", TableEntryFuncRenderType::STIRNG_FILEHASH, offsetof(torque3d::CodeBlock, name) },
-                                    { "Global Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, globalStrings) },
-                                    { "Function Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, functionStrings) },
-                                    { "Global Floats", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, globalFloats) }
+                                    { "Name", TableEntryFuncRenderType::STIRNG_FILEHASH, offsetof(torque3d::CodeBlock, m_name) },
+                                    { "Global Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_global_strings) },
+                                    { "Function Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_function_strings) },
+                                    { "Global Floats", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_global_floats) }
                                 };
 
                                 
@@ -246,30 +233,42 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 
                 if(ImGui::BeginTabItem("Registered Methods"))
                 {
-                    con::RegisteredMethod* curMethod = *g_Pointers.m_smRegisteredMethods;
-
-                    if(curMethod)
+                    if(ImGui::BeginChild("##RegMethodChild", { -1, -1 }, true, ImGuiWindowFlags_MenuBar))
                     {
-                        while(curMethod != nullptr)
+                        if(ImGui::BeginMenuBar())
                         {
-                            if(curMethod->method_name)
+                            if(ImGui::MenuItem("Dump Methods"))
                             {
-                                std::string funcName = "";
-
-                                if(curMethod->class_name != nullptr)
-                                {
-                                    funcName += curMethod->class_name;
-                                    funcName += "::";
-                                }
-
-                                funcName += curMethod->method_name;
-
-                                ImGui::Text("%s", funcName.c_str());
+                                tools::NativeDumper::Dump(g_Config.gangstaDirectory / "NativeDump.json");
                             }
-                            curMethod = curMethod->flink;
+
+                            ImGui::EndMenuBar();
+                        }
+                        con::RegisteredMethod* curMethod = *con::smRegisteredMethods;
+
+                        if(curMethod)
+                        {
+                            while(curMethod != nullptr)
+                            {
+                                if(curMethod->method_name)
+                                {
+                                    std::string funcName = "";
+
+                                    if(curMethod->class_name != nullptr)
+                                    {
+                                        funcName += curMethod->class_name;
+                                        funcName += "::";
+                                    }
+
+                                    funcName += curMethod->method_name;
+
+                                    ImGui::Text("%s", funcName.c_str());
+                                }
+                                curMethod = curMethod->flink;
+                            }
                         }
                     }
-
+                    ImGui::EndChild();
                     ImGui::EndTabItem();
                 }
 
@@ -284,7 +283,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                         ImGui::Checkbox("Ignore Case", &ignoreCase);
                         if(ImGui::Button("Hash It"))
                         {
-                            Logger::GetInstance()->Info("Hash: 0x%08x", core::MakeKey(bbuf, ignoreCase));
+                            Logger::Info("Hash: {:08x}", core::MakeKey(bbuf, ignoreCase));
                         }
                     }
 
@@ -309,7 +308,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                     (std::istreambuf_iterator<char>()));
 
                 // do c_str() on a string !!!! a STRING is not a char* or const char* you need to to .c_str() that returns a const char*!!!!
-                gangsta::Logger::GetInstance()->Info("Opening file: [ %s ]", filenameWithPath.c_str());
+                gangsta::Logger::Info("Opening file: [ {} ]", filenameWithPath);
 
                 gScriptEditor.SetText(content);
             }
@@ -325,7 +324,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 
                 std::ofstream ofs(filenameWithPath, std::ios::trunc);
 
-                gangsta::Logger::GetInstance()->Info("Saving file: [ %s ]", filenameWithPath.c_str());
+                gangsta::Logger::Info("Saving file: [ {} ]", filenameWithPath);
 
                 ofs << gScriptEditor.GetText();
                 ofs.flush();

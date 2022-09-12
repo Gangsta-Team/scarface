@@ -29,8 +29,6 @@ namespace gangsta
         CodeBlock_ctor_t m_CodeBlock_ctor;
         CompileExec_t m_compileExec;
         Con__evaluate_t m_Con__evaluate;
-        torque3d::CodeBlock** m_smCodeBlockList;
-        con::RegisteredMethod** m_smRegisteredMethods;
     };
 
     inline CPointers g_Pointers;

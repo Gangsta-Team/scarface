@@ -155,7 +155,7 @@ HRESULT Direct3DProxy::CreateDevice(UINT Adapter,D3DDEVTYPE DeviceType,HWND hFoc
 
         if(g_MainWindow)
         {
-            gangsta::Logger::GetInstance()->Error("g_MainWindow was not null! Please contact on GitHub thank you!");
+            gangsta::Logger::Error("g_MainWindow was not null! Please contact on GitHub thank you!");
             
             while(1);
         }
@@ -176,7 +176,7 @@ HRESULT Direct3DProxy::CreateDevice(UINT Adapter,D3DDEVTYPE DeviceType,HWND hFoc
     }
     else
     {
-        gangsta::Logger::GetInstance()->Error("D3D9::CreateDevice is dead :-)");
+        gangsta::Logger::Error("D3D9::CreateDevice is dead :-)");
 
         while(1);
     }

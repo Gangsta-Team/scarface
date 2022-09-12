@@ -2,8 +2,8 @@
 #define _HOOKS_HPP
 
 #include "common.hpp"
-#include "Direct3DProxy.h"
-#include "Direct3DDevice9Proxy.h"
+#include "d3d9/Direct3DProxy.h"
+#include "d3d9/Direct3DDevice9Proxy.h"
 
 namespace gangsta
 {

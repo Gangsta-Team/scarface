@@ -30,17 +30,17 @@ namespace gangsta
     int CHooks::pddiCreate(int versionMajor, int versionMinor, class pddiDevice** device)
     {
 
-        Logger::GetInstance()->Info("pddiCreate: [ versionMajor: %i ] [ versionMinor: %i ] [ device: %p ]", versionMajor, versionMinor, device);
-        Logger::GetInstance()->Info("pddiCreate: [ return device: %p ]", (device != nullptr ? *device : nullptr));
+        Logger::Info("pddiCreate: [ versionMajor: {} ] [ versionMinor: {} ] [ device: {:08x} ]", versionMajor, versionMinor, (uint32_t)device);
+        Logger::Info("pddiCreate: [ return device: {:08x} ]", (uint32_t)(device != nullptr ? *device : nullptr));
 
         auto pattern1002 = Signature("50 6A 01 57 51 FF 52 40").Scan().As<void*>();
         if (pattern1002)
         {
-            Logger::GetInstance()->Info("Game version: 1.00.2");
+            Logger::Info("Game version: 1.00.2");
         }
         else
         {
-            Logger::GetInstance()->Error("Version is not 1.00.2!");
+            Logger::Error("Version is not 1.00.2!");
             ExitProcess(-1);
         }
 
@@ -59,7 +59,7 @@ namespace gangsta
 
         IDirect3D9* res = static_cast<decltype(&::Direct3DCreate9)>(g_Hooks.OriginalDirect3DCreate9)(sdkVer);
 
-        Logger::GetInstance()->Info("Direct3DCreate9: [ sdkVersion: %08X ] [ device: %p ]", sdkVer, res);
+        Logger::Info("Direct3DCreate9: [ sdkVersion: {:08x} ] [ device: {:08x} ]", sdkVer, (uint32_t)res);
 
         if(res != nullptr)
         {
@@ -214,19 +214,18 @@ namespace gangsta
 
         if(g_Config.parsedJson["DumpCodeBlocks"].get<bool>())
         {
-            Logger::GetInstance()->Info("CodeBlock_compileExec_Hook(%s, %s, %s);", Str, Source, Args);
-            Logger::GetInstance()->Info("\tcodeSize 0x%x", codeBlock->m_code_size);
-            Logger::GetInstance()->Info("\tcode 0x%p", codeBlock->m_code);
+            Logger::Info("CodeBlock_compileExec_Hook({}, {}, {});", Str, Source, Args);
+            Logger::Info("\tcodeSize {:08x}", codeBlock->m_code_size);
+            Logger::Info("\tcode {:08x}", (uint32_t)codeBlock->m_code);
             if (codeBlock->m_code) {
                 for (uint32_t i = 0; i < codeBlock->m_code_size; ++i) {
                     uint8_t c = ((uint8_t*)codeBlock->m_code)[i];
-                    Logger::GetInstance()->Info("%02X ", c);
+                    Logger::Info("{:02x} ", c);
                 }
-                Logger::GetInstance()->Info("\n");
                 torque3d::CodeBlock::dumpInstructions(codeBlock, 0, false);
             }
             else {
-                Logger::GetInstance()->Info("code nullptr");
+                Logger::Info("code nullptr");
             }
         }
         
@@ -251,7 +250,7 @@ namespace gangsta
 
     bool CHooks::TestFunc(void*, int arg_count, char ** arg_text)
     {
-        Logger::GetInstance()->Info("Called Test Function! Arg Count: %i", arg_count);
+        Logger::Info("Called Test Function! Arg Count: {}", arg_count);
         return 1;
     }
 
@@ -259,14 +258,14 @@ namespace gangsta
     {
         int arg_count = _arg_count - 1;
 
-        Logger::GetInstance()->Info("[Echo (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+        Logger::Info("[Echo ({})] {}: {}", arg_count - 1, arg_text[1], arg_text[2]);
 
         return 1;
     }
 
     bool CHooks::NativeHook_SlowEcho(void*, int _arg_count, char** arg_text)
     {
-        Logger::GetInstance()->Info("[SlowEcho] %s: %s", arg_text[1], arg_text[2]);
+        Logger::Info("[SlowEcho] {}: {}", arg_text[1], arg_text[2]);
 
         return 1;
     }
@@ -275,7 +274,7 @@ namespace gangsta
     {
         int arg_count = _arg_count - 1;
 
-        Logger::GetInstance()->Info("[WarningMsg (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+        Logger::Info("[WarningMsg ({})] {}: {}", arg_count - 1, arg_text[1], arg_text[2]);
 
         return 1;
     }
@@ -284,7 +283,7 @@ namespace gangsta
     {
         int arg_count = _arg_count - 1;
 
-        Logger::GetInstance()->Info("[DebugMsg (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+        Logger::Info("[DebugMsg ({})] {}: {}", arg_count - 1, arg_text[1], arg_text[2]);
 
         return 1;
     }
@@ -293,14 +292,14 @@ namespace gangsta
     {
         int arg_count = _arg_count - 1;
 
-        Logger::GetInstance()->Info("[AssertMsg (%i)] %s: %s", arg_count - 1, arg_text[1], arg_text[2]);
+        Logger::Info("[AssertMsg ({})] {}: {}", arg_count - 1, arg_text[1], arg_text[2]);
 
         return 1;
     }
 
     void CHooks::AssignRegisteredMethodsToNamespaces()
     {
-        Logger::GetInstance()->Info("[Con::Init] Loading Registered Weapons to Namespaces!");
+        Logger::Info("[Con::Init] Loading Registered Weapons to Namespaces!");
 
         {
            
@@ -351,7 +350,7 @@ namespace gangsta
 
         static_cast<decltype(&AssignRegisteredMethodsToNamespaces)>(g_Hooks.OriginalAssignRegisteredMethodsToNamespaces)();
 
-        Logger::GetInstance()->Info("[Con::Init] Finished Loading Namespaces!");
+        Logger::Info("[Con::Init] Finished Loading Namespaces!");
     }
 
     int CHooks::ScriptFileChunkLoader__LoadObject(void *_this, void* edx, core::IRefCount **object, uint32_t *name, tChunkFile *file, void *a5)

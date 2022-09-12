@@ -80,7 +80,6 @@ namespace gangsta
         if(std::filesystem::exists(cfgPath) == false)
         {
             std::string cfgPathString = cfgPath.string();
-            Logger::GetInstance()->Info("Couldn't load %s! Not Existing please follow the README thanks :---)", cfgPathString.c_str());
 
             std::ofstream cfgStream;
             cfgStream.open(cfgPath);

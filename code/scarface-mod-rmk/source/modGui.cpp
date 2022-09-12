@@ -284,7 +284,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                         ImGui::Checkbox("Ignore Case", &ignoreCase);
                         if(ImGui::Button("Hash It"))
                         {
-                            Logger::GetInstance()->Info("Hash: 0x%08x", core::MakeKey(bbuf, ignoreCase));
+                            Logger::Info("Hash: {:08x}", core::MakeKey(bbuf, ignoreCase));
                         }
                     }
 
@@ -309,7 +309,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                     (std::istreambuf_iterator<char>()));
 
                 // do c_str() on a string !!!! a STRING is not a char* or const char* you need to to .c_str() that returns a const char*!!!!
-                gangsta::Logger::GetInstance()->Info("Opening file: [ %s ]", filenameWithPath.c_str());
+                gangsta::Logger::Info("Opening file: [ {} ]", filenameWithPath);
 
                 gScriptEditor.SetText(content);
             }
@@ -325,7 +325,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 
                 std::ofstream ofs(filenameWithPath, std::ios::trunc);
 
-                gangsta::Logger::GetInstance()->Info("Saving file: [ %s ]", filenameWithPath.c_str());
+                gangsta::Logger::Info("Saving file: [ {} ]", filenameWithPath);
 
                 ofs << gScriptEditor.GetText();
                 ofs.flush();

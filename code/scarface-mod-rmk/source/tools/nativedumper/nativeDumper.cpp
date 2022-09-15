@@ -11,27 +11,30 @@ namespace gangsta::tools
         // Util
         std::function<nlohmann::json(con::RegisteredMethod* method)> makeFuncJson = [] (con::RegisteredMethod* method) -> nlohmann::json
         {
+            static_assert (sizeof(void*) == 4);
+
             nlohmann::json output = {};
 
             int returnType = -1;
+            void* nativeHandler = nullptr;
 
-            if(method->func_return_string)
+            if(nativeHandler = method->func_return_string)
             {
                 returnType = 0;
             }
-            else if(method->func_return_int)
+            else if(nativeHandler = method->func_return_int)
             {
                 returnType = 1;
             }
-            else if(method->func_return_float)
+            else if(nativeHandler = method->func_return_float)
             {
                 returnType = 2;
             }
-            else if(method->func_return_void)
+            else if(nativeHandler = method->func_return_void)
             {
                 returnType = 3;
             }
-            else if(method->func_return_bool)
+            else if(nativeHandler = method->func_return_bool)
             {
                 returnType = 4;
             }
@@ -49,8 +52,9 @@ namespace gangsta::tools
                 output["usage"] = method->usage;
             }
 
-            output["minArguments"] = method->min_arg_count;
-            output["maxArguments"] = method->max_arg_count;
+            output["minArguments"]  = method->min_arg_count;
+            output["maxArguments"]  = method->max_arg_count;
+            output["address"]       = std::format("0x{:08x}", (uint32_t)nativeHandler);
 
             return output;
         };

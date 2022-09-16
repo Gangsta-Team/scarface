@@ -286,6 +286,18 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                             Logger::Info("Hash: {:08x}", core::MakeKey(bbuf, ignoreCase));
                         }
                     }
+                    ImGui::Separator();
+                    {
+                        if(ImGui::Button("Dump Allocators"))
+                        {
+                            char** allocatorList = (char**)0x007BE2C0;
+
+                            for(int i = 0; i < 25; i++)
+                            {
+                                Logger::Info("- {}", allocatorList[i]);
+                            }
+                        }
+                    }
 
                     ImGui::EndTabItem();
                 }

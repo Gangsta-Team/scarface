@@ -10,6 +10,7 @@
 
 #include <imgui.h>
 #include <radkey.hpp>
+#include <gameobject/render/todobject.hpp>
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     ImGuiIO& io = ImGui::GetIO();
@@ -310,18 +311,24 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                         }
                     }
                     ImGui::Separator();
+                    if(ImGui::Button("Dump Allocators"))
                     {
-                        if(ImGui::Button("Dump Allocators"))
-                        {
-                            char** allocatorList = (char**)0x007BE2C0;
+                        char** allocatorList = (char**)0x007BE2C0;
 
-                            for(int i = 0; i < 25; i++)
-                            {
-                                Logger::Info("- {}", allocatorList[i]);
-                            }
+                        for(int i = 0; i < 25; i++)
+                        {
+                            Logger::Info("- {}", allocatorList[i]);
                         }
                     }
+                    ImGui::SameLine();
+                    if(ImGui::Button("Dump TODObject"))
+                    {
+                        //TODObject::GetInstance()->mHours = rand() % 24;
 
+                        Logger::Info("Hour: {}", TODObject::GetInstance()->mHours);
+                        Logger::Info("Enable Raining: {}", TODObject::GetInstance()->mEnableRaining);
+
+                    }
                     ImGui::EndTabItem();
                 }
 

@@ -11,6 +11,7 @@ file(GLOB ScarfaceLibSrc
     "scripting/*.*"
     "gameobject/*.*"
     "gameobject/spawnobject/*.*"
+    "gameobject/render/*.*"
 )
 
 

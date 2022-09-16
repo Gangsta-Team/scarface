@@ -40,6 +40,8 @@ static LRESULT CALLBACK hkWindowProc(
 		if(wParam == VK_INSERT)
 		{
 			gangsta::g_Globals.guiOpened ^= true;
+
+			gangsta::g_Pointers.m_Con__evaluate(gangsta::g_Globals.guiOpened ? "FreezeGame(true);" : "FreezeGame(false);", 0, 0, 0, -1);
 		}
 		break;
 	case WM_KILLFOCUS:

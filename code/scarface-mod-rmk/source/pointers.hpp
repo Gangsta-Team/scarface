@@ -19,7 +19,7 @@ namespace gangsta
         // CodeBlock
         using CodeBlock_ctor_t = void* (__thiscall*)(void* _this);
         using CompileExec_t = void* (__thiscall*)(void* _this, char* str, char* source, char* arg);
-        using Con__evaluate_t = char* (__cdecl*)(char* unk0, char unk1, char* Str, int unk3, int unk4);
+        using Con__evaluate_t = char* (__cdecl*)(const char* unk0, char unk1, char* Str, int unk3, int unk4);
         using CodeBlock_GetName_t = uint32_t (__cdecl*)(const char *Str);
     public:
         // variables like CTest* m_test;

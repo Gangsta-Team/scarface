@@ -50,7 +50,7 @@ static bool NativeHook_AssertMsg(void*, int _arg_count, char** arg_text)
     return 1;
 }
 
-DEFINE_INIT_FUNCTION(LogFunctionRegister, {
+DEFINE_INIT_FUNCTION(LogNativesInit, {
     event_pools::gNativeEventPools.OnDispatch([] 
     {
         con::RegisteredMethod::FindMethodInList("Echo")->func_return_void       = NativeHook_Echo;

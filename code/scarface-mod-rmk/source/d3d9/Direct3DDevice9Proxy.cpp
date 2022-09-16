@@ -1184,3 +1184,8 @@ HRESULT Direct3DDevice9Proxy::CreateQuery(D3DQUERYTYPE Type, IDirect3DQuery9** p
 
 	return m_pDirect3DDevice9->CreateQuery(Type, ppQuery);
 }
+
+Direct3DDevice9Proxy* Direct3DDevice9Proxy::GetCurrentProxy()
+{
+	return GCurrentProxy;
+}

@@ -13,7 +13,7 @@ static bool TestFunc(void*, int arg_count, char ** arg_text)
     return 1;
 }
 
-DEFINE_INIT_FUNCTION(TestInit, {
+DEFINE_INIT_FUNCTION(TestNativesInit, {
     event_pools::gNativeEventPools.OnDispatch([] 
     {
        con::RegisteredMethod::MakeNewSpaceInList(1, 1, nullptr, "GangstaTestFunc")->func_return_void = TestFunc;

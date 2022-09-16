@@ -8,13 +8,11 @@
 class TODObject : public GameSetObject
 {
 public:
-    virtual ~TODObject();
+    virtual ~TODObject() = 0;
 
     static TODObject* GetInstance( void );
 
-    //char gap4[44]; // ScriptObject, GameSetObject
     bool mPauseTimeOfDay;
-    char gap31[3]; // can be solved with alignment of 8 but i am lazy
     float mTimeOfDaySpeed;
     unsigned int mHours;
     unsigned int mMinutes;
@@ -24,7 +22,6 @@ public:
     char *mAttachedClearEnvParam[6];
     char *mAttachedRainyEnvParam[6];
     bool mEnableRaining;
-    char gapB9[3]; // can be solved with alignment of 8 but i am lazy
     float mRainPercentage;
     int mRainStartTransitFrames;
     int mRainEndTransitFrames;
@@ -34,6 +31,5 @@ public:
 #pragma pack(pop)
 
 static_assert(sizeof(TODObject) == 204, "TODObject has not been correctly aligned!");
-const int x = sizeof(TODObject);
 
 #endif // !_TODOBJECT_HPP

@@ -327,7 +327,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 
                         Logger::Info("Hour: {}", TODObject::GetInstance()->mHours);
                         Logger::Info("Enable Raining: {}", TODObject::GetInstance()->mEnableRaining);
-
+                        Logger::Info("Funky Flag: {}", TODObject::GetInstance()->_Unk0());
                     }
                     ImGui::EndTabItem();
                 }

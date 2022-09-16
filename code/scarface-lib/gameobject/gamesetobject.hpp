@@ -8,6 +8,8 @@
 class GameSetObject : public ScriptObject
 {
 public:
+    virtual ~GameSetObject();
+
     uint8_t gap1F;
     char char20[0x10];
 };

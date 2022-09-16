@@ -8,12 +8,16 @@
 class ConsoleObject
 {
 public:
-    virtual ~ConsoleObject();
+    virtual ~ConsoleObject() = 0;
 };
 
 class ScriptObject : public ConsoleObject
 {
 public:
+    virtual void _UnkInstance() = 0;
+    virtual ~ScriptObject() = default;
+    virtual bool _Unk0() = 0;
+
     uint32_t _t4;
     uint32_t _t8;
     uint32_t _tC;

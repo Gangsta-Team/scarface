@@ -239,7 +239,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                         {
                             if(ImGui::MenuItem("Dump Methods"))
                             {
-                                tools::NativeDumper::Dump(g_Config.gangstaDirectory / "NativeDump.json");
+                                ImGuiFileDialog::Instance()->OpenDialog("NativeSaveDialog", "Native Dump [ Save ]", ".txt", ".");
                             }
 
                             ImGui::EndMenuBar();
@@ -286,6 +286,18 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                             Logger::Info("Hash: {:08x}", core::MakeKey(bbuf, ignoreCase));
                         }
                     }
+                    ImGui::Separator();
+                    {
+                        if(ImGui::Button("Dump Allocators"))
+                        {
+                            char** allocatorList = (char**)0x007BE2C0;
+
+                            for(int i = 0; i < 25; i++)
+                            {
+                                Logger::Info("- {}", allocatorList[i]);
+                            }
+                        }
+                    }
 
                     ImGui::EndTabItem();
                 }
@@ -329,6 +341,20 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                 ofs << gScriptEditor.GetText();
                 ofs.flush();
                 ofs.close();
+            }
+
+            ImGuiFileDialog::Instance()->Close();
+        }
+
+        if(ImGuiFileDialog::Instance()->Display("NativeSaveDialog"))
+        {
+            if(ImGuiFileDialog::Instance()->IsOk())
+            {
+                std::string filenameWithPath = ImGuiFileDialog::Instance()->GetFilePathName();
+
+                gangsta::Logger::Info("Saving Native Dump: [ {} ]", filenameWithPath);
+
+                tools::NativeDumper::Dump(filenameWithPath);
             }
 
             ImGuiFileDialog::Instance()->Close();

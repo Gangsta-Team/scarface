@@ -114,7 +114,7 @@ namespace torque3d
         void *m_function_floats;
         uint32_t m_code_size;
         uint32_t *m_code;
-        uint32_t m_ref_count;
+        int32_t m_ref_count;
         uint32_t m_line_break_pair_count;
         uint32_t *m_line_break_pairs;
         uint32_t m_break_list_size;

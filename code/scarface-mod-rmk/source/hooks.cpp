@@ -4,6 +4,7 @@
 #include "memory.hpp"
 #include "config.hpp"
 #include "common.hpp"
+#include "gameEventPools.hpp"
 
 #include "utils/StackwalkerUtils.hpp"
 
@@ -248,105 +249,11 @@ namespace gangsta
         return 0;
     }
 
-    bool CHooks::TestFunc(void*, int arg_count, char ** arg_text)
-    {
-        Logger::Info("Called Test Function! Arg Count: {}", arg_count);
-        return 1;
-    }
-
-    bool CHooks::NativeHook_Echo(void*, int _arg_count, char** arg_text)
-    {
-        int arg_count = _arg_count - 1;
-
-        Logger::Info("[Echo ({})] {}: {}", arg_count - 1, arg_text[1], arg_text[2]);
-
-        return 1;
-    }
-
-    bool CHooks::NativeHook_SlowEcho(void*, int _arg_count, char** arg_text)
-    {
-        Logger::Info("[SlowEcho] {}: {}", arg_text[1], arg_text[2]);
-
-        return 1;
-    }
-
-    bool CHooks::NativeHook_WarningMsg(void*, int _arg_count, char** arg_text)
-    {
-        int arg_count = _arg_count - 1;
-
-        Logger::Info("[WarningMsg ({})] {}: {}", arg_count - 1, arg_text[1], arg_text[2]);
-
-        return 1;
-    }
-
-    bool CHooks::NativeHook_DebugMsg(void*, int _arg_count, char** arg_text)
-    {
-        int arg_count = _arg_count - 1;
-
-        Logger::Info("[DebugMsg ({})] {}: {}", arg_count - 1, arg_text[1], arg_text[2]);
-
-        return 1;
-    }
-
-    bool CHooks::NativeHook_AssertMsg(void*, int _arg_count, char** arg_text)
-    {
-        int arg_count = _arg_count - 1;
-
-        Logger::Info("[AssertMsg ({})] {}: {}", arg_count - 1, arg_text[1], arg_text[2]);
-
-        return 1;
-    }
-
     void CHooks::AssignRegisteredMethodsToNamespaces()
     {
         Logger::Info("[Con::Init] Loading Registered Weapons to Namespaces!");
 
-        {
-           
-            con::RegisteredMethod* testMethod = new con::RegisteredMethod(1, 1, nullptr, "GangstaTestFunc");
-            testMethod->PutInList(con::smRegisteredMethods);
-            testMethod->func_return_void = TestFunc;
-
-        }
-
-        {
-
-            con::RegisteredMethod* currentMethod = (*con::smRegisteredMethods);
-
-            if(currentMethod != nullptr)
-            {
-                while(currentMethod != nullptr)
-                {
-                    if(strcmp(currentMethod->method_name, "Echo") == 0)
-                    {
-                        currentMethod->func_return_void = NativeHook_Echo;
-                    }
-
-                    if(strcmp(currentMethod->method_name, "SlowEcho") == 0)
-                    {
-                        currentMethod->func_return_void = NativeHook_SlowEcho;
-                    }
-
-                    if(strcmp(currentMethod->method_name, "WarningMsg") == 0)
-                    {
-                        currentMethod->func_return_void = NativeHook_WarningMsg;
-                    }
-
-                    if(strcmp(currentMethod->method_name, "DebugMsg") == 0)
-                    {
-                        currentMethod->func_return_void = NativeHook_DebugMsg;
-                    }
-
-                    if(strcmp(currentMethod->method_name, "AssertMsg") == 0)
-                    {
-                        currentMethod->func_return_void = NativeHook_AssertMsg;
-                    }
-
-                    currentMethod = currentMethod->flink;
-                }
-            }
-
-        }
+        event_pools::gNativeEventPools.Dispatch();
 
         static_cast<decltype(&AssignRegisteredMethodsToNamespaces)>(g_Hooks.OriginalAssignRegisteredMethodsToNamespaces)();
 

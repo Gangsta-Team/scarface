@@ -3,6 +3,7 @@
 #include "config.hpp"
 #include "logger.hpp"
 #include "hooks.hpp"
+#include "gameEventPools.hpp"
 
 #include <pure3d.h>
 #include <cement.h>

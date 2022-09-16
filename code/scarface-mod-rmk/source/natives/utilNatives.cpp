@@ -1,6 +1,8 @@
 #include "common.hpp"
 #include "gameEventPools.hpp"
 #include "logger.hpp"
+#include "config.hpp"
+
 #include "d3d9/Direct3DDevice9Proxy.h"
 #include "d3d9/Direct3DProxy.h"
 #include "d3d9/d3dx_include.h"
@@ -64,9 +66,17 @@ bool __cdecl GangstaScreenRelease(void*, int arg_count, char** arg_string)
     return false;
 }
 
+bool __cdecl GangstaSetGuiVisible(void*, int arg_count, char** arg_string)
+{
+    char* vArg = arg_string[1];
+    g_Globals.guiOpened = (strcmp(vArg, "true") == 0) || (strcmp(vArg, "1") == 0);
+    return true;
+}
+
 DEFINE_INIT_FUNCTION(UtilNativesInit, {
     event_pools::gNativeEventPools.OnDispatch([] {
         con::RegisteredMethod::MakeNewSpaceInList(2, 2, nullptr, "GangstaScreenCapture")->func_return_string = GangstaScreenCapture;
-        con::RegisteredMethod::MakeNewSpaceInList(1, 1, nullptr, "GangstaScreenRelease")->func_return_void = GangstaScreenRelease;
+        con::RegisteredMethod::MakeNewSpaceInList(1, 1, nullptr, "GangstaScreenRelease")->func_return_void   = GangstaScreenRelease;
+        con::RegisteredMethod::MakeNewSpaceInList(2, 2, nullptr, "GangstaSetGuiVisible")->func_return_void   = GangstaSetGuiVisible;
     });
 });

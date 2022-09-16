@@ -311,6 +311,24 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                         }
                     }
                     ImGui::Separator();
+                    {
+                        if(TODObject* todObj = TODObject::GetInstance())
+                        {
+                            bool changeFlag = false;
+
+                            changeFlag |= ImGui::InputInt("Hour", (int*)&todObj->mHours, 0, 0);
+                            changeFlag |= ImGui::InputInt("Minute", (int*)&todObj->mMinutes, 0, 0);
+                            changeFlag |= ImGui::InputFloat("Time Speed", &todObj->mTimeOfDaySpeed);
+                            changeFlag |= ImGui::InputFloat("Rain Percentage", &todObj->mRainPercentage);
+                            changeFlag |= ImGui::Checkbox("Enable Rain", &todObj->mEnableRaining);
+
+                            if(changeFlag)
+                            {
+                                TODObject::GetInstance()->ApplyChanges(false);
+                            }
+                        }
+                    }
+                    ImGui::Separator();
                     if(ImGui::Button("Dump Allocators"))
                     {
                         char** allocatorList = (char**)0x007BE2C0;
@@ -323,11 +341,11 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                     ImGui::SameLine();
                     if(ImGui::Button("Dump TODObject"))
                     {
-                        //TODObject::GetInstance()->mHours = rand() % 24;
-
                         Logger::Info("Hour: {}", TODObject::GetInstance()->mHours);
                         Logger::Info("Enable Raining: {}", TODObject::GetInstance()->mEnableRaining);
-                        Logger::Info("Funky Flag: {}", TODObject::GetInstance()->_Unk0());
+                        Logger::Info("Funky Flag: {}", TODObject::GetInstance()->HasAName());
+                        Logger::Info("Name: {}", TODObject::GetInstance()->objectName);
+                        Logger::Info("Name Hash: {:08x}", TODObject::GetInstance()->objectNameHash);
                     }
                     ImGui::EndTabItem();
                 }

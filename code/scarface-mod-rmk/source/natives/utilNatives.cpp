@@ -38,7 +38,7 @@ const char* __cdecl GangstaScreenCapture(void*, int arg_count, char** arg_string
     std::filesystem::path absScreenPath = std::filesystem::current_path();
     absScreenPath /= arg_string[1];
     std::string absScreenPathString = absScreenPath.string();
-    screenshotPathBuffer = strdup(absScreenPathString.c_str());
+    screenshotPathBuffer = _strdup(absScreenPathString.c_str());
 
     Direct3DDevice9Proxy* currentProxy = Direct3DDevice9Proxy::GetCurrentProxy();
     D3DDISPLAYMODE displayMode = {};

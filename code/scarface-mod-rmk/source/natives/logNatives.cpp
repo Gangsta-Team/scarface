@@ -55,8 +55,8 @@ DEFINE_INIT_FUNCTION(LogFunctionRegister, {
     {
         con::RegisteredMethod::FindMethodInList("Echo")->func_return_void       = NativeHook_Echo;
         con::RegisteredMethod::FindMethodInList("SlowEcho")->func_return_void   = NativeHook_SlowEcho;
-        con::RegisteredMethod::FindMethodInList("WarningMsg")->func_return_void   = NativeHook_WarningMsg;
+        con::RegisteredMethod::FindMethodInList("WarningMsg")->func_return_void = NativeHook_WarningMsg;
         con::RegisteredMethod::FindMethodInList("DebugMsg")->func_return_void   = NativeHook_DebugMsg;
-        con::RegisteredMethod::FindMethodInList("AssertMsg")->func_return_void   = NativeHook_AssertMsg;
+        con::RegisteredMethod::FindMethodInList("AssertMsg")->func_return_void  = NativeHook_AssertMsg;
     });
 });

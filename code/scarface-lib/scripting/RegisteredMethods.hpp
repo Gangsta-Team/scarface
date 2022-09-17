@@ -8,6 +8,8 @@ namespace con
     using RegisteredMethod_ReturnFloat  =   float(__cdecl*)(void*, int arg_count, char** arg_string);
     using RegisteredMethod_ReturnInt    =   int(__cdecl*)(void*, int arg_count, char** arg_string);
     using RegisteredMethod_ReturnString =   const char*(__cdecl*)(void*, int arg_count, char** arg_string);
+    
+    // Actually called: ConsoleConstructor in Torque3d.
 
     class RegisteredMethod
     {

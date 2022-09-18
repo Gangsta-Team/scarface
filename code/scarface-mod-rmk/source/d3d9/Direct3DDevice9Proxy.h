@@ -132,6 +132,7 @@ public:
 	STDMETHOD(CreateQuery)(D3DQUERYTYPE Type, IDirect3DQuery9** ppQuery);
 
 	static void hkWindowProcHandler(HWND wnd);
+	static class Direct3DDevice9Proxy* GetCurrentProxy();
 
 public:
 	IDirect3DDevice9 * m_pDirect3DDevice9;

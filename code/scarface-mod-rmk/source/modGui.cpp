@@ -10,6 +10,7 @@
 
 #include <imgui.h>
 #include <radkey.hpp>
+#include <gameobject/render/todobject.hpp>
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     ImGuiIO& io = ImGui::GetIO();
@@ -162,13 +163,31 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                     uint32_t renderOffset;
                                 };
 
+                                /*
+                                char *m_global_strings;
+                                char *m_function_strings;
+                                void *m_global_floats;
+                                void *m_function_floats;
+                                uint32_t m_code_size;
+                                uint32_t *m_code;
+                                uint32_t m_ref_count;
+                                uint32_t m_line_break_pair_count;
+                                uint32_t *m_line_break_pairs;
+                                uint32_t m_break_list_size;
+                                uint32_t *m_break_list;
+                                */
+
                                 static std::vector<TableEntryFunc> fEntryFuncs
                                 =
                                 {
                                     { "Name", TableEntryFuncRenderType::STIRNG_FILEHASH, offsetof(torque3d::CodeBlock, m_name) },
                                     { "Global Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_global_strings) },
                                     { "Function Strings", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_function_strings) },
-                                    { "Global Floats", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_global_floats) }
+                                    { "Global Floats", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_global_floats) },
+                                    { "Function Floats", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_function_floats) },
+                                    { "Code Size", TableEntryFuncRenderType::UINT, offsetof(torque3d::CodeBlock, m_code_size) },
+                                    { "Code", TableEntryFuncRenderType::POINTER, offsetof(torque3d::CodeBlock, m_code) },
+                                    { "Ref Count", TableEntryFuncRenderType::INT, offsetof(torque3d::CodeBlock, m_ref_count) },
                                 };
 
                                 
@@ -221,6 +240,11 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                     }
 
                                     ImGui::EndTable();
+                                }
+
+                                if(ImGui::Button("Terminate"))
+                                {
+                                    selectedCodeBlockPointer->m_ref_count = -1;
                                 }
                             }
                         }
@@ -288,17 +312,41 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                     }
                     ImGui::Separator();
                     {
-                        if(ImGui::Button("Dump Allocators"))
+                        if(TODObject* todObj = TODObject::GetInstance())
                         {
-                            char** allocatorList = (char**)0x007BE2C0;
+                            bool changeFlag = false;
 
-                            for(int i = 0; i < 25; i++)
+                            changeFlag |= ImGui::InputInt("Hour", (int*)&todObj->mHours, 0, 0);
+                            changeFlag |= ImGui::InputInt("Minute", (int*)&todObj->mMinutes, 0, 0);
+                            changeFlag |= ImGui::InputFloat("Time Speed", &todObj->mTimeOfDaySpeed);
+                            changeFlag |= ImGui::InputFloat("Rain Percentage", &todObj->mRainPercentage);
+                            changeFlag |= ImGui::Checkbox("Enable Rain", &todObj->mEnableRaining);
+
+                            if(changeFlag)
                             {
-                                Logger::Info("- {}", allocatorList[i]);
+                                TODObject::GetInstance()->ApplyChanges(false);
                             }
                         }
                     }
+                    ImGui::Separator();
+                    if(ImGui::Button("Dump Allocators"))
+                    {
+                        char** allocatorList = (char**)0x007BE2C0;
 
+                        for(int i = 0; i < 25; i++)
+                        {
+                            Logger::Info("- {}", allocatorList[i]);
+                        }
+                    }
+                    ImGui::SameLine();
+                    if(ImGui::Button("Dump TODObject"))
+                    {
+                        Logger::Info("Hour: {}", TODObject::GetInstance()->mHours);
+                        Logger::Info("Enable Raining: {}", TODObject::GetInstance()->mEnableRaining);
+                        Logger::Info("Funky Flag: {}", TODObject::GetInstance()->HasAName());
+                        Logger::Info("Name: {}", TODObject::GetInstance()->objectName);
+                        Logger::Info("Name Hash: {:08x}", TODObject::GetInstance()->objectNameHash);
+                    }
                     ImGui::EndTabItem();
                 }
 

@@ -9,6 +9,9 @@ file(GLOB ScarfaceLibSrc
     "torque3d/*.*"
     "pure3d/*.*"
     "scripting/*.*"
+    "gameobject/*.*"
+    "gameobject/spawnobject/*.*"
+    "gameobject/render/*.*"
 )
 
 

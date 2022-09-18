@@ -28,13 +28,6 @@ namespace gangsta
         static int __fastcall GenericSpawnObject__GetCoexistingCount(void* _this, void* edx);
         static void __stdcall AssignRegisteredMethodsToNamespaces();
         static int __fastcall ScriptFileChunkLoader__LoadObject(void *_this, void* edx, core::IRefCount **object, uint32_t *name, tChunkFile *file, void *a5);
-
-        static bool __cdecl TestFunc(void*, int, char **);
-        static bool __cdecl NativeHook_Echo(void*, int, char**);
-        static bool __cdecl NativeHook_SlowEcho(void*, int, char**);
-        static bool __cdecl NativeHook_WarningMsg(void*, int, char**);
-        static bool __cdecl NativeHook_DebugMsg(void*, int, char**);
-        static bool __cdecl NativeHook_AssertMsg(void*, int, char**);
     public:
         // ORIGINALS HERE
         PVOID OriginalPddiCreate;

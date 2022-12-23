@@ -21,3 +21,6 @@
 [submodule "code/vendor/kaitai_definitions"]
 	path = code/vendor/kaitai_definitions
 	url = https://github.com/Gangsta-Team/kaitai.git
+[submodule "code/vendor/stwiy-lib"]
+	path = code/vendor/stwiy-lib
+	url = https://github.com/Gangsta-Team/stwiy-lib.git

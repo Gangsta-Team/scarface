@@ -1,4 +1,4 @@
-project("stwiyLibCMake")
+project("stwiyLib")
 
 file(GLOB stwiyLibSrc
     "stwiy-lib/*.hpp"

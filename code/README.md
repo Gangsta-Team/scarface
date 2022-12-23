@@ -2,7 +2,5 @@
 
 | Folder            | Description                       |
 | -                 |               -                   |
-| scarface-lib      | Torque3d, Pure3d Class Stuff      |
-| scarface-mod      | The First Mod                     |
-| scarface-mod-rmk  | The ReMake of the First Mod       |
+| scarface-mod  | The ReMake of the First Mod       |
 | vendor            | Vendor's for the Modifications    |

@@ -10,7 +10,16 @@
 
 #include <imgui.h>
 #include <radkey.hpp>
-#include <gameobject/render/todobject.hpp>
+
+#include "d3d9/Direct3DDevice9Proxy.h"
+#include "d3d9/Direct3DProxy.h"
+#include "d3d9/d3dx_include.h"
+
+// - stwiy-lib
+#include <gameobject/character/characterobject.hpp>
+
+CharacterObject *pCharObj = NULL;
+CharacterObject *pMainChar = NULL;
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     ImGuiIO& io = ImGui::GetIO();
@@ -27,6 +36,67 @@ void gangsta::CMod::InputWatcher(HWND hMainWindow) {
 void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 {
     static TextEditor gScriptEditor = TextEditor();
+
+    if(ImGui::Begin("Debug"))
+    {
+        // Game information
+        Direct3DDevice9Proxy* currentProxy = Direct3DDevice9Proxy::GetCurrentProxy();
+        D3DVIEWPORT9 d3dvp;
+        currentProxy->GetViewport(&d3dvp);
+
+        ImGui::Text("Viewport Width: %d", d3dvp.Width);
+        ImGui::Text("Viewport Height: %d", d3dvp.Height);
+
+        if(pCharObj == NULL)
+            pCharObj = new CharacterObject(NULL, NULL);
+        if(pCharObj != NULL){
+            ImGui::Text("pCharObj: %p", pCharObj);
+            if(pMainChar == NULL)
+                pMainChar = pCharObj->GetMainCharacter();
+            if(pMainChar != NULL){
+                ImGui::Text("GetMainCharacter() -> pMainChar: %p", pMainChar);
+               
+                float posY = *(float*)((DWORD*)pMainChar + 0x1A);
+                float posX = *(float*)((DWORD*)pMainChar + 0x19);
+                float posZ = *(float*)((DWORD*)pMainChar + 0x1B);
+
+                if(posX != NULL && posY != NULL && posZ != NULL){
+                    ImGui::Text("Pos X: [%.5f]", posX);
+                    ImGui::Text("Pos Y: [%.5f]", posY);
+                    ImGui::Text("Pos Z: [%.5f]", posZ);
+                }
+
+                math::Vector* ESkeletonJoint_Shoulder_L = pMainChar->GetJointPosition(CharacterObject::ESkeletonJoint::ESkeletonJoint_Shoulder_L);
+
+                ImGui::Text("ESkeletonJoint_Shoulder_L Pos X: [%.5f]", ESkeletonJoint_Shoulder_L->x);
+                ImGui::Text("ESkeletonJoint_Shoulder_L Pos Y: [%.5f]", ESkeletonJoint_Shoulder_L->y);
+                ImGui::Text("ESkeletonJoint_Shoulder_L Pos Z: [%.5f]", ESkeletonJoint_Shoulder_L->z);
+
+                //math::Vector* cpoint = new math::Vector(0,0,0);
+                //VectorCamera::WorldToViewport(ESkeletonJoint_Shoulder_L, cpoint);
+                //ImGui::Text("ESkeletonJoint_Shoulder_L Screen X: [%.5f]", cpoint->x);
+                //ImGui::Text("ESkeletonJoint_Shoulder_L Screen Y: [%.5f]", cpoint->y);
+
+                math::Vector* ESkeletonJoint_Forarm_R = pMainChar->GetJointPosition(CharacterObject::ESkeletonJoint::ESkeletonJoint_Forarm_R);
+
+                ImGui::Text("ESkeletonJoint_Forarm_R Pos X: [%.5f]", ESkeletonJoint_Forarm_R->x);
+                ImGui::Text("ESkeletonJoint_Forarm_R Pos Y: [%.5f]", ESkeletonJoint_Forarm_R->y);
+                ImGui::Text("ESkeletonJoint_Forarm_R Pos Z: [%.5f]", ESkeletonJoint_Forarm_R->z);
+
+
+                int mainCharHealth = pMainChar->GetHealth();
+                if(mainCharHealth)
+                    ImGui::Text("Health: [%d]", mainCharHealth);
+
+                bool b_isDead = pMainChar->IsCharacterDead();
+                ImGui::Text("b_isDead: [%d]", b_isDead);
+                
+            }
+        }
+
+    }
+    ImGui::End();
+
     // pGui = is opened
     if(*pGui)
     {

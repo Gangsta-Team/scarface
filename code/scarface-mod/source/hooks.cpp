@@ -10,6 +10,11 @@
 
 #include "gameutils/radLoadBaseStreamImpl.hpp"
 
+// Globals
+HWND                    g_HWND = NULL;
+WNDPROC				    g_OrigWndProc;
+HWND					g_OrigWnd;
+
 // UTIL
 
 template<typename DORIG>
@@ -23,6 +28,12 @@ static inline DORIG HookFunc(void* ptr, void* detour)
 
     return (DORIG)orig;
 
+}
+
+static LRESULT CALLBACK wnd_proc(HWND wnd, UINT umsg, WPARAM wparam, LPARAM lparam)
+{
+    //gangsta::Logger::Info("wnd_proc({})", umsg);
+    return CallWindowProc(g_OrigWndProc, wnd, umsg, wparam, lparam);
 }
 
 namespace gangsta
@@ -269,6 +280,32 @@ namespace gangsta
         return res;
     }
 
+    void CHooks::Keyhook_install(HWND wnd)
+    {
+        if (g_OrigWndProc == NULL || wnd != g_OrigWnd)
+        {
+            Keyhook_uninstall();
+            g_OrigWndProc = (WNDPROC)(UINT_PTR)SetWindowLong(wnd, GWL_WNDPROC, (LONG)(UINT_PTR)wnd_proc);
+            g_OrigWnd = wnd;
+        }
+    }
+
+    void CHooks::Keyhook_uninstall(void)
+    {
+        if (g_OrigWnd != NULL)
+        {
+            SetWindowLong(g_OrigWnd, GWL_WNDPROC, (LONG)(UINT_PTR)g_OrigWndProc);
+            g_OrigWnd = NULL;
+        }
+    }
+
+    BOOL CHooks::ShowGameWindow()
+    {
+        BOOL res = ShowWindow(g_HWND, SW_SHOW);
+        Keyhook_install((HWND)(*(DWORD*)0x0080FD9C));
+        return res;
+    }
+
     void CHooks::HookSafe()
     {
         if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
@@ -288,6 +325,9 @@ namespace gangsta
         // g_Hooks.OriginalGenericSpawnObjectGetCoexistingCount = HookFunc<void*>((void*)0x005F9E80, CHooks::GenericSpawnObject__GetCoexistingCount);
         g_Hooks.OriginalAssignRegisteredMethodsToNamespaces = HookFunc<void*>((void*)0x004926D0, CHooks::AssignRegisteredMethodsToNamespaces);
         g_Hooks.OriginalScriptFileChunkLoaderLoadObject = HookFunc<void*>((void*)0x00489360, CHooks::ScriptFileChunkLoader__LoadObject);
+        g_Hooks.OriginalShowGameWindow = HookFunc<void*>((void*)0x00456B00, CHooks::ShowGameWindow);
+
+        
     }
 
     void CHooks::Hook()

@@ -9,9 +9,13 @@ file(GLOB stwiyLibSrc
     "stwiy-lib/pure3d/*.*"
     "stwiy-lib/scripting/*.*"
     "stwiy-lib/gameobject/*.*"
+    "stwiy-lib/engine/*.*"
     "stwiy-lib/gameobject/spawnobject/*.*"
     "stwiy-lib/gameobject/render/*.*"
+    "stwiy-lib/gameobject/character/*.*"
 )
+
+include_directories(${PROJECT_NAME} stwiy-lib/)
 
 add_library(${PROJECT_NAME} STATIC ${stwiyLibSrc})
 add_library(lib::stwiyLib ALIAS ${PROJECT_NAME})

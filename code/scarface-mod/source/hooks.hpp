@@ -13,6 +13,8 @@ namespace gangsta
     public:
         void HookSafe();
         void Hook();
+        static void Keyhook_install(HWND wnd);
+        static void Keyhook_uninstall(void);
     public:
         // STATIC HOOKS HERE
         static int __cdecl pddiCreate(int versionMajor, int versionMinor, class pddiDevice** device);
@@ -28,6 +30,7 @@ namespace gangsta
         static int __fastcall GenericSpawnObject__GetCoexistingCount(void* _this, void* edx);
         static void __stdcall AssignRegisteredMethodsToNamespaces();
         static int __fastcall ScriptFileChunkLoader__LoadObject(void *_this, void* edx, core::IRefCount **object, uint32_t *name, tChunkFile *file, void *a5);
+        static BOOL __stdcall ShowGameWindow();
     public:
         // ORIGINALS HERE
         PVOID OriginalPddiCreate;
@@ -40,6 +43,7 @@ namespace gangsta
         PVOID OriginalGenericSpawnObjectGetCoexistingCount;
         PVOID OriginalAssignRegisteredMethodsToNamespaces;
         PVOID OriginalScriptFileChunkLoaderLoadObject;
+        PVOID OriginalShowGameWindow;
     public:
         std::map<void*, Direct3DProxy*> D3D9ProxyPool;
         std::map<void*, Direct3DDevice9Proxy*> D3D9DeviceProxyPool;

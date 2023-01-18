@@ -26,5 +26,6 @@
 #include <gameobject/render/todobject.hpp>
 #include <radkey.hpp>
 #include <streaming/chunkfile.hpp>
+#include <gameobject/camera/cameramanager.hpp>
 
 #endif

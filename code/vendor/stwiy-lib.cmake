@@ -12,6 +12,7 @@ file(GLOB stwiyLibSrc
     "stwiy-lib/engine/*.*"
     "stwiy-lib/gameobject/spawnobject/*.*"
     "stwiy-lib/gameobject/render/*.*"
+    "stwiy-lib/gameobject/camera/*.*"
     "stwiy-lib/gameobject/character/*.*"
 )
 

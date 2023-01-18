@@ -15,11 +15,16 @@
 #include "d3d9/Direct3DProxy.h"
 #include "d3d9/d3dx_include.h"
 
+#include <d3d9/d3d.h>
+#include <d3d9/Colors.h>
+#include <d3d9/d3dh.h>
+
 // - stwiy-lib
 #include <gameobject/character/characterobject.hpp>
 
-CharacterObject *pCharObj = NULL;
 CharacterObject *pMainChar = NULL;
+
+D3DHelper* d3dh;
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     ImGuiIO& io = ImGui::GetIO();
@@ -43,57 +48,87 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
         Direct3DDevice9Proxy* currentProxy = Direct3DDevice9Proxy::GetCurrentProxy();
         D3DVIEWPORT9 d3dvp;
         currentProxy->GetViewport(&d3dvp);
+        
+        if(d3dh == NULL)
+	        d3dh = new D3DHelper(currentProxy->m_pDirect3DDevice9);
+
+        ImGui::BeginGroup();
+        
+        ImGui::Separator();
+        ImGui::Text("General game information:");
+        ImGui::Separator();
 
         ImGui::Text("Viewport Width: %d", d3dvp.Width);
         ImGui::Text("Viewport Height: %d", d3dvp.Height);
 
-        if(pCharObj == NULL)
-            pCharObj = new CharacterObject(NULL, NULL);
-        if(pCharObj != NULL){
-            ImGui::Text("pCharObj: %p", pCharObj);
-            if(pMainChar == NULL)
-                pMainChar = pCharObj->GetMainCharacter();
-            if(pMainChar != NULL){
-                ImGui::Text("GetMainCharacter() -> pMainChar: %p", pMainChar);
-               
-                float posY = *(float*)((DWORD*)pMainChar + 0x1A);
-                float posX = *(float*)((DWORD*)pMainChar + 0x19);
-                float posZ = *(float*)((DWORD*)pMainChar + 0x1B);
+        ImGui::EndGroup();
 
-                if(posX != NULL && posY != NULL && posZ != NULL){
-                    ImGui::Text("Pos X: [%.5f]", posX);
-                    ImGui::Text("Pos Y: [%.5f]", posY);
-                    ImGui::Text("Pos Z: [%.5f]", posZ);
+        if(pMainChar == NULL)
+            pMainChar = GetMainCharacter();
+
+        if(pMainChar){
+            ImGui::BeginGroup();
+
+            ImGui::Separator();
+            ImGui::Text("Main character information (%p):", pMainChar);
+            ImGui::Separator();
+            
+            math::Vector vecMainChar = {
+                *(float*)((DWORD*)pMainChar + 0x1A),
+                *(float*)((DWORD*)pMainChar + 0x19),
+                *(float*)((DWORD*)pMainChar + 0x1B)
+            };
+
+            ImGui::Text("Pos X: [%.5f]", vecMainChar.x);
+            ImGui::Text("Pos Y: [%.5f]", vecMainChar.y);
+            ImGui::Text("Pos Z: [%.5f]", vecMainChar.z);
+
+            math::Vector* vec_Shoulder_L = pMainChar->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Shoulder_L);
+
+            ImGui::Text("vec_Shoulder_L Pos X: [%.5f]", vec_Shoulder_L->x);
+            ImGui::Text("vec_Shoulder_L Pos Y: [%.5f]", vec_Shoulder_L->y);
+            ImGui::Text("vec_Shoulder_L Pos Z: [%.5f]", vec_Shoulder_L->z);
+        
+            ImGui::EndGroup();
+
+            if(CameraManager* camMgrObj = CameraManager::GetInstance())
+            {
+                ImGui::Separator();
+                ImGui::Text("Camera manager information (%p):", camMgrObj);
+                ImGui::Separator();
+
+                pure3d::Camera* pCam = camMgrObj->GetCurrentRenderCamera();
+                if(pCam != NULL)
+                {
+                    ImGui::Text("Camera manager pCam (%p):", pCam);
+                    pure3d::VectorCamera* thisCam = reinterpret_cast<pure3d::VectorCamera*>(pCam);
+                    if(thisCam != NULL){
+                        math::Vector cpoint = {0,0,0};
+                        ImGui::Text("thisCam: %p", thisCam);
+                        thisCam->WorldToViewport(vec_Shoulder_L, &cpoint);
+                        ImGui::Text("vec_Shoulder_L Screen X: [%.5f]", cpoint.x);
+                        ImGui::Text("vec_Shoulder_L Screen Y: [%.5f]", cpoint.y);
+
+                        RECT rect;
+                        rect.top = 0;
+                        rect.left = 0;
+                        rect.right = d3dvp.Width;
+                        rect.bottom = d3dvp.Height;
+                        d3dh->DrawLine(rect, 1.0f, D3DCOLOR_ARGB(255, 69, 69, 69), D3DCOLOR_ARGB(255, 69, 69, 69));
+
+                        RECT rect_bone;
+                        rect_bone.top = d3dvp.Width / 2;
+                        rect_bone.left = d3dvp.Height / 2;
+                        rect_bone.right = cpoint.x * 5.0;
+                        rect_bone.bottom = cpoint.y * 5.0;
+                        ImGui::Text("Right X: [%.5f]", rect_bone.right);
+                        ImGui::Text("Bottom Y: [%.5f]", rect_bone.bottom);
+                        d3dh->DrawLine(rect_bone, 1.0f, D3DCOLOR_ARGB(255, 255, 0, 0), D3DCOLOR_ARGB(255, 255, 0, 0));
+
+                    }
                 }
-
-                math::Vector* ESkeletonJoint_Shoulder_L = pMainChar->GetJointPosition(CharacterObject::ESkeletonJoint::ESkeletonJoint_Shoulder_L);
-
-                ImGui::Text("ESkeletonJoint_Shoulder_L Pos X: [%.5f]", ESkeletonJoint_Shoulder_L->x);
-                ImGui::Text("ESkeletonJoint_Shoulder_L Pos Y: [%.5f]", ESkeletonJoint_Shoulder_L->y);
-                ImGui::Text("ESkeletonJoint_Shoulder_L Pos Z: [%.5f]", ESkeletonJoint_Shoulder_L->z);
-
-                //math::Vector* cpoint = new math::Vector(0,0,0);
-                //VectorCamera::WorldToViewport(ESkeletonJoint_Shoulder_L, cpoint);
-                //ImGui::Text("ESkeletonJoint_Shoulder_L Screen X: [%.5f]", cpoint->x);
-                //ImGui::Text("ESkeletonJoint_Shoulder_L Screen Y: [%.5f]", cpoint->y);
-
-                math::Vector* ESkeletonJoint_Forarm_R = pMainChar->GetJointPosition(CharacterObject::ESkeletonJoint::ESkeletonJoint_Forarm_R);
-
-                ImGui::Text("ESkeletonJoint_Forarm_R Pos X: [%.5f]", ESkeletonJoint_Forarm_R->x);
-                ImGui::Text("ESkeletonJoint_Forarm_R Pos Y: [%.5f]", ESkeletonJoint_Forarm_R->y);
-                ImGui::Text("ESkeletonJoint_Forarm_R Pos Z: [%.5f]", ESkeletonJoint_Forarm_R->z);
-
-
-                int mainCharHealth = pMainChar->GetHealth();
-                if(mainCharHealth)
-                    ImGui::Text("Health: [%d]", mainCharHealth);
-
-                bool b_isDead = pMainChar->IsCharacterDead();
-                ImGui::Text("b_isDead: [%d]", b_isDead);
-                
-            }
+            } 
         }
-
     }
     ImGui::End();
 

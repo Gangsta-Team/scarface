@@ -306,6 +306,37 @@ namespace gangsta
         return res;
     }
 
+     char CHooks::ScriptLoadCompiled(char *scriptPath, char *a2, char *Str2, int a4, int a5){
+
+        Logger::Info("[CHooks::TestFn] Script: {}", scriptPath);
+
+        std::filesystem::path filePath = scriptPath;
+
+        if (filePath.extension() == ".cs") {
+            std::string my_str(scriptPath);
+            if(my_str.rfind("script/", 0) == 0){
+                std::string newPath = my_str.replace(0,6,"./scriptc");
+                std::filesystem::path newScript = newPath.c_str();
+                if(std::filesystem::exists(newScript)){
+                    Logger::Info("[CHooks::TestFn] Loading new script: {}", newPath);
+                    static torque3d::CodeBlock* p_CBInstance = nullptr;
+                    if (p_CBInstance == nullptr) {
+                        p_CBInstance = new torque3d::CodeBlock();
+                    }
+
+                    std::ifstream t(newPath);
+                    std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+
+                    gangsta::g_Pointers.m_compileExec(p_CBInstance, NULL, (char*)str.c_str(), NULL);
+                    return NULL;
+                }
+                return static_cast<decltype(&ScriptLoadCompiled)>(g_Hooks.OriginalScriptLoadCompiled)(scriptPath, a2, Str2, a4, a5);
+            }
+            return static_cast<decltype(&ScriptLoadCompiled)>(g_Hooks.OriginalScriptLoadCompiled)(scriptPath, a2, Str2, a4, a5);
+        }
+        return static_cast<decltype(&ScriptLoadCompiled)>(g_Hooks.OriginalScriptLoadCompiled)(scriptPath, a2, Str2, a4, a5);
+    }
+
     void CHooks::HookSafe()
     {
         if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
@@ -326,6 +357,7 @@ namespace gangsta
         g_Hooks.OriginalAssignRegisteredMethodsToNamespaces = HookFunc<void*>((void*)0x004926D0, CHooks::AssignRegisteredMethodsToNamespaces);
         g_Hooks.OriginalScriptFileChunkLoaderLoadObject = HookFunc<void*>((void*)0x00489360, CHooks::ScriptFileChunkLoader__LoadObject);
         g_Hooks.OriginalShowGameWindow = HookFunc<void*>((void*)0x00456B00, CHooks::ShowGameWindow);
+        g_Hooks.OriginalScriptLoadCompiled = HookFunc<void*>((void*)0x0047FFE0, CHooks::ScriptLoadCompiled);
 
         
     }

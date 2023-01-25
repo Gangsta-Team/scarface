@@ -31,6 +31,7 @@ namespace gangsta
         static void __stdcall AssignRegisteredMethodsToNamespaces();
         static int __fastcall ScriptFileChunkLoader__LoadObject(void *_this, void* edx, core::IRefCount **object, uint32_t *name, tChunkFile *file, void *a5);
         static BOOL __stdcall ShowGameWindow();
+        static char __cdecl ScriptLoadCompiled(char *scriptPath, char *a2, char *Str2, int a4, int a5);
     public:
         // ORIGINALS HERE
         PVOID OriginalPddiCreate;
@@ -44,6 +45,7 @@ namespace gangsta
         PVOID OriginalAssignRegisteredMethodsToNamespaces;
         PVOID OriginalScriptFileChunkLoaderLoadObject;
         PVOID OriginalShowGameWindow;
+        PVOID OriginalScriptLoadCompiled;
     public:
         std::map<void*, Direct3DProxy*> D3D9ProxyPool;
         std::map<void*, Direct3DDevice9Proxy*> D3D9DeviceProxyPool;

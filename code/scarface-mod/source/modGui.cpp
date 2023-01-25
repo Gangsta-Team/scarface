@@ -15,16 +15,68 @@
 #include "d3d9/Direct3DProxy.h"
 #include "d3d9/d3dx_include.h"
 
-#include <d3d9/d3d.h>
-#include <d3d9/Colors.h>
-#include <d3d9/d3dh.h>
+#include "gameutils/pure3dHelper.hpp"
 
 // - stwiy-lib
-#include <gameobject/character/characterobject.hpp>
+#include <gameobject/cvmanager.hpp>
+#include <engine/object/gameset.hpp>
 
-CharacterObject *pMainChar = NULL;
+CharacterObject         *pMainChar = nullptr;
+CVManager               *pCVManager = nullptr;
+CameraManager           *pCamMgr = nullptr;
+CVManager               *CVMgrObj = nullptr;
+pure3d::Camera          *pCam = nullptr;
+pure3d::VectorCamera    *thisCam = nullptr;
+pure3dH                 *p3dh;
+D3DVIEWPORT9            d3dvp;
 
-D3DHelper* d3dh;
+void gangsta::CMod::RenderSkeleton(CharacterObject *character)
+{
+    math::Vector vCharRootScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Character_Root));
+    math::Vector vLeftPelvisScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Pelvis_L));
+    math::Vector vLeftKneeScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Knee_L));
+    math::Vector vLeftFootScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Foot_L));
+    math::Vector vPelvisRScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Pelvis_R));
+    math::Vector vRightKneeScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Knee_R));
+    math::Vector vRightFootScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Foot_R));
+    math::Vector vSpine1Screen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Spine_1));
+    math::Vector vSpine2Screen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Spine_2));
+    math::Vector vNeckScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Neck));
+    math::Vector vHeadBoneScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Head));
+    math::Vector vLeftClavicleScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Clavicle_L));
+    math::Vector vLeftShoulderScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Shoulder_L));
+    math::Vector vLeftElbowScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Elbow_L));
+    math::Vector vLeftForarmScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Forarm_L));
+    math::Vector vLeftWristScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Wrist_L));
+    math::Vector vCharRoot1Screen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Character_Root1));
+    math::Vector vRightClavicleScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Clavicle_R));
+    math::Vector vRightShoulderScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Shoulder_R));
+    math::Vector vRightElbowScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Elbow_R));
+    math::Vector vRightForarmScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Forarm_R));
+    math::Vector vRightWristScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Wrist_R));
+    math::Vector vRightHandScreen = p3dh->WorldToScreen(thisCam, d3dvp, character->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Hand_R));
+
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vCharRootScreen.x), (vCharRootScreen.y)), ImVec2(vLeftPelvisScreen.x, vLeftPelvisScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vLeftPelvisScreen.x), (vLeftPelvisScreen.y)), ImVec2(vLeftKneeScreen.x, vLeftKneeScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vLeftKneeScreen.x), (vLeftKneeScreen.y)), ImVec2(vLeftFootScreen.x, vLeftFootScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vCharRootScreen.x), (vCharRootScreen.y)), ImVec2(vPelvisRScreen.x, vPelvisRScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vPelvisRScreen.x), (vPelvisRScreen.y)), ImVec2(vRightKneeScreen.x, vRightKneeScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vRightKneeScreen.x), (vRightKneeScreen.y)), ImVec2(vRightFootScreen.x, vRightFootScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vCharRootScreen.x), (vCharRootScreen.y)), ImVec2(vSpine1Screen.x, vSpine1Screen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vSpine1Screen.x), (vSpine1Screen.y)), ImVec2(vSpine2Screen.x, vSpine2Screen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vSpine2Screen.x), (vSpine2Screen.y)), ImVec2(vNeckScreen.x, vNeckScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vNeckScreen.x), (vNeckScreen.y)), ImVec2(vHeadBoneScreen.x, vHeadBoneScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vLeftClavicleScreen.x), (vLeftClavicleScreen.y)), ImVec2(vLeftShoulderScreen.x, vLeftShoulderScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vLeftShoulderScreen.x), (vLeftShoulderScreen.y)), ImVec2(vLeftElbowScreen.x, vLeftElbowScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vLeftElbowScreen.x), (vLeftElbowScreen.y)), ImVec2(vLeftForarmScreen.x, vLeftForarmScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vLeftForarmScreen.x), (vLeftForarmScreen.y)), ImVec2(vLeftWristScreen.x, vLeftWristScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vLeftClavicleScreen.x), (vLeftClavicleScreen.y)), ImVec2(vRightClavicleScreen.x, vRightClavicleScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vRightClavicleScreen.x), (vRightClavicleScreen.y)), ImVec2(vRightShoulderScreen.x, vRightShoulderScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vRightShoulderScreen.x), (vRightShoulderScreen.y)), ImVec2(vRightElbowScreen.x, vRightElbowScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vRightElbowScreen.x), (vRightElbowScreen.y)), ImVec2(vRightForarmScreen.x, vRightForarmScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vRightForarmScreen.x), (vRightForarmScreen.y)), ImVec2(vRightWristScreen.x, vRightWristScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+    ImGui::GetBackgroundDrawList()->AddLine(ImVec2((vRightWristScreen.x), (vRightWristScreen.y)), ImVec2(vRightHandScreen.x, vRightHandScreen.y), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 255.0, 255.0, 255.0)), 1);
+}
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     ImGuiIO& io = ImGui::GetIO();
@@ -46,16 +98,11 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
     {
         // Game information
         Direct3DDevice9Proxy* currentProxy = Direct3DDevice9Proxy::GetCurrentProxy();
-        D3DVIEWPORT9 d3dvp;
         currentProxy->GetViewport(&d3dvp);
-        
-        if(d3dh == NULL)
-	        d3dh = new D3DHelper(currentProxy->m_pDirect3DDevice9);
 
         ImGui::BeginGroup();
         
-        ImGui::Separator();
-        ImGui::Text("General game information:");
+        ImGui::Text(" # General game information:");
         ImGui::Separator();
 
         ImGui::Text("Viewport Width: %d", d3dvp.Width);
@@ -69,8 +116,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
         if(pMainChar){
             ImGui::BeginGroup();
 
-            ImGui::Separator();
-            ImGui::Text("Main character information (%p):", pMainChar);
+            ImGui::Text(" # Main character information (%p):", pMainChar);
             ImGui::Separator();
             
             math::Vector vecMainChar = {
@@ -79,55 +125,95 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                 *(float*)((DWORD*)pMainChar + 0x1B)
             };
 
-            ImGui::Text("Pos X: [%.5f]", vecMainChar.x);
-            ImGui::Text("Pos Y: [%.5f]", vecMainChar.y);
-            ImGui::Text("Pos Z: [%.5f]", vecMainChar.z);
+            ImGui::Text("Pos X: [%.5f] | Y: [%.5f] | Z: [%.5f]", vecMainChar.x, vecMainChar.y, vecMainChar.z);
 
-            math::Vector* vec_Shoulder_L = pMainChar->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Shoulder_L);
+            if(pCamMgr == nullptr)
+                pCamMgr = CameraManager::GetInstance();
 
-            ImGui::Text("vec_Shoulder_L Pos X: [%.5f]", vec_Shoulder_L->x);
-            ImGui::Text("vec_Shoulder_L Pos Y: [%.5f]", vec_Shoulder_L->y);
-            ImGui::Text("vec_Shoulder_L Pos Z: [%.5f]", vec_Shoulder_L->z);
-        
-            ImGui::EndGroup();
-
-            if(CameraManager* camMgrObj = CameraManager::GetInstance())
+            if(pCamMgr != nullptr)
             {
-                ImGui::Separator();
-                ImGui::Text("Camera manager information (%p):", camMgrObj);
+                if(pCam == nullptr)
+                    pCam = pCamMgr->GetCurrentInGameCamera();
+
+                ImGui::Text(" # Camera manager information (%p):", pCamMgr);
                 ImGui::Separator();
 
-                pure3d::Camera* pCam = camMgrObj->GetCurrentRenderCamera();
+                //pure3d::Camera* pCam = pCamMgr->GetCurrentRenderCamera();
+                pure3d::Camera* pCam = pCamMgr->GetCurrentInGameCamera();
                 if(pCam != NULL)
                 {
+                    
+                    if(thisCam == nullptr)
+                        thisCam = reinterpret_cast<pure3d::VectorCamera*>(pCam);
+
                     ImGui::Text("Camera manager pCam (%p):", pCam);
                     pure3d::VectorCamera* thisCam = reinterpret_cast<pure3d::VectorCamera*>(pCam);
                     if(thisCam != NULL){
-                        math::Vector cpoint = {0,0,0};
-                        ImGui::Text("thisCam: %p", thisCam);
-                        thisCam->WorldToViewport(vec_Shoulder_L, &cpoint);
-                        ImGui::Text("vec_Shoulder_L Screen X: [%.5f]", cpoint.x);
-                        ImGui::Text("vec_Shoulder_L Screen Y: [%.5f]", cpoint.y);
+                            
+                        static int id = 0;
+                        ImGui::InputInt("Bone ID", &id);
+                        math::Vector* bone_pos = pMainChar->GetJointPosition(id);
+                        math::Vector boneScreen = p3dh->WorldToScreen(thisCam, d3dvp, bone_pos);
+                        ImGui::GetBackgroundDrawList()->AddLine(ImVec2((boneScreen.x), (boneScreen.y)), ImVec2(d3dvp.Width/2, d3dvp.Height), ImGui::ColorConvertFloat4ToU32(ImVec4(255.0, 0.0, 255.0, 255.0)), 3);
+                        ImGui::GetForegroundDrawList()->AddText({boneScreen.x,boneScreen.y}, -1, &std::to_string(id)[0]);
 
-                        RECT rect;
-                        rect.top = 0;
-                        rect.left = 0;
-                        rect.right = d3dvp.Width;
-                        rect.bottom = d3dvp.Height;
-                        d3dh->DrawLine(rect, 1.0f, D3DCOLOR_ARGB(255, 69, 69, 69), D3DCOLOR_ARGB(255, 69, 69, 69));
+                        RenderSkeleton(pMainChar);
+                        /*for (auto i = 0; i < 24; i++) {
+                            if (auto bone_pos = pMainChar->GetJointPosition(i)) {
+                                math::Vector screen_posn;
+                                thisCam->WorldToViewport(bone_pos, &screen_posn);
 
-                        RECT rect_bone;
-                        rect_bone.top = d3dvp.Width / 2;
-                        rect_bone.left = d3dvp.Height / 2;
-                        rect_bone.right = cpoint.x * 5.0;
-                        rect_bone.bottom = cpoint.y * 5.0;
-                        ImGui::Text("Right X: [%.5f]", rect_bone.right);
-                        ImGui::Text("Bottom Y: [%.5f]", rect_bone.bottom);
-                        d3dh->DrawLine(rect_bone, 1.0f, D3DCOLOR_ARGB(255, 255, 0, 0), D3DCOLOR_ARGB(255, 255, 0, 0));
+                                float x = (float(d3dvp.X) + (float(d3dvp.Width) / 2.0f)) + float(d3dvp.Width) * screen_posn.x;
+                                float y = (float(d3dvp.Y) + (float(d3dvp.Height) / 2.0f)) + float(d3dvp.Height) * -screen_posn.y;
 
+                                ImGui::GetForegroundDrawList()->AddText({x,y}, -1, &std::to_string(i)[0]);
+                            }
+                        }*/
                     }
+
+                    
+                    
+
+                    
                 }
             } 
+            ImGui::EndGroup();
+
+            if(CVMgrObj == nullptr)
+                CVMgrObj = CVManager::GetInstance();
+            if(CVMgrObj != nullptr)
+            {
+                ImGui::BeginGroup();
+
+                ImGui::Text(" # CV Manager information (%p):", CVMgrObj);
+                ImGui::Separator();
+
+                //int count = characters->GetCount();
+                //for (int i = 0; i < count; i++)
+                //{
+
+                ImGui::EndGroup();
+                GameSet<CharacterObject>* characters = CVManager::GetInstance()->GetCharacterSet();
+                if(characters != nullptr)
+                {
+                    ImGui::Text(" Character set information asd (%p):", characters);
+                    ImGui::Text(" Characters count (%d):", characters->mCount);
+                    for (int i = 0; i < characters->mCount; i++)
+                    {
+                        if ( i >= characters->mCount )
+                            break;
+                        CharacterObject* character = characters->GetSet(i);
+
+                        if(character != nullptr){
+                            if(character == GetMainCharacter())
+                                continue;
+                                
+                            RenderSkeleton(character);
+                        }
+                    }
+                }
+
+            }
         }
     }
     ImGui::End();

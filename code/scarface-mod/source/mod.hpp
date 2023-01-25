@@ -14,6 +14,7 @@ namespace gangsta
         void InitImGuiStyle();
         void RunLoop();
         void RunGui(bool* pGui, HWND hMainWindow);
+        void RenderSkeleton(CharacterObject *character);
         void InputWatcher(HWND hMainWindow);
     };
 

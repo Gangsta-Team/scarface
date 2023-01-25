@@ -27,5 +27,6 @@
 #include <radkey.hpp>
 #include <streaming/chunkfile.hpp>
 #include <gameobject/camera/cameramanager.hpp>
+#include <gameobject/character/characterobject.hpp>
 
 #endif

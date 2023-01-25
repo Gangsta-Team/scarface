@@ -10,6 +10,7 @@ file(GLOB stwiyLibSrc
     "stwiy-lib/scripting/*.*"
     "stwiy-lib/gameobject/*.*"
     "stwiy-lib/engine/*.*"
+    "stwiy-lib/engine/object/*.*"
     "stwiy-lib/gameobject/spawnobject/*.*"
     "stwiy-lib/gameobject/render/*.*"
     "stwiy-lib/gameobject/camera/*.*"

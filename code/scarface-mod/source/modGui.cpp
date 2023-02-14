@@ -19,7 +19,10 @@
 
 // - stwiy-lib
 #include <gameobject/cvmanager.hpp>
+#include <gameobject/spawnobject/spawnmixer.hpp>
+#include <gameobject/spawnobject/cvloadobject.hpp>
 #include <engine/object/gameset.hpp>
+#include <engine/database/databroker.hpp>
 
 CharacterObject         *pMainChar = nullptr;
 CVManager               *pCVManager = nullptr;
@@ -27,6 +30,9 @@ CameraManager           *pCamMgr = nullptr;
 CVManager               *CVMgrObj = nullptr;
 pure3d::Camera          *pCam = nullptr;
 pure3d::VectorCamera    *thisCam = nullptr;
+SpawnMixer              *pSpawnMixerObj = nullptr;
+CVLoadObject            *pLoadObject = nullptr;
+DataBroker              *pDataBrokerObject = nullptr;
 pure3dH                 *p3dh;
 D3DVIEWPORT9            d3dvp;
 
@@ -196,7 +202,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                 GameSet<CharacterObject>* characters = CVManager::GetInstance()->GetCharacterSet();
                 if(characters != nullptr)
                 {
-                    ImGui::Text(" Character set information asd (%p):", characters);
+                    ImGui::Text(" Character set information (%p):", characters);
                     ImGui::Text(" Characters count (%d):", characters->mCount);
                     for (int i = 0; i < characters->mCount; i++)
                     {
@@ -209,6 +215,126 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                                 continue;
                                 
                             RenderSkeleton(character);
+                        }
+                    }
+                }
+                pSpawnMixerObj = SpawnMixer::GetInstance();
+
+                if(pSpawnMixerObj)
+                {
+                    ImGui::Text(" SpawnMixer information (%p):", pSpawnMixerObj);  
+                    
+                    static const char* current_item = 0;
+                    static int eSpawnUsage = 0;
+                    if(pLoadObject)
+                    {
+                        ImGui::Text(" CVLoadObject information (%p):", pLoadObject);
+                        ImGui::Text(" CVLoadObject Template name (%s):", pLoadObject->m_Name);
+                        
+                        const std::map<const char*, ESpawnUsage> spawn_usage = {
+                            {"None", ESpawnUsage::ESpawnUsage_None},
+                            {"Group", ESpawnUsage::ESpawnUsage_Group},
+                            {"Traffic", ESpawnUsage::ESpawnUsage_Traffic},
+                            {"Ambient", ESpawnUsage::ESpawnUsage_Ambient},
+                            {"Dealer", ESpawnUsage::ESpawnUsage_Dealer},
+                            {"Gang", ESpawnUsage::ESpawnUsage_Gang},
+                            {"Cop", ESpawnUsage::ESpawnUsage_Cop},
+                            {"Mission", ESpawnUsage::ESpawnUsage_Mission},
+                            {"NIS", ESpawnUsage::ESpawnUsage_NIS},
+                            {"ANY", ESpawnUsage::ESpawnUsage_ANY}
+                        };
+
+                        if (ImGui::BeginCombo("#ESpawnUsage", current_item))
+                        {
+                            std::map<const char*, ESpawnUsage>::iterator it;
+                            for (auto const& [key, val] : spawn_usage)
+                            {
+                                bool is_selected = (current_item == key);
+                                if (ImGui::Selectable(key, is_selected)){
+                                    current_item = key;
+                                    eSpawnUsage = val;
+                                }
+                                if (is_selected)
+                                    ImGui::SetItemDefaultFocus(); 
+                            }
+                            ImGui::EndCombo();
+                        }
+                        
+                        ImGui::Text(" eSpawnUsage: (%d):", eSpawnUsage);
+                    }
+
+                    //if(ImGui::Button("Spawn test"))
+                    //{
+                    //    pLoadObject = pSpawnMixerObj->FindCVLoadObject("CharTemp_AA_Female01", ESpawnTemplateType::ESpawnTemplateType_ALL);
+
+                    //    SpawnObjectData spawnObjectData;
+                    //
+                    //    spawnObjectData.mName = "CharacterTest";
+                    //    spawnObjectData.mScriptClass = "";
+                    //    spawnObjectData.mWeapon = "";
+                    //    spawnObjectData.mTeam = "";
+                    //    spawnObjectData.mTemplate = pLoadObject->m_Name;
+                    //    math::Vector& position = *pMainChar->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Character_Origin);
+                    //    math::Vector direction = { 0, 0, 0 };
+
+                    //    pLoadObject->AddSpawnUsage(eSpawnUsage);
+
+                    //    if(CVManager::GetInstance()->RequestCharacterSpawn(NULL, &spawnObjectData, position, direction))
+                    //    {
+                    //        pLoadObject->RemoveSpawnUsage(eSpawnUsage);
+                    //    }
+                    //}
+
+                    
+                    pDataBrokerObject = DataBroker::GetInstance();
+                    
+                    if(pDataBrokerObject)
+                    {
+                        ImGui::Text(" DataBroker information (%p):", pDataBrokerObject);  
+                    
+                        if(ImGui::Button("DataBroker LETTERBOX"))
+                        {
+                            pDataBrokerObject->Post(198, 0, 0);
+                        }
+                        if(ImGui::Button("DataBroker DB_EVENT_RENDERFX 0"))
+                        {
+                            pDataBrokerObject->Post(207, 0, 0);
+                        }
+                        if(ImGui::Button("DataBroker DB_EVENT_RENDERFX 1"))
+                        {
+                            pDataBrokerObject->Post(207, 1, 0);
+                        }
+                        if(ImGui::Button("DataBroker DB_EVENT_ACTIVATE_PAUSE_PAGE 0"))
+                        {
+                            pDataBrokerObject->Post(208, 0, 0);
+                        }
+                        if(ImGui::Button("DataBroker DB_EVENT_ACTIVATE_PAUSE_PAGE 1"))
+                        {
+                            pDataBrokerObject->Post(208, 1, 0);
+                        }
+                        if(ImGui::Button("DataBroker DB_EVENT_MISSION_FAIL 0"))
+                        {
+                            pDataBrokerObject->Post(210, 0, 0);
+                        }
+                        if(ImGui::Button("DataBroker DB_EVENT_MISSION_FAIL 1"))
+                        {
+                            pDataBrokerObject->Post(210, 1, 0);
+                        }
+                        if(ImGui::Button("DataBroker DB_EVENT_GAME_OVER 0"))
+                        {
+                            pDataBrokerObject->Post(211, 0, 0);
+                        }
+                        if(ImGui::Button("DataBroker DB_EVENT_GAME_OVER 1"))
+                        {
+                            pDataBrokerObject->Post(211, 1, 0);
+                        }
+                        if(ImGui::Button("DataBroker DB_EVENT_PIMP_YOUR_MANSION 0"))
+                        {
+                            pDataBrokerObject->Post(212, 0, 0);
+                        }
+                        if(ImGui::Button("DataBroker DB_EVENT_PIMP_YOUR_MANSION 1"))
+                        {
+                            pDataBrokerObject->Post(212, 1, 0);
                         }
                     }
                 }

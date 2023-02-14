@@ -9,6 +9,7 @@
 #include "utils/StackwalkerUtils.hpp"
 
 #include "gameutils/radLoadBaseStreamImpl.hpp"
+#include "gameutils/codeblockhelper.hpp"
 
 // Globals
 HWND                    g_HWND = NULL;
@@ -226,15 +227,16 @@ namespace gangsta
 
         if(g_Config.parsedJson["DumpCodeBlocks"].get<bool>())
         {
-            Logger::Info("CodeBlock_compileExec_Hook({}, {}, {});", Str, Source, Args);
-            Logger::Info("\tcodeSize {:08x}", codeBlock->m_code_size);
-            Logger::Info("\tcode {:08x}", (uint32_t)codeBlock->m_code);
+            Logger::Info("[CHooks::CodeBlock_compileExec] {}", Source);
+            //Logger::Info("\tcodeSize {:08x}", codeBlock->m_code_size);
+            //Logger::Info("\tcode {:08x}", (uint32_t)codeBlock->m_code);
             if (codeBlock->m_code) {
-                for (uint32_t i = 0; i < codeBlock->m_code_size; ++i) {
-                    uint8_t c = ((uint8_t*)codeBlock->m_code)[i];
-                    Logger::Info("{:02x} ", c);
-                }
-                torque3d::CodeBlock::dumpInstructions(codeBlock, 0, false);
+                //for (uint32_t i = 0; i < codeBlock->m_code_size; ++i) {
+                //    uint8_t c = ((uint8_t*)codeBlock->m_code)[i];
+                //    Logger::Info("{:02x} ", c);
+                //}
+                //torque3d::CodeBlock::dumpInstructions(codeBlock, 0, false);
+                //dumpInstructions(codeBlock, 0, false);
             }
             else {
                 Logger::Info("code nullptr");
@@ -242,6 +244,11 @@ namespace gangsta
         }
         
         return res;
+    }
+    int* CHooks::CodeBlock_exec(torque3d::CodeBlock* codeBlock, void* edx, unsigned int ip, const char* functionName, void* thisNamespace, unsigned int argc, void* argv, bool noCalls, const char* packageName, signed int setFrame)
+    {
+        Logger::Info("[CHooks::CodeBlock_exec]");
+        return static_cast<decltype(&CodeBlock_exec)>(g_Hooks.OriginalCodeBlock_exec)(codeBlock, edx, ip, functionName, thisNamespace, argc, argv, noCalls, packageName, setFrame);
     }
 
     int CHooks::GenericSpawnObject__GetTotalNumToSpawn(void* _this, void* edx)
@@ -308,7 +315,7 @@ namespace gangsta
 
      char CHooks::ScriptLoadCompiled(char *scriptPath, char *a2, char *Str2, int a4, int a5){
 
-        Logger::Info("[CHooks::TestFn] Script: {}", scriptPath);
+        Logger::Info("[CHooks::ScriptLoadCompiled] Script: {}", scriptPath);
 
         std::filesystem::path filePath = scriptPath;
 
@@ -318,7 +325,7 @@ namespace gangsta
                 std::string newPath = my_str.replace(0,6,"./scriptc");
                 std::filesystem::path newScript = newPath.c_str();
                 if(std::filesystem::exists(newScript)){
-                    Logger::Info("[CHooks::TestFn] Loading new script: {}", newPath);
+                    Logger::Info("[CHooks::ScriptLoadCompiled] Loading new script: {}", newPath);
                     static torque3d::CodeBlock* p_CBInstance = nullptr;
                     if (p_CBInstance == nullptr) {
                         p_CBInstance = new torque3d::CodeBlock();
@@ -335,6 +342,17 @@ namespace gangsta
             return static_cast<decltype(&ScriptLoadCompiled)>(g_Hooks.OriginalScriptLoadCompiled)(scriptPath, a2, Str2, a4, a5);
         }
         return static_cast<decltype(&ScriptLoadCompiled)>(g_Hooks.OriginalScriptLoadCompiled)(scriptPath, a2, Str2, a4, a5);
+    }
+
+    
+    int CHooks::Con_printf(char *Format, ...)
+    {
+        Logger::Info("[CHooks::Con_printf]");
+        char Dest[1024]; // [esp+0h] [ebp-400h] BYREF
+        va_list Args; // [esp+408h] [ebp+8h] BYREF
+
+        va_start(Args, Format);
+        return vsprintf(Dest, Format, Args);
     }
 
     void CHooks::HookSafe()
@@ -358,8 +376,9 @@ namespace gangsta
         g_Hooks.OriginalScriptFileChunkLoaderLoadObject = HookFunc<void*>((void*)0x00489360, CHooks::ScriptFileChunkLoader__LoadObject);
         g_Hooks.OriginalShowGameWindow = HookFunc<void*>((void*)0x00456B00, CHooks::ShowGameWindow);
         g_Hooks.OriginalScriptLoadCompiled = HookFunc<void*>((void*)0x0047FFE0, CHooks::ScriptLoadCompiled);
-
-        
+        g_Hooks.OriginalCon_printf = HookFunc<void*>((void*)0x004918E0, CHooks::Con_printf);
+        //g_Hooks.OriginalCodeBlock_exec = HookFunc<void*>((void*)0x0048AB80, CHooks::CodeBlock_exec);
+        //StatePropManager::CreateStateprop
     }
 
     void CHooks::Hook()

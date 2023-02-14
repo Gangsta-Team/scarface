@@ -32,6 +32,8 @@ namespace gangsta
         static int __fastcall ScriptFileChunkLoader__LoadObject(void *_this, void* edx, core::IRefCount **object, uint32_t *name, tChunkFile *file, void *a5);
         static BOOL __stdcall ShowGameWindow();
         static char __cdecl ScriptLoadCompiled(char *scriptPath, char *a2, char *Str2, int a4, int a5);
+        static int __cdecl Con_printf(char *Format, ...);
+        static int* __fastcall CodeBlock_exec(torque3d::CodeBlock* codeBlock, void* edx, unsigned int ip, const char* functionName, void* thisNamespace, unsigned int argc, void* argv, bool noCalls, const char* packageName, signed int setFrame);
     public:
         // ORIGINALS HERE
         PVOID OriginalPddiCreate;
@@ -46,6 +48,8 @@ namespace gangsta
         PVOID OriginalScriptFileChunkLoaderLoadObject;
         PVOID OriginalShowGameWindow;
         PVOID OriginalScriptLoadCompiled;
+        PVOID OriginalCon_printf;
+        PVOID OriginalCodeBlock_exec;
     public:
         std::map<void*, Direct3DProxy*> D3D9ProxyPool;
         std::map<void*, Direct3DDevice9Proxy*> D3D9DeviceProxyPool;

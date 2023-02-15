@@ -263,30 +263,33 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                         ImGui::Text(" eSpawnUsage: (%d):", eSpawnUsage);
                     }
 
-                    //if(ImGui::Button("Spawn test"))
-                    //{
-                    //    pLoadObject = pSpawnMixerObj->FindCVLoadObject("CharTemp_AA_Female01", ESpawnTemplateType::ESpawnTemplateType_ALL);
+                    if(ImGui::Button("Spawn test"))
+                    {
+                        pLoadObject = pSpawnMixerObj->FindCVLoadObject("CharTemp_AA_Female01", ESpawnTemplateType::ESpawnTemplateType_Character);
+                        if(pLoadObject){
 
-                    //    SpawnObjectData spawnObjectData;
-                    //
-                    //    spawnObjectData.mName = "CharacterTest";
-                    //    spawnObjectData.mScriptClass = "";
-                    //    spawnObjectData.mWeapon = "";
-                    //    spawnObjectData.mTeam = "";
-                    //    spawnObjectData.mTemplate = pLoadObject->m_Name;
-                    //    math::Vector& position = *pMainChar->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Character_Origin);
-                    //    math::Vector direction = { 0, 0, 0 };
+                            SpawnObjectData spawnObjectData;
+                        
+                            spawnObjectData.mName = "CharacterTest";
+                            spawnObjectData.mScriptClass = "";
+                            spawnObjectData.mWeapon = "WeaponTemplateM16";
+                            spawnObjectData.mTemplate =  pLoadObject->m_Name;
+                            spawnObjectData.mTeam = "";
+                           
+                            math::Vector& position = *pMainChar->GetJointPosition(ESkeletonJoint::ESkeletonJoint_Character_Origin);
+                            math::Vector direction = { 0, 0, 0 };
 
-                    //    pLoadObject->AddSpawnUsage(eSpawnUsage);
-
-                    //    if(CVManager::GetInstance()->RequestCharacterSpawn(NULL, &spawnObjectData, position, direction))
-                    //    {
-                    //        pLoadObject->RemoveSpawnUsage(eSpawnUsage);
-                    //    }
-                    //}
+                            pLoadObject->AddSpawnUsage(eSpawnUsage);
+                            
+                            if(CharacterObject* pCharacter = (CharacterObject*)CVManager::GetInstance()->RequestCharacterSpawn(NULL, &spawnObjectData, position, direction))
+                            {
+                                pLoadObject->RemoveSpawnUsage(eSpawnUsage);
+                            }
+                        }
+                    }
 
                     
-                    pDataBrokerObject = DataBroker::GetInstance();
+                    /*pDataBrokerObject = DataBroker::GetInstance();
                     
                     if(pDataBrokerObject)
                     {
@@ -336,7 +339,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                         {
                             pDataBrokerObject->Post(212, 1, 0);
                         }
-                    }
+                    }*/
                 }
 
             }

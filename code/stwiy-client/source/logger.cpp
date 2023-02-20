@@ -19,7 +19,7 @@ namespace gangsta
         SetConsoleOutputCP(CP_UTF8);
 
         gConStream.open("CONOUT$");
-        gFileStream.open(g_Config.gangstaDirectory / "log.txt");
+        gFileStream.open(g_Config.gangstaDirectory / "stwiy-client-log.txt");
     }
 
     void Logger::RawLog(std::string type, logColor col, std::string format, std::format_args args)

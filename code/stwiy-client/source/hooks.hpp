@@ -2,7 +2,6 @@
 #define _HOOKS_HPP
 
 #include "common.hpp"
-#include <game/startupmanager.hpp>
 #include "d3d9/Direct3DProxy.h"
 #include "d3d9/Direct3DDevice9Proxy.h"
 
@@ -33,7 +32,7 @@ namespace gangsta
         static char __cdecl ScriptLoadCompiled(char *scriptPath, char *a2, char *Str2, int a4, int a5);
         static int* __fastcall CodeBlock_exec(torque3d::CodeBlock* codeBlock, void* edx, unsigned int ip, const char* functionName, void* thisNamespace, unsigned int argc, void* argv, bool noCalls, const char* packageName, signed int setFrame);
         static char *__cdecl Con_evaluate(const char *string, bool echo, char *fileName, int a1, int a2);
-        static void __fastcall StartupManager_Initialization(StartupManager *startupMgr,  void* edx, int a3, int a4, int a5);
+        static void __fastcall CVM_SetMainCharacterPackage(void* _this, void* edx, char *Str2, char a4);
     public:
         // ORIGINALS HERE
         PVOID OriginalPddiCreate;
@@ -51,7 +50,7 @@ namespace gangsta
         PVOID OriginalCon_printf;
         PVOID OriginalCodeBlock_exec;
         PVOID OriginalCon_evaluate;
-        PVOID OriginalStartupManager_Initialization;
+        PVOID OriginalCVM_SetMainCharacterPackage;
     public:
         std::map<void*, Direct3DProxy*> D3D9ProxyPool;
         std::map<void*, Direct3DDevice9Proxy*> D3D9DeviceProxyPool;

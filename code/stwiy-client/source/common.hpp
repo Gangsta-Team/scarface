@@ -25,8 +25,6 @@
 #include <streaming/chunkfile.hpp>
 #include <gameobject/camera/cameramanager.hpp>
 #include <gameobject/character/characterobject.hpp>
-#include <engine/frontend/fegameobject.hpp>
-#include <engine/frontend/fepageobject.hpp>
 #include <gameobject/character/characterobject.hpp>
 
 #endif

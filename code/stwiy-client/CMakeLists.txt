@@ -6,6 +6,7 @@ file(GLOB StwiyClientSrc
     "source/*.cpp"
     "source/*.c"
     "source/*.h"
+    "source/net/*.*"
     "source/utils/*.*"
     "source/gameutils/*.hpp"
     "source/d3d9/*.*"
@@ -15,6 +16,5 @@ file(GLOB StwiyClientSrc
 include_directories(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/source/)
 
 add_library(${PROJECT_NAME} SHARED ${StwiyClientSrc})
-target_link_libraries(${PROJECT_NAME} minhook lib::imgui nlohmann_json::nlohmann_json lib::stwiyLib lib::event_system d3d9.lib d3d11.lib)
-
+target_link_libraries(${PROJECT_NAME} minhook lib::imgui nlohmann_json::nlohmann_json lib::stwiyLib lib::event_system d3d9.lib d3d11.lib kcp concurrentqueue)
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".asi")

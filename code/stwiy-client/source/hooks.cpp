@@ -298,16 +298,13 @@ namespace gangsta
     char* CHooks::Con_evaluate(const char *string, bool echo, char *fileName, int a1, int a2)
     {
         Logger::Info("[CHooks::Con_evaluate] Script: {}", string);
-        if(strcmp("InGame_LoadComplete();", string) == 0){
-            Logger::Info("[CHooks::Con_evaluate] PLAYER LOADED!");
-            
-        }
         return static_cast<decltype(&Con_evaluate)>(g_Hooks.OriginalCon_evaluate)(string, echo, fileName, a1, a2);
     }
 
-    void CHooks::StartupManager_Initialization(StartupManager *startupMgr, void* edx, int a3, int a4, int a5)
+    void CHooks::CVM_SetMainCharacterPackage(void* _this, void* edx, char *Str2, char a4)
     {
-        static_cast<decltype(&StartupManager_Initialization)>(g_Hooks.OriginalStartupManager_Initialization)(startupMgr, edx, a3, a4, a5); 
+        Logger::Info("[CHooks::CVM_SetMainCharacterPackage] Script: {}", Str2);
+        return static_cast<decltype(&CVM_SetMainCharacterPackage)>(g_Hooks.OriginalCVM_SetMainCharacterPackage)(_this, edx, Str2, a4);
     }
 
     void CHooks::HookSafe()
@@ -329,7 +326,7 @@ namespace gangsta
         g_Hooks.OriginalShowGameWindow = HookFunc<void*>((void*)0x00456B00, CHooks::ShowGameWindow);
         g_Hooks.OriginalScriptLoadCompiled = HookFunc<void*>((void*)0x0047FFE0, CHooks::ScriptLoadCompiled);
         g_Hooks.OriginalCon_evaluate = HookFunc<void*>((void*)0x004922D0, CHooks::Con_evaluate);
-        g_Hooks.OriginalStartupManager_Initialization = HookFunc<void*>((void*)0x004F5F10, CHooks::StartupManager_Initialization);
+        g_Hooks.OriginalCVM_SetMainCharacterPackage = HookFunc<void*>((void*)0x004EA090, CHooks::CVM_SetMainCharacterPackage);
     }
 
     void CHooks::Hook()

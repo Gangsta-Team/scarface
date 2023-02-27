@@ -23,10 +23,4 @@
 	url = https://github.com/Gangsta-Team/kaitai.git
 [submodule "code/vendor/stwiy-lib"]
 	path = code/vendor/stwiy-lib
-	url = https://github.com/Gangsta-Team/stwiy-lib.git
-[submodule "code/vendor/kcp"]
-	path = code/vendor/kcp
-	url = https://github.com/skywind3000/kcp.git
-[submodule "code/vendor/concurrentqueue"]
-	path = code/vendor/concurrentqueue
-	url = https://github.com/cameron314/concurrentqueue.git
+	url = https://github.com/Gangsta-Team/stwiy-lib

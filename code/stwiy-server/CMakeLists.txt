@@ -16,7 +16,8 @@ file(GLOB StwiyServerSrc
 )
 
 include_directories(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/source/)
+include_directories(${PROJECT_NAME} ../stwiy-net/src/)
 
 add_executable(${PROJECT_NAME} ${StwiyServerSrc})
-target_link_libraries(${PROJECT_NAME} nlohmann_json::nlohmann_json kcp concurrentqueue)
+target_link_libraries(${PROJECT_NAME} nlohmann_json::nlohmann_json sf_net)
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".exe")

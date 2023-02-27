@@ -24,3 +24,9 @@
 [submodule "code/vendor/stwiy-lib"]
 	path = code/vendor/stwiy-lib
 	url = https://github.com/Gangsta-Team/stwiy-lib
+[submodule "code/stwiy-net/third_party/concurrentqueue"]
+	path = code/stwiy-net/third_party/concurrentqueue
+	url = https://github.com/cameron314/concurrentqueue.git
+[submodule "code/stwiy-net/third_party/kcp"]
+	path = code/stwiy-net/third_party/kcp
+	url = https://github.com/skywind3000/kcp.git

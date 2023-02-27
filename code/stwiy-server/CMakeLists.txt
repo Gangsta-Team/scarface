@@ -10,9 +10,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 file(GLOB StwiyServerSrc
     "source/*.hpp"
     "source/*.cpp"
-    "source/*.c"
-    "source/*.h"
-    "source/net/*.*"
 )
 
 include_directories(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/source/)

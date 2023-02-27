@@ -20,6 +20,7 @@ gangsta::sf_net::Client::Client() {
     key = 0;
     in_events = new moodycamel::ConcurrentQueue<NetEvent>();
     out_events = new moodycamel::ConcurrentQueue<NetEvent>();
+    connected = false;
 }
 
 void gangsta::sf_net::Client::connect(
@@ -80,6 +81,9 @@ void gangsta::sf_net::Client::connect(
 
     kcp = ikcp_create(conv, this);
     ikcp_setoutput(kcp, &udp_output_client_cb);
+
+    // todo should get ack before allowing to use kcp
+    connected = true;
 }
 
 void gangsta::sf_net::Client::update() {
@@ -233,4 +237,8 @@ bool gangsta::sf_net::Client::get_authentication(const std::string &p_user, cons
     net_socket.close();
 
     return true;
+}
+
+bool gangsta::sf_net::Client::is_connected() {
+    return connected;
 }

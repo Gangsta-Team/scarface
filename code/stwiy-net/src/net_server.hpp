@@ -68,7 +68,6 @@ namespace gangsta::sf_net {
 
         void update();
 
-
         void send_event(NetEvent p_event);
 
         bool receive_event(NetEvent &event);

@@ -24,6 +24,7 @@ namespace gangsta::sf_net {
         NetSocket *socket;
         moodycamel::ConcurrentQueue<NetEvent> *in_events;
         moodycamel::ConcurrentQueue<NetEvent> *out_events;
+        bool connected;
 
         void udp_input();
 
@@ -36,6 +37,7 @@ namespace gangsta::sf_net {
     public:
         Client();
 
+        bool is_connected();
 
         void connect(const std::string &p_user,
                      const std::string &p_password,

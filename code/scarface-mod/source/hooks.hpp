@@ -34,6 +34,8 @@ namespace gangsta
         static char __cdecl ScriptLoadCompiled(char *scriptPath, char *a2, char *Str2, int a4, int a5);
         static int __cdecl Con_printf(char *Format, ...);
         static int* __fastcall CodeBlock_exec(torque3d::CodeBlock* codeBlock, void* edx, unsigned int ip, const char* functionName, void* thisNamespace, unsigned int argc, void* argv, bool noCalls, const char* packageName, signed int setFrame);
+        static HANDLE h_CreateMutexA(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCSTR lpName);
+        static char __fastcall sub_4ED160(int _this, void* edx, int unk0, unsigned int unk1);
     public:
         // ORIGINALS HERE
         PVOID OriginalPddiCreate;
@@ -50,6 +52,8 @@ namespace gangsta
         PVOID OriginalScriptLoadCompiled;
         PVOID OriginalCon_printf;
         PVOID OriginalCodeBlock_exec;
+        PVOID OriginalCreateMutexA;
+        PVOID Originalsub_4ED160;
     public:
         std::map<void*, Direct3DProxy*> D3D9ProxyPool;
         std::map<void*, Direct3DDevice9Proxy*> D3D9DeviceProxyPool;

@@ -17,12 +17,6 @@
 
 #include "gameutils/pure3dHelper.hpp"
 
-// - stwiy-lib
-#include <gameobject/cvmanager.hpp>
-#include <gameobject/spawnobject/spawnmixer.hpp>
-#include <gameobject/spawnobject/cvloadobject.hpp>
-#include <engine/object/gameset.hpp>
-#include <engine/database/databroker.hpp>
 
 CharacterObject         *pMainChar = nullptr;
 CVManager               *pCVManager = nullptr;
@@ -164,17 +158,17 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                         ImGui::GetForegroundDrawList()->AddText({boneScreen.x,boneScreen.y}, -1, &std::to_string(id)[0]);
 
                         RenderSkeleton(pMainChar);
-                        /*for (auto i = 0; i < 24; i++) {
-                            if (auto bone_pos = pMainChar->GetJointPosition(i)) {
-                                math::Vector screen_posn;
-                                thisCam->WorldToViewport(bone_pos, &screen_posn);
+                        //for (auto i = 0; i < 24; i++) {
+                        //    if (auto bone_pos = pMainChar->GetJointPosition(i)) {
+                        //        math::Vector screen_posn;
+                        //        thisCam->WorldToViewport(bone_pos, &screen_posn);
 
-                                float x = (float(d3dvp.X) + (float(d3dvp.Width) / 2.0f)) + float(d3dvp.Width) * screen_posn.x;
-                                float y = (float(d3dvp.Y) + (float(d3dvp.Height) / 2.0f)) + float(d3dvp.Height) * -screen_posn.y;
+                        //        float x = (float(d3dvp.X) + (float(d3dvp.Width) / 2.0f)) + float(d3dvp.Width) * screen_posn.x;
+                        //        float y = (float(d3dvp.Y) + (float(d3dvp.Height) / 2.0f)) + float(d3dvp.Height) * -screen_posn.y;
 
-                                ImGui::GetForegroundDrawList()->AddText({x,y}, -1, &std::to_string(i)[0]);
-                            }
-                        }*/
+                        //        ImGui::GetForegroundDrawList()->AddText({x,y}, -1, &std::to_string(i)[0]);
+                        //    }
+                        //}
                     }
 
                     
@@ -280,16 +274,42 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                             math::Vector direction = { 0, 0, 0 };
 
                             pLoadObject->AddSpawnUsage(eSpawnUsage);
-                            
+                            pLoadObject->IsLoaded();
+
                             if(CharacterObject* pCharacter = (CharacterObject*)CVManager::GetInstance()->RequestCharacterSpawn(NULL, &spawnObjectData, position, direction))
                             {
                                 pLoadObject->RemoveSpawnUsage(eSpawnUsage);
                             }
                         }
                     }
+                    static bool bRenderCounts = false;
 
                     
-                    /*pDataBrokerObject = DataBroker::GetInstance();
+
+                    if(ImGui::Button("Render counts"))
+                        bRenderCounts = !bRenderCounts;
+
+                    if(bRenderCounts)
+                    {
+
+                        ImGui::Text("m_HistoryCount (%d):", pLoadObject->m_HistoryCount);
+                        ImGui::Text("m_SpawnLoadStatus (%d):", pLoadObject->m_SpawnLoadStatus);
+                        ImGui::Text("m_SpawnStatus (%d):", pLoadObject->m_SpawnStatus);
+                        ImGui::Text("m_GroupSpawnUsageCount (%d):", pLoadObject->m_GroupSpawnUsageCount);
+                        ImGui::Text("m_TransitionalTrafficUsage (%d):", pLoadObject->m_TransitionalTrafficUsage);
+
+                        ImGui::Text("m_TrafficSpawnUsageCount (%d):", pLoadObject->m_TrafficSpawnUsageCount);
+                        ImGui::Text("m_NISSpawnUsageCount (%d):", pLoadObject->m_NISSpawnUsageCount);
+                        ImGui::Text("m_GroupSpawnUsageCount (%d):", pLoadObject->m_GroupSpawnUsageCount);
+                        ImGui::Text("m_AmbientSpawnUsageCount (%d):", pLoadObject->m_AmbientSpawnUsageCount);
+                        ImGui::Text("m_DealerSpawnUsageCount (%d):", pLoadObject->m_DealerSpawnUsageCount);
+                        ImGui::Text("m_GangSpawnUsageCount (%d):", pLoadObject->m_GangSpawnUsageCount);
+                        ImGui::Text("m_CopSpawnUsageCount (%d):", pLoadObject->m_CopSpawnUsageCount);
+                        ImGui::Text("m_MissionSpawnUsageCount (%d):", pLoadObject->m_MissionSpawnUsageCount);
+                    }
+
+                    
+                    pDataBrokerObject = DataBroker::GetInstance();
                     
                     if(pDataBrokerObject)
                     {
@@ -339,7 +359,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                         {
                             pDataBrokerObject->Post(212, 1, 0);
                         }
-                    }*/
+                    }
                 }
 
             }

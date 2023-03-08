@@ -25,6 +25,8 @@
 #include <streaming/chunkfile.hpp>
 #include <gameobject/camera/cameramanager.hpp>
 #include <gameobject/character/characterobject.hpp>
-#include <gameobject/character/characterobject.hpp>
+#include <gameobject/cvmanager.hpp>
+
+inline std::string gUsingPackage = "";
 
 #endif

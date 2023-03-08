@@ -28,5 +28,10 @@
 #include <streaming/chunkfile.hpp>
 #include <gameobject/camera/cameramanager.hpp>
 #include <gameobject/character/characterobject.hpp>
+#include <gameobject/cvmanager.hpp>
+#include <gameobject/spawnobject/spawnmixer.hpp>
+#include <gameobject/spawnobject/cvloadobject.hpp>
+#include <engine/object/gameset.hpp>
+#include <engine/database/databroker.hpp>
 
 #endif

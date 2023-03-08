@@ -355,6 +355,18 @@ namespace gangsta
         return vsprintf(Dest, Format, Args);
     }
 
+    HANDLE CHooks::h_CreateMutexA(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCSTR lpName)
+    {
+        return static_cast<decltype(&h_CreateMutexA)>(g_Hooks.OriginalCreateMutexA)(lpMutexAttributes, bInitialOwner, lpName);
+    }
+
+    char CHooks::sub_4ED160(int _this, void* edx, int unk0, unsigned int unk1)
+    {
+        bool ret = static_cast<decltype(&sub_4ED160)>(g_Hooks.Originalsub_4ED160)(_this, edx, unk0, unk1);
+        Logger::Info("[CHooks::sub_4ED160] {}", ret);
+        return true;
+    }
+
     void CHooks::HookSafe()
     {
         if(g_Config.parsedJson["WindowedSpoof"].get<bool>())
@@ -377,8 +389,13 @@ namespace gangsta
         g_Hooks.OriginalShowGameWindow = HookFunc<void*>((void*)0x00456B00, CHooks::ShowGameWindow);
         g_Hooks.OriginalScriptLoadCompiled = HookFunc<void*>((void*)0x0047FFE0, CHooks::ScriptLoadCompiled);
         g_Hooks.OriginalCon_printf = HookFunc<void*>((void*)0x004918E0, CHooks::Con_printf);
+        g_Hooks.Originalsub_4ED160 = HookFunc<void*>((void*)0x004ED160, CHooks::sub_4ED160);
         //g_Hooks.OriginalCodeBlock_exec = HookFunc<void*>((void*)0x0048AB80, CHooks::CodeBlock_exec);
         //StatePropManager::CreateStateprop
+        //g_Hooks.OriginalCreateMutexA = HookFunc<void*>((void*)0x009CE150, CHooks::h_CreateMutexA);
+        //HookFunc<void*>((void*)0x009CE150, h_CreateMutexA);
+        //*((void**)0x009CE150) = &CHooks::h_CreateMutexA;
+        //HookFunc<void*>((void*)0x009CE150, h_CreateMutexA);
     }
 
     void CHooks::Hook()

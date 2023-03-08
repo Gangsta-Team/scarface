@@ -10,13 +10,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 file(GLOB StwiyServerSrc
     "source/*.hpp"
     "source/*.cpp"
-    "source/*.c"
-    "source/*.h"
-    "source/net/*.*"
 )
 
 include_directories(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/source/)
+include_directories(${PROJECT_NAME} ../stwiy-net/src/)
 
 add_executable(${PROJECT_NAME} ${StwiyServerSrc})
-target_link_libraries(${PROJECT_NAME} nlohmann_json::nlohmann_json kcp concurrentqueue)
+target_link_libraries(${PROJECT_NAME} nlohmann_json::nlohmann_json sf_net)
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".exe")

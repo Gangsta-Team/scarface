@@ -2,13 +2,11 @@ project("vendors")
 
 add_subdirectory("minhook")
 add_subdirectory("json")
-add_subdirectory("concurrentqueue")
 
 include("imgui.cmake") # please imgui for the sake of god add a cmake
 include("stackwalker.cmake") # stackwalker has a cmakelists.txt but just for testing bruv
 include("imguifiledialog.cmake")
 include("kaitai.cmake")
 include("stwiy-lib.cmake")
-include("kcp.cmake")
 
 add_subdirectory("kaitai_definitions")

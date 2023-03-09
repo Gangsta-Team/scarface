@@ -19,7 +19,6 @@
 pure3dH                 *p3dh;
 D3DVIEWPORT9            d3dvp;
 CharacterObject         *pMainChar = nullptr;
-CVManager               *pCVMgr = nullptr;
 
 void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     ImGuiIO& io = ImGui::GetIO();
@@ -31,6 +30,14 @@ void gangsta::CMod::InputWatcher(HWND hMainWindow) {
     io.MouseDown[0] = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
     io.MouseDown[1] = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
     io.MouseDown[2] = (GetAsyncKeyState(VK_MBUTTON) & 0x8000) != 0;
+}
+
+void CVM_SetMainCharacterPackage(const char* package)
+{
+    char buff[256];
+    sprintf(buff,"CVM_SetMainCharacterPackage(\"%s\");", package);
+    //Con_evaluate(buff);
+    gangsta::CHooks::Con_evaluate(buff, 0, 0, 0, -1);
 }
 
 const char* szCharacters[] = {
@@ -86,31 +93,22 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 
             ImGui::Text("Pos X: [%.5f] | Y: [%.5f] | Z: [%.5f]", vecMainChar.x, vecMainChar.y, vecMainChar.z);
         
-            if(pCVMgr == NULL)
-                pCVMgr = CVManager::GetInstance();
-
-            if(pCVMgr)
+            ImGui::Text("Skin: [%d] %s ", current_idx, szCharacters[current_idx]);
+            if(ImGui::Button("<"))
             {
-                ImGui::Text(" # CVManager information (%p):", pCVMgr);
-                ImGui::Text("Skin: [%d] %s ", current_idx, gUsingPackage.c_str());
-                
-                if(ImGui::Button("<"))
-                {
-                    current_idx--;
-                    if(current_idx < 0)
-                        current_idx = 15;
+                current_idx--;
+                if(current_idx < 0)
+                    current_idx = 15;
+                CVM_SetMainCharacterPackage(szCharacters[current_idx]);
+            }
+            ImGui::SameLine();
+            if(ImGui::Button(">"))
+            {
+                current_idx++;
+                if(current_idx == 16)
+                    current_idx = 0;
 
-                    pCVMgr->CVM_SetMainCharacterPackage((char*)szCharacters[current_idx], 0);
-                }
-                ImGui::SameLine();
-                if(ImGui::Button(">"))
-                {
-                    current_idx++;
-                    if(current_idx == 16)
-                        current_idx = 0;
-
-                    pCVMgr->CVM_SetMainCharacterPackage((char*)szCharacters[current_idx], 0);
-                }
+                CVM_SetMainCharacterPackage(szCharacters[current_idx]);
             }
         }
 

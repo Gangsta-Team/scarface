@@ -4,7 +4,7 @@
 #include "logger.hpp"
 #include "hooks.hpp"
 #include "gameEventPools.hpp"
-#include "net/net_manager.hpp"
+#include "networkClient.hpp"
 
 namespace gangsta
 {
@@ -37,7 +37,7 @@ namespace gangsta
     // Called often in Thread
     void CMod::RunLoop()
     {
-        //net::g_Manager.update();
+        g_networkClient.Update();
     }
 
     // No cleanup or anything because its a onetime load mod :-)

@@ -304,7 +304,6 @@ namespace gangsta
     void CHooks::CVM_SetMainCharacterPackage(void* _this, void* edx, char *Str2, char a4)
     {
         Logger::Info("[CHooks::CVM_SetMainCharacterPackage] Script: {}", Str2);
-        gUsingPackage = Str2;
         return static_cast<decltype(&CVM_SetMainCharacterPackage)>(g_Hooks.OriginalCVM_SetMainCharacterPackage)(_this, edx, Str2, a4);
     }
 

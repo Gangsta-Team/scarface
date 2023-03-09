@@ -3,8 +3,9 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
-namespace gangsta::net {
+namespace gangsta::sf_net {
     class Buffer {
 
     private:
@@ -16,19 +17,28 @@ namespace gangsta::net {
         void grow(size_t p_length);
 
     public:
-        uint8_t* get_ptr();
-
+        // write
         void write_data(void *p_src, size_t p_length);
 
         void write_u8(uint8_t p_val);
 
+        void write_u32(uint32_t p_val);
+
+        void write_string(const std::string &p_val);
+
+        // read
         uint8_t read_u8();
 
         uint16_t read_u16();
 
         uint32_t read_u32();
 
+        std::string read_string();
+
         void read_data(void *p_dst, size_t p_length);
+
+        // other
+        uint8_t* get_ptr();
 
         void get_data(size_t p_src_offset, size_t p_src_count, void *p_dst, size_t p_dst_length) const;
 

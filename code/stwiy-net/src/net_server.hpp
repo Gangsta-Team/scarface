@@ -4,8 +4,8 @@
 #include "net_event.hpp"
 #include "net_socket.hpp"
 
-#include "ikcp.h"
-#include "concurrentqueue.h"
+#include "../third_party/kcp/ikcp.h"
+#include "../third_party/concurrentqueue/concurrentqueue.h"
 
 #include <vector>
 

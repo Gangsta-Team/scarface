@@ -11,7 +11,7 @@ uint16_t server_auth_port = 13399;
 uint16_t server_data_port = 13377;
 
 void server_net_thread_fn() {
-
+    std::cout << "Server thread started\n";
     gangsta::sf_net::Server *server = new gangsta::sf_net::Server();
     server->start(server_auth_port, server_data_port);
 
@@ -34,6 +34,8 @@ void server_net_thread_fn() {
 int main() {
 
     printf("stwiy-server\n");
+    printf("Server listening auth_port: %d\n", server_auth_port);
+    printf("Server listening data_port: %d\n", server_data_port);
 
     is_running = true;
     std::thread server_thread(server_net_thread_fn);

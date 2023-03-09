@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(SF_NET_LIB_MAIN sf_net_lib)
+set(SF_NET_LIB_MAIN sf_net)
 
 message([SF_NET] Project: ${PROJECT_NAME})
 message([SF_NET] BuildType: ${CMAKE_BUILD_TYPE})

@@ -32,8 +32,20 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT umsg, WPARAM wparam, LPARAM lpar
     return CallWindowProc(g_OrigWndProc, wnd, umsg, wparam, lparam);
 }
 
+// Declare a function pointer for the original CreateMutex function
+using CreateMutexFn = HANDLE(WINAPI*)(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCSTR lpName);
+
+// Declare a global variable to hold the original function pointer
+CreateMutexFn g_pCreateMutexOriginal = nullptr;
+int count = 0;
 namespace gangsta
 {
+
+    // Define a detour function for CreateMutex
+    HANDLE WINAPI CreateMutexDetour(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCSTR lpName)
+    {
+        return g_pCreateMutexOriginal(lpMutexAttributes, bInitialOwner, (lpName) ? NULL : lpName);
+    }
 
     int CHooks::pddiCreate(int versionMajor, int versionMinor, class pddiDevice** device)
     {
@@ -327,6 +339,9 @@ namespace gangsta
         g_Hooks.OriginalScriptLoadCompiled = HookFunc<void*>((void*)0x0047FFE0, CHooks::ScriptLoadCompiled);
         g_Hooks.OriginalCon_evaluate = HookFunc<void*>((void*)0x004922D0, CHooks::Con_evaluate);
         g_Hooks.OriginalCVM_SetMainCharacterPackage = HookFunc<void*>((void*)0x004EA090, CHooks::CVM_SetMainCharacterPackage);
+        g_pCreateMutexOriginal = HookFunc<CreateMutexFn>(CreateMutexA, CreateMutexDetour);
+        //CreateMute
+
     }
 
     void CHooks::Hook()

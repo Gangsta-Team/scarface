@@ -16,6 +16,8 @@
 
 #include "gameutils/pure3dHelper.hpp"
 
+#include "networkClient.hpp"
+
 pure3dH                 *p3dh;
 D3DVIEWPORT9            d3dvp;
 CharacterObject         *pMainChar = nullptr;
@@ -100,6 +102,11 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                 if(current_idx < 0)
                     current_idx = 15;
                 CVM_SetMainCharacterPackage(szCharacters[current_idx]);
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("SELECT"))
+            {
+                g_networkClient.Connect();
             }
             ImGui::SameLine();
             if(ImGui::Button(">"))

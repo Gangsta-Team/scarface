@@ -274,7 +274,7 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                             math::Vector direction = { 0, 0, 0 };
 
                             pLoadObject->AddSpawnUsage(eSpawnUsage);
-                            pLoadObject->IsLoaded();
+                            //pLoadObject->IsLoaded();
 
                             if(CharacterObject* pCharacter = (CharacterObject*)CVManager::GetInstance()->RequestCharacterSpawn(NULL, &spawnObjectData, position, direction))
                             {

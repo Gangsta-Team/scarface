@@ -20,5 +20,5 @@ include_directories(${PROJECT_NAME} ../vendor/enet/)
 include_directories(${PROJECT_NAME} ../vendor/enet/include/)
 
 add_library(${PROJECT_NAME} SHARED ${StwiyClientSrc})
-target_link_libraries(${PROJECT_NAME} minhook lib::imgui nlohmann_json::nlohmann_json lib::stwiyLib lib::event_system d3d9.lib d3d11.lib Ws2_32.lib winmm.lib enet)
+target_link_libraries(${PROJECT_NAME} minhook lib::imgui nlohmann_json::nlohmann_json lib::stwiyLib lib::event_system d3d9.lib d3d11.lib sf_net)
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".asi")

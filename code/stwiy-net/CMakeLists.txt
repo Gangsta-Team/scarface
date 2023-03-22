@@ -17,25 +17,19 @@ set(SF_NET_DEBUG TRUE)
 # config - end
 
 set(SF_NET_SOURCES
-        src/net_buffer.cpp
-        src/net_buffer.hpp
-        src/net_client.cpp
-        src/net_client.hpp
-        src/net_event.hpp
-        src/net_event_serializer.cpp
-        src/net_event_serializer.hpp
-        src/net_server.cpp
-        src/net_server.hpp
-        src/net_socket.hpp
-        src/net_socket_win.cpp
-        )
+    src/common.hpp
+    src/network_client.cpp
+    src/network_client.hpp
+    src/network_server.cpp
+    src/network_server.hpp
+)
 
 add_library(${SF_NET_LIB_MAIN} ${SF_NET_SOURCES})
 set_target_properties(${SF_NET_LIB_MAIN} PROPERTIES PREFIX "")
 target_include_directories(${SF_NET_LIB_MAIN} PUBLIC src/)
 
 # enet
-target_link_libraries(${SF_NET_LIB_MAIN} PUBLIC enet)
+target_link_libraries(${SF_NET_LIB_MAIN} PUBLIC Ws2_32.lib winmm.lib enet)
 target_include_directories(${SF_NET_LIB_MAIN} PUBLIC ../vendor/enet/)
 target_include_directories(${SF_NET_LIB_MAIN} PUBLIC ../vendor/enet/include/)
 

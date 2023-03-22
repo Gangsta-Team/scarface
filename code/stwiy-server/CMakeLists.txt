@@ -17,5 +17,5 @@ include_directories(${PROJECT_NAME} ../vendor/enet/)
 include_directories(${PROJECT_NAME} ../vendor/enet/include/)
 
 add_executable(${PROJECT_NAME} ${StwiyServerSrc})
-target_link_libraries(${PROJECT_NAME} nlohmann_json::nlohmann_json Ws2_32.lib winmm.lib enet)
+target_link_libraries(${PROJECT_NAME} nlohmann_json::nlohmann_json sf_net)
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".exe")

@@ -1,15 +1,17 @@
 #ifndef _NETWORK_CLIENT_HPP
 #define _NETWORK_CLIENT_HPP
 
-#include <enet/enet.h>
+#include "common.hpp"
 
-class ClientInterface {
-public:
-    virtual void onClientConnect(ENetEvent event) {}
-    virtual void onClientDisconnect(ENetEvent event) {}
-    virtual void onPacketReceived(ENetEvent event) {}
-};
 namespace gangsta::sf_net {
+
+    class ClientInterface {
+    public:
+        virtual void onClientConnect(ENetEvent event) {}
+        virtual void onClientDisconnect(ENetEvent event) {}
+        virtual void onPacketReceived(ENetEvent event) {}
+    };
+
     class Client {
     public:
         Client();

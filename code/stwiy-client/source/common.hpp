@@ -17,7 +17,6 @@
 
 #include <imgui.h>
 #include <MinHook.h>
-#include <enet/enet.h>
 
 #include <torque3d/CodeBlock.h>
 #include <scripting/RegisteredMethods.hpp>

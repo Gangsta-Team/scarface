@@ -29,9 +29,9 @@ set_target_properties(${SF_NET_LIB_MAIN} PROPERTIES PREFIX "")
 target_include_directories(${SF_NET_LIB_MAIN} PUBLIC src/)
 
 # enet
-target_link_libraries(${SF_NET_LIB_MAIN} PUBLIC Ws2_32.lib winmm.lib enet)
 target_include_directories(${SF_NET_LIB_MAIN} PUBLIC ../vendor/enet/)
 target_include_directories(${SF_NET_LIB_MAIN} PUBLIC ../vendor/enet/include/)
+target_link_libraries(${SF_NET_LIB_MAIN} PUBLIC Ws2_32.lib winmm.lib enet)
 
 IF (SF_NET_DEBUG)
     message([SF_NET] Debug)

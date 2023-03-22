@@ -1,6 +1,6 @@
 #include "main.hpp"
 
-#include "enet/network_server.hpp"
+#include "network_server.hpp"
 
 Server* server = nullptr;
 

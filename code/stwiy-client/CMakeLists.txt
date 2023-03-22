@@ -9,15 +9,15 @@ file(GLOB StwiyClientSrc
     "source/*.c"
     "source/*.h"
     "source/utils/*.*"
-    "source/enet/*.*"
     "source/gameutils/*.hpp"
     "source/d3d9/*.*"
     "source/natives/*"
 )
 
 include_directories(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/source/)
+include_directories(${PROJECT_NAME} ../stwiy-net/src/)
 include_directories(${PROJECT_NAME} ../vendor/enet/)
-include_directories(${PROJECT_NAME} ../vendor/enet/include/)
+include_directories(${PROJECT_NAME} ../vendor/enet/includes/)
 
 add_library(${PROJECT_NAME} SHARED ${StwiyClientSrc})
 target_link_libraries(${PROJECT_NAME} minhook lib::imgui nlohmann_json::nlohmann_json lib::stwiyLib lib::event_system d3d9.lib d3d11.lib sf_net)

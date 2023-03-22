@@ -1,6 +1,8 @@
 #ifndef _COMMON_HPP
 #define _COMMON_HPP
 
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #include <Windows.h>
 #include <iostream>
 #include <thread>
@@ -11,11 +13,11 @@
 #include <map>
 #include <vector>
 #include <d3d9.h>
-#include <format>
 #include <filesystem>
 
 #include <imgui.h>
 #include <MinHook.h>
+#include <enet/enet.h>
 
 #include <torque3d/CodeBlock.h>
 #include <scripting/RegisteredMethods.hpp>

@@ -34,14 +34,10 @@ add_library(${SF_NET_LIB_MAIN} ${SF_NET_SOURCES})
 set_target_properties(${SF_NET_LIB_MAIN} PROPERTIES PREFIX "")
 target_include_directories(${SF_NET_LIB_MAIN} PUBLIC src/)
 
-# concurrentqueue
-add_subdirectory(third_party/concurrentqueue)
-target_link_libraries(${SF_NET_LIB_MAIN} PUBLIC concurrentqueue)
-
-# kcp
-add_subdirectory(third_party/kcp)
-target_link_libraries(${SF_NET_LIB_MAIN} PUBLIC kcp)
-target_include_directories(${SF_NET_LIB_MAIN} PUBLIC third_party/kcp/)
+# enet
+target_link_libraries(${SF_NET_LIB_MAIN} PUBLIC enet)
+target_include_directories(${SF_NET_LIB_MAIN} PUBLIC ../vendor/enet/)
+target_include_directories(${SF_NET_LIB_MAIN} PUBLIC ../vendor/enet/include/)
 
 IF (SF_NET_DEBUG)
     message([SF_NET] Debug)

@@ -4,7 +4,6 @@
 #include "logger.hpp"
 #include "hooks.hpp"
 #include "gameEventPools.hpp"
-#include "networkClient.hpp"
 
 namespace gangsta
 {
@@ -20,9 +19,6 @@ namespace gangsta
             Logger::Info("Spoofing Release Mode!");
         }
 
-        //*g_Pointers.m_gDevStartupMenu = 1;
-        //*g_Pointers.m_gSkipFrontEnd = 1;
-        //*g_Pointers.m_gSkipToStartLocation = (int)"-3409 19 -1701";
         *g_Pointers.m_gSkipFrontEnd = 1;
         g_Hooks.HookSafe();
     }
@@ -37,7 +33,7 @@ namespace gangsta
     // Called often in Thread
     void CMod::RunLoop()
     {
-        g_networkClient.Update();
+        
     }
 
     // No cleanup or anything because its a onetime load mod :-)

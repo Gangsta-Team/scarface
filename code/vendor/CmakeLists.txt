@@ -8,5 +8,6 @@ include("stackwalker.cmake") # stackwalker has a cmakelists.txt but just for tes
 include("imguifiledialog.cmake")
 include("kaitai.cmake")
 include("stwiy-lib.cmake")
+include("enet.cmake")
 
 add_subdirectory("kaitai_definitions")

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project("stwiyServer")
+project("testClient")
 
 set(CMAKE_CXX_STANDARD  17)
 
@@ -7,15 +7,14 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-file(GLOB StwiyServerSrc
+file(GLOB TestClient
     "source/*.*"
-    "source/enet/*.*"
 )
 
 include_directories(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/source/)
 include_directories(${PROJECT_NAME} ../vendor/enet/)
 include_directories(${PROJECT_NAME} ../vendor/enet/include/)
 
-add_executable(${PROJECT_NAME} ${StwiyServerSrc})
+add_executable(${PROJECT_NAME} ${TestClient})
 target_link_libraries(${PROJECT_NAME} nlohmann_json::nlohmann_json Ws2_32.lib winmm.lib enet)
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".exe")

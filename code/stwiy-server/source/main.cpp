@@ -1,6 +1,9 @@
 #include "main.hpp"
 
+#include <enet/enet.h>
 #include "network_server.hpp"
+
+using namespace gangsta::sf_net;
 
 Server* server = nullptr;
 

@@ -1,5 +1,8 @@
 #include "main.hpp"
 
+#include <enet/enet.h>
+#include "network_client.hpp"
+
 int main() {
     if (enet_initialize() != 0) {
         std::cerr << "Failed to initialize ENet!" << std::endl;

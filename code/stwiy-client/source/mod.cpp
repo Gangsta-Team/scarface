@@ -5,8 +5,31 @@
 #include "hooks.hpp"
 #include "gameEventPools.hpp"
 
+#include <enet/enet.h>
+#include "network_client.hpp"
+
+using namespace gangsta::sf_net;
+
 namespace gangsta
 {
+
+    Client* client = nullptr;
+
+    class ClientEvents : public ClientInterface {
+    public:
+        void onClientConnect(ENetEvent event) override {
+            std::cout << "[CLIENT]::Client connected: " << event.peer->address.host << ":" << event.peer->address.port << std::endl;
+        }
+
+        void onClientDisconnect(ENetEvent event) override {
+            std::cout << "[CLIENT]::Client disconnected: " << event.peer->address.host << ":" << event.peer->address.port << std::endl;
+        }
+
+        void onPacketReceived(ENetEvent event) override {
+            std::cout << "[CLIENT]::Packet received from client: " << event.peer->address.host << ":" << event.peer->address.port << std::endl;
+        }
+    };
+
 
     // Called at DllMain
     void CMod::InitSafe()
@@ -28,6 +51,13 @@ namespace gangsta
     {
         g_Pointers.Scan();
         g_Hooks.Hook();
+        
+        client = new Client();
+        ClientEvents ce;
+        client->SetInterface(&ce);
+
+        client->Connect("localhost", 1234);
+        client->Update();
     }
 
     // Called often in Thread

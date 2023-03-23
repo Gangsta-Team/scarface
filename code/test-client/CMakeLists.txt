@@ -12,9 +12,10 @@ file(GLOB TestClient
 )
 
 include_directories(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/source/)
+include_directories(${PROJECT_NAME} ../stwiy-net/src/)
 include_directories(${PROJECT_NAME} ../vendor/enet/)
 include_directories(${PROJECT_NAME} ../vendor/enet/include/)
 
 add_executable(${PROJECT_NAME} ${TestClient})
-target_link_libraries(${PROJECT_NAME} nlohmann_json::nlohmann_json Ws2_32.lib winmm.lib enet)
+target_link_libraries(${PROJECT_NAME} nlohmann_json::nlohmann_json sf_net Ws2_32.lib winmm.lib enet)
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".exe")

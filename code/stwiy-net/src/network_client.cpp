@@ -58,7 +58,7 @@ namespace gangsta::sf_net {
 
     void Client::Update() {
         ENetEvent event;
-        while (enet_host_service(client_, &event, 1000) > 0) {
+        while (enet_host_service(client_, &event, 1000) > 0 && m_running) {
             switch (event.type) {
                 case ENET_EVENT_TYPE_CONNECT:
                     if (m_interface) {

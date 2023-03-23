@@ -14,7 +14,7 @@ file(GLOB StwiyServerSrc
 include_directories(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/source/)
 include_directories(${PROJECT_NAME} ../stwiy-net/src/)
 include_directories(${PROJECT_NAME} ../vendor/enet/)
-include_directories(${PROJECT_NAME} ../vendor/enet/includes/)
+include_directories(${PROJECT_NAME} ../vendor/enet/include/)
 
 add_executable(${PROJECT_NAME} ${StwiyServerSrc})
 target_link_libraries(${PROJECT_NAME} nlohmann_json::nlohmann_json sf_net)

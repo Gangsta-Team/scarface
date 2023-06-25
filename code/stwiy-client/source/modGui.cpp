@@ -16,6 +16,8 @@
 
 #include "gameutils/pure3dHelper.hpp"
 
+#include "packets.hpp"
+
 pure3dH                 *p3dh;
 D3DVIEWPORT9            d3dvp;
 CharacterObject         *pMainChar = nullptr;
@@ -61,10 +63,49 @@ const char* szCharacters[] = {
 
 int current_idx = 0;
 int old_idx = 0;
+
+
+OnFootSyncPacket CreateOnFootSyncPacket(float posX, float posY, float posZ,
+                                        float rotationPitch, float rotationYaw, float rotationRoll,
+                                        int animationState, int equipmentState, int skin) {
+    OnFootSyncPacket syncPacket;
+    syncPacket.posX = posX;
+    syncPacket.posY = posY;
+    syncPacket.posZ = posZ;
+    syncPacket.rotationPitch = rotationPitch;
+    syncPacket.rotationYaw = rotationYaw;
+    syncPacket.rotationRoll = rotationRoll;
+    syncPacket.animationState = animationState;
+    syncPacket.equipmentState = equipmentState;
+    syncPacket.skinId = skin;
+    return syncPacket;
+}
+
+void SendPacket(ENetPeer* peer, const RPCPacket& syncPacket) {
+    ENetPacket* packet = enet_packet_create(&syncPacket, sizeof(RPCPacket), ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(peer, 0, packet);
+    enet_host_flush(peer->host);
+}
+
+bool once = true;
 void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
 {
     if(ImGui::Begin("Debug"))
     {
+
+        if(once)
+        {
+            
+            RPCPacket syncPacket;
+            syncPacket.action = RPCAction::Interact;
+            syncPacket.playerId = 1;
+            // Set additional data fields as needed
+
+            client->CreatePacket(syncPacket);
+
+            once = false;
+
+        }
         // Game information
         Direct3DDevice9Proxy* currentProxy = Direct3DDevice9Proxy::GetCurrentProxy();
         currentProxy->GetViewport(&d3dvp);
@@ -90,10 +131,24 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
                 *(float*)((DWORD*)pMainChar + 0x19),
                 *(float*)((DWORD*)pMainChar + 0x1B)
             };
+            
+            //packet_pos.position.x = *(float*)((DWORD*)pMainChar + 0x1A);
+            //packet_pos.position.y = *(float*)((DWORD*)pMainChar + 0x19);
+            //packet_pos.position.z = *(float*)((DWORD*)pMainChar + 0x1B);
 
             ImGui::Text("Pos X: [%.5f] | Y: [%.5f] | Z: [%.5f]", vecMainChar.x, vecMainChar.y, vecMainChar.z);
         
             ImGui::Text("Skin: [%d] %s ", current_idx, szCharacters[current_idx]);
+
+            RPCPacket packet;
+            OnFootSyncPacket onFootSync = CreateOnFootSyncPacket(vecMainChar.x, vecMainChar.y, vecMainChar.z, 50.0f, 50.0f, 50.0f, 1, 2, current_idx);
+            RPCPacket rpcPacket;
+            rpcPacket.action = RPCAction::Walk;
+            rpcPacket.playerId = 0;
+            rpcPacket.onFootSync = onFootSync;
+            
+            client->SendPacket(rpcPacket);
+
             if(ImGui::Button("<"))
             {
                 current_idx--;
@@ -104,7 +159,15 @@ void gangsta::CMod::RunGui(bool* pGui, HWND hMainWindow)
             ImGui::SameLine();
             if(ImGui::Button("SELECT"))
             {
+                //packet.index = current_idx;
+                RPCPacket packet;
+                OnFootSyncPacket onFootSync = CreateOnFootSyncPacket(vecMainChar.x, vecMainChar.y, vecMainChar.z, 50.0f, 50.0f, 50.0f, 1, 2, current_idx);
+                RPCPacket rpcPacket;
+                rpcPacket.action = RPCAction::Walk;
+                rpcPacket.playerId = 0;
+                rpcPacket.onFootSync = onFootSync;
                 
+                client->SendPacket(rpcPacket);
             }
             ImGui::SameLine();
             if(ImGui::Button(">"))

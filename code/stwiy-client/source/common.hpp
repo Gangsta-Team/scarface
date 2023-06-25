@@ -29,4 +29,9 @@
 #include <gameobject/character/characterobject.hpp>
 #include <gameobject/character/characterobject.hpp>
 
+#include <enet/enet.h>
+#include "network_client.hpp"
+
+using namespace gangsta::sf_net;
+
 #endif

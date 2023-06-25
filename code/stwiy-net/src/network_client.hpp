@@ -2,8 +2,16 @@
 #define _NETWORK_CLIENT_HPP
 
 #include "common.hpp"
+#include <concurrentqueue.h>
+#include "packets.hpp"
 
 namespace gangsta::sf_net {
+
+    struct Packet {
+        const void* data;
+        size_t dataSize;
+        enet_uint32 flags;
+    };
 
     class ClientInterface {
     public:
@@ -14,6 +22,9 @@ namespace gangsta::sf_net {
 
     class Client {
     public:
+
+        // create a concurrent queue to hold packets
+        moodycamel::ConcurrentQueue<Packet> packetQueue;
         Client();
         ~Client();
 
@@ -22,8 +33,10 @@ namespace gangsta::sf_net {
 
         void SetInterface(ClientInterface* sv_interface);
         void Update();
+        void CreatePacket(const RPCPacket& syncPacket);
+        void SendPackets();
         void Send(const void* data, size_t dataSize, enet_uint32 flags = ENET_PACKET_FLAG_RELIABLE);
-
+        void SendPacket(const RPCPacket& syncPacket);
     private:
         ENetHost* client_;
         ENetPeer* peer_;

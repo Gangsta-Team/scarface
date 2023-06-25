@@ -40,6 +40,9 @@ namespace gangsta::sf_net {
         m_running = true;
         // Create a thread to handle incoming messages
         thread_ = std::thread(&Client::Update, this);
+
+        // start the packet sender
+        SendPackets();
     }
 
     void Client::Disconnect() {
@@ -56,31 +59,66 @@ namespace gangsta::sf_net {
         enet_host_flush(client_);
     }
 
+    void Client::SendPacket(const RPCPacket& syncPacket) {
+        ENetPacket* packet = enet_packet_create(&syncPacket, sizeof(RPCPacket), ENET_PACKET_FLAG_RELIABLE);
+        enet_peer_send(peer_, 0, packet);
+        enet_host_flush(peer_->host);
+    }
+
+    // function to create and enqueue a packet from another thread
+    void Client::CreatePacket(const RPCPacket& syncPacket) {
+        // Enqueue the RPCPacket into the concurrent queue
+        Packet packet;
+        packet.data = reinterpret_cast<const enet_uint8*>(&syncPacket);
+        packet.dataSize = sizeof(RPCPacket);
+        packet.flags = ENET_PACKET_FLAG_RELIABLE;
+        packetQueue.enqueue(packet);
+    }
+    // function to send packets from the queue
+    void Client::SendPackets() {
+        while (true) {
+            // try to dequeue a packet from the queue
+            Packet packet;
+            if (packetQueue.try_dequeue(packet)) {
+                // create a new ENet packet from the dequeued packet data
+                ENetPacket* enetPacket = enet_packet_create(packet.data, packet.dataSize, packet.flags);
+                // send the packet using the ENet client
+                enet_peer_send(peer_, 0, enetPacket);
+                // flush the host to send any pending packets
+                enet_host_flush(client_);
+            }
+            // add a small delay to prevent busy waiting
+            std::this_thread::sleep_for(std::chrono::microseconds(10));
+        }
+    }
+
     void Client::Update() {
         ENetEvent event;
-        while (enet_host_service(client_, &event, 1000) > 0 && m_running) {
-            switch (event.type) {
-                case ENET_EVENT_TYPE_CONNECT:
-                    if (m_interface) {
-                        m_interface->onClientConnect(event);
-                    }
-                    break;
+        while(true){
+            while (enet_host_service(client_, &event, 1000) > 0) {
+                switch (event.type) {
+                    case ENET_EVENT_TYPE_CONNECT:
+                        if (m_interface) {
+                            m_interface->onClientConnect(event);
+                        }
+                        break;
 
-                case ENET_EVENT_TYPE_DISCONNECT:
-                    if (m_interface) {
-                        m_interface->onClientDisconnect(event);
-                    }
-                    break;
+                    case ENET_EVENT_TYPE_DISCONNECT:
+                        if (m_interface) {
+                            m_interface->onClientDisconnect(event);
+                        }
+                        break;
 
-                case ENET_EVENT_TYPE_RECEIVE:
-                    if (m_interface) {
-                        m_interface->onPacketReceived(event);
-                        enet_packet_destroy(event.packet);
-                    }
-                    break;
+                    case ENET_EVENT_TYPE_RECEIVE:
+                        if (m_interface) {
+                            m_interface->onPacketReceived(event);
+                            enet_packet_destroy(event.packet);
+                        }
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
         }
     }

@@ -22,6 +22,7 @@ set(SF_NET_SOURCES
     src/network_client.hpp
     src/network_server.cpp
     src/network_server.hpp
+    src/packets.hpp
 )
 
 add_library(${SF_NET_LIB_MAIN} ${SF_NET_SOURCES})
@@ -31,6 +32,7 @@ target_include_directories(${SF_NET_LIB_MAIN} PUBLIC src/)
 # enet
 target_include_directories(${SF_NET_LIB_MAIN} PUBLIC ../vendor/enet/)
 target_include_directories(${SF_NET_LIB_MAIN} PUBLIC ../vendor/enet/include/)
+target_include_directories(${SF_NET_LIB_MAIN} PUBLIC ../vendor/concurrentqueue/)
 target_link_libraries(${SF_NET_LIB_MAIN} PUBLIC Ws2_32.lib winmm.lib enet)
 
 IF (SF_NET_DEBUG)

@@ -2,6 +2,7 @@
 #define _NETWORK_SERVER_HPP
 
 #include "common.hpp"
+#include "packets.hpp"
 
 namespace gangsta::sf_net {
     class ServerInterface {
@@ -18,7 +19,8 @@ namespace gangsta::sf_net {
 
         void Start();
         void Stop();
-        void Send(ENetPeer* peer, const std::string& message);
+        void Send(ENetPeer* peer, const RPCPacket& syncPacket);
+        void Broadcast(ENetHost* host, const std::string& message);
 
         void SetInterface(ServerInterface* sv_interface);
         void Update();

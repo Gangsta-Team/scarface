@@ -5,15 +5,13 @@
 #include "hooks.hpp"
 #include "gameEventPools.hpp"
 
-#include <enet/enet.h>
-#include "network_client.hpp"
-
-using namespace gangsta::sf_net;
+Client* client = nullptr;
 
 namespace gangsta
 {
-
-    Client* client = nullptr;
+    struct PACKET_PING{
+        std::string ping;
+    };
 
     class ClientEvents : public ClientInterface {
     public:
@@ -57,13 +55,17 @@ namespace gangsta
         client->SetInterface(&ce);
 
         client->Connect("localhost", 1234);
-        client->Update();
     }
 
     // Called often in Thread
     void CMod::RunLoop()
     {
-        
+        //PACKET_PING packet_ping;
+        //packet_ping.ping = "ping";
+        //client->Send(&packet_ping, sizeof(packet_ping), ENET_PACKET_FLAG_RELIABLE);
+
+        // create a packet from another thread and enqueue it
+        //client->CreatePacket("Hello, ENet!", 13, 0);
     }
 
     // No cleanup or anything because its a onetime load mod :-)
